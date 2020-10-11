@@ -43,6 +43,4 @@ CHIP DMux8Way {
 	
 	And(a=twofirstbits11 ,b=notsel0 ,out=g );						//Verifica se o bit da direita do seletor está a 0 (100)
 	And(a=twofirstbits11 ,b=sel[0] ,out=h );						//Verifica se o bit da direita do seletor está a 1 (101)
-
-	
 }

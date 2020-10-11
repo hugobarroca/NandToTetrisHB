@@ -29,7 +29,5 @@ CHIP DMux4Way {
 	And(a=in ,b=sel[1] ,out=thirdandhalf );
 	
 	And(a=thirdandhalf ,b=notsel0 ,out=c );
-	And(a=thirdandhalf ,b=sel[0] ,out=d );
-	
-	
+	And(a=thirdandhalf ,b=sel[0] ,out=d );	
 }

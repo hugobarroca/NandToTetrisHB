@@ -32,6 +32,5 @@ CHIP Mux {
 	
 	And(a=nand1 ,b=nand2 ,out=and12 );
 	And(a=nand3 ,b=nand4 ,out=and34 );
-	Nand(a=and12 ,b=and34 ,out=out );
-	
+	Nand(a=and12 ,b=and34 ,out=out );	
 }
