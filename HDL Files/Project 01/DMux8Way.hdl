@@ -16,31 +16,7 @@ CHIP DMux8Way {
     OUT a, b, c, d, e, f, g, h;
 
     PARTS:
-	Not(in=sel[0] ,out=notsel0 ); 
-	Not(in=sel[1] ,out=notsel1 );
-	Not(in=sel[2] ,out=notsel2 );
-	
-	
-	And(a=in ,b=notsel2 ,out=firstbit0 ); 							//Verifica se o Input está a 1, e primeiro bit do seletor está a 0
-	And(a=firstbit0 ,b=notsel1 ,out=twofirstbits00 );				//Verifica se o segundo bit do seletor está a 0
-	
-	And(a=twofirstbits00 ,b=notsel0 ,out=a );						//Verifica se o bit da direita do seletor está a 0 (000)
-	And(a=twofirstbits00 ,b=sel[0] ,out=b );						//Verifica se o bit da direita do seletor está a 1 (001)
-	
-	
-	And(a=firstbit0 ,b=sel[1] ,out=twofirstbits01 );				//Verifica se o segundo bit do seletor está a 1
-	
-	And(a=twofirstbits01 ,b=notsel0 ,out=c );						//Verifica se o bit da direita do seletor está a 0 (010)
-	And(a=twofirstbits01 ,b=sel[0] ,out=d );						//Verifica se o bit da direita do seletor está a 1 (011)
-	
-	And(a=in ,b=sel[2] ,out=firstbit1 ); 							//Verifica se o Input está a 1, e o bit mais à esquerda do seletor está a 1
-	And(a=firstbit1 ,b=notsel1 ,out=twofirstbits10 );				//Verifica se o segundo bit do seletor está a 0
-	
-	And(a=twofirstbits10 ,b=notsel0 ,out=e );						//Verifica se o bit da direita do seletor está a 0 (100)
-	And(a=twofirstbits10 ,b=sel[0] ,out=f );						//Verifica se o bit da direita do seletor está a 1 (101)
-	
-	And(a=firstbit1 ,b=sel[1] ,out=twofirstbits11 );				//Verifica se o segundo bit do seletor está a 1
-	
-	And(a=twofirstbits11 ,b=notsel0 ,out=g );						//Verifica se o bit da direita do seletor está a 0 (100)
-	And(a=twofirstbits11 ,b=sel[0] ,out=h );						//Verifica se o bit da direita do seletor está a 1 (101)
+	DMux(in=in ,sel=sel[2] ,a=smallDmuxA ,b=smallDmuxB);
+	DMux4Way(in=smallDmuxA ,sel=sel[0..1] ,a=a ,b=b ,c=c ,d=d );
+	DMux4Way(in=smallDmuxB ,sel=sel[0..1] ,a=e ,b=f ,c=g ,d=h );
 }
