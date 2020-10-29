@@ -17,10 +17,10 @@ class CodifierTest {
 				+ "1110001100001000\n";
 		Parser parser = new Parser("Add.asm");
 		Codifier codifier = new Codifier(parser.readFile());
-		codifier.parseInstructions();
+		codifier.codeInstructionsToBinary();
 		//System.out.println(codifier.parseInstructions());
 		System.out.println(expectedResult);
-		assert(codifier.parseInstructions().equals(expectedResult));
+		assert(codifier.codeInstructionsToBinary().equals(expectedResult));
 	}
 
 }
