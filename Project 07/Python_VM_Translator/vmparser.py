@@ -11,10 +11,12 @@ class VMParser:
         except FileNotFoundError:
             print("The referenced file \"" + input_file_path
                   + "\" does not exist in the provided path. Please check for spelling errors.")
+        else:
+            self.current_line_pointer = 0
 
     # Returns true if there are more lines in the input, false otherwise.
     def has_more_commands(self):
-        if not self.file_lines:
+        if self.current_line_pointer < len(self.file_lines):
             return True
         else:
             return False
