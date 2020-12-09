@@ -7,15 +7,17 @@ class VMParser:
     def __init__(self, input_file_path):
         try:
             with open(input_file_path, encoding='utf-8') as f:
-                self.file_contents = f.read()
+                self.file_lines = f.readlines()
         except FileNotFoundError:
             print("The referenced file \"" + input_file_path
                   + "\" does not exist in the provided path. Please check for spelling errors.")
 
     # Returns true if there are more lines in the input, false otherwise.
     def has_more_commands(self):
-        # TODO : Add in the code
-        print('Hi!')
+        if not self.file_lines:
+            return True
+        else:
+            return False
 
     # Advances the command that is meant to be read in the input string
     def advance(self):
