@@ -23,13 +23,18 @@ class VMParser:
 
     # Advances the command that is meant to be read in the input string
     def advance(self):
-        # TODO : Add in the code
-        print('Hi!')
+        if self.current_line_pointer < len(self.file_lines):
+            return True
+        else:
+            return False
 
     # Returns the type of the current command
-    def commandType(self):
+    def command_type(self):
         # TODO : Add in the code
-        print('Hi!')
+        current_line = self.file_lines(self.current_line_pointer)
+        if current_line == 'add':
+            return 'add'
+
 
     # Returns the first argument of the current command
     def arg1(self):
