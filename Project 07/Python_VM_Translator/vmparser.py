@@ -34,6 +34,8 @@ class VMParser:
         current_line = self.file_lines(self.current_line_pointer)
         if current_line == 'add':
             return 'add'
+        if current_line == 'sub':
+            return 'sub'
 
 
     # Returns the first argument of the current command
