@@ -13,37 +13,44 @@ class VMParser:
                   + "\" does not exist in the provided path. Please check for spelling errors.")
         else:
             self.current_line_pointer = 0
+        self.remove_white_spaces()
+
+    # Removes whitespace from every line in the program
+    def remove_white_spaces(self):
+        for line in self.file_lines:
+            line.strip()
 
     # Returns true if there are more lines in the input, false otherwise.
     def has_more_commands(self):
-        if self.current_line_pointer < len(self.file_lines):
+        if self.current_line_pointer < len(self.file_lines) - 1:
             return True
         else:
             return False
 
     # Advances the command that is meant to be read in the input string
     def advance(self):
-        if self.current_line_pointer < len(self.file_lines):
-            return True
+        if self.current_line_pointer < len(self.file_lines) - 1:
+            self.current_line_pointer += 1
         else:
             return False
 
     # Returns the type of the current command
     def command_type(self):
-        # TODO : Add in the code
-        current_line = self.file_lines(self.current_line_pointer)
-        if current_line == 'add':
-            return 'add'
-        if current_line == 'sub':
-            return 'sub'
-
+        arithmetic_commands = {'add', 'sub', 'neg'}
+        current_line = self.file_lines[self.current_line_pointer]
+        if current_line in arithmetic_commands:
+            return 'C_ARITHMETIC'
+        if current_line.startswith('push'):
+            return 'C_PUSH'
+        if current_line.startswith('pop'):
+            return 'C_POP'
 
     # Returns the first argument of the current command
     def arg1(self):
-        # TODO : Add in the code
-        print('Hi!')
+        current_line = self.file_lines[self.current_line_pointer]
+        return current_line.split(" ")[1]
 
-    # Returns the second argument of the current command
+    # Returns the first argument of the current command
     def arg2(self):
-        # TODO : Add in the code
-        print('Hi!')
+        current_line = self.file_lines(self.current_line_pointer)
+        return current_line.split(" ")[2]

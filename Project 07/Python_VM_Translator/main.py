@@ -1,11 +1,10 @@
+from VMController import VMController
 from vmparser import VMParser
 
 
 class Main:
     if __name__ == '__main__':
-        while True:
-            user_input = input("Please enter the filename: \n")
-            if user_input == "q":
-                print("Exiting the program.")
-                break
-            my_parser = VMParser(user_input)
+        controller = VMController()
+        controller.handle_user_input()
+
+# Files/SimpleAdd/SimpleAdd.vm
