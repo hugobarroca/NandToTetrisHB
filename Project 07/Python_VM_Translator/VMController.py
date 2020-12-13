@@ -34,11 +34,11 @@ class VMController:
             my_parser.read_file()
         except FileNotFoundError:
             return
-
+        my_parser.remove_white_spaces()
         while my_parser.has_more_commands():
             command_type = my_parser.command_type()
             if command_type == 'C_ARITHMETIC':
-                my_writer.write_arithmetic()
+                my_writer.write_arithmetic(my_parser.get_current_line())
             my_parser.advance()
 
         my_writer.write_to_file()

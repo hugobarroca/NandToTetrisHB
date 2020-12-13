@@ -21,19 +21,21 @@ class VMParser:
 
     # Removes whitespace from every line in the program
     def remove_white_spaces(self):
+        new_file_lines = []
         for line in self.file_lines:
-            line.strip()
+            new_file_lines.append(line.strip(' \r\n'))
+        self.file_lines = new_file_lines
 
-    # Returns true if there are more lines in the input, false otherwise.
+    # Returns true as long as the current command is still being processed.
     def has_more_commands(self):
-        if self.current_line_pointer < len(self.file_lines) - 1:
+        if self.current_line_pointer < len(self.file_lines):
             return True
         else:
             return False
 
     # Advances the command that is meant to be read in the input string
     def advance(self):
-        if self.current_line_pointer < len(self.file_lines) - 1:
+        if self.current_line_pointer < len(self.file_lines):
             self.current_line_pointer += 1
         else:
             return False
@@ -41,7 +43,7 @@ class VMParser:
     # Returns the type of the current command
     def command_type(self):
         arithmetic_commands = {'add', 'sub', 'neg'}
-        current_line = self.file_lines[self.current_line_pointer]
+        current_line = self.get_current_line()
         if current_line in arithmetic_commands:
             return 'C_ARITHMETIC'
         if current_line.startswith('push'):
@@ -58,3 +60,6 @@ class VMParser:
     def arg2(self):
         current_line = self.file_lines(self.current_line_pointer)
         return current_line.split(" ")[2]
+
+    def get_current_line(self):
+        return self.file_lines[self.current_line_pointer]

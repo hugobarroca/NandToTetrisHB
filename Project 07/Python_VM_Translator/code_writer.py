@@ -18,7 +18,8 @@ class VMCodeWriter:
     def write_arithmetic(self, arithmetic_command):
         # TODO
         if arithmetic_command.startswith('add'):
-            self.output_content += '@0\nM = M - 1\nA = M\nD = M\nA = A - 1\nM = D + M\n'
+            self.output_content += '// The following code adds two stack items.\n' \
+                                   '@0\nM = M - 1\nA = M\nD = M\nA = A - 1\nM = D + M\n'
 
     def write_push_pop(self):
         # TODO Write this function
