@@ -5,15 +5,19 @@ class VMParser:
 
     # Initiates the file_contents variable with the contents of the supplied file.
     def __init__(self, input_file_path):
+        self.input_file_path = input_file_path
+        self.file_lines = []
+        self.current_line_pointer = 0
+
+    # Reads the file and saves the contents in a list.
+    def read_file(self):
         try:
-            with open(input_file_path, encoding='utf-8') as f:
+            with open(self.input_file_path, encoding='utf-8') as f:
                 self.file_lines = f.readlines()
         except FileNotFoundError:
-            print("The referenced file \"" + input_file_path
+            print("The referenced file \"" + self.input_file_path
                   + "\" does not exist in the provided path. Please check for spelling errors.")
-        else:
-            self.current_line_pointer = 0
-        self.remove_white_spaces()
+            raise FileNotFoundError
 
     # Removes whitespace from every line in the program
     def remove_white_spaces(self):
