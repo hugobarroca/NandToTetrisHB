@@ -24,7 +24,7 @@ class VMCodeWriter:
         # TODO Write this function
         if command == 'C_PUSH':
             if segment == 'constant':
-                self.output_content += '// push contant ' + index + '\n@' + index + '\nD=A\n@SP\nM=M+1\nA=M-1\nM=D\n'
+                self.output_content += '// push constant ' + index + '\n@' + index + '\nD=A\n@SP\nM=M+1\nA=M-1\nM=D\n'
         else:
             pass
 
