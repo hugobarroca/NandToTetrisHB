@@ -51,10 +51,15 @@ class VMParser:
         if current_line.startswith('pop'):
             return 'C_POP'
 
-    # Returns the first argument of the current command
+    # Returns the first argument of the current command. In case of a C_ARITHMETIC, it returns the command itself.
     def arg1(self):
         current_line = self.file_lines[self.current_line_pointer]
-        return current_line.split(" ")[1]
+        if self.command_type() == 'C_ARITHMETIC':
+            return current_line.strip(' \n\r')
+        elif self.command_type() == 'C_RETURN':
+            return
+        else:
+            return current_line.split(" ")[1]
 
     # Returns the first argument of the current command
     def arg2(self):

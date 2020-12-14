@@ -38,10 +38,12 @@ class VMController:
         while my_parser.has_more_commands():
             command_type = my_parser.command_type()
             if command_type == 'C_ARITHMETIC':
-                my_writer.write_arithmetic(my_parser.get_current_line())
+                my_writer.write_arithmetic(my_parser.arg1())
             my_parser.advance()
 
         my_writer.write_to_file()
+        print('Requested file has been translated successfully. Quiting program.')
+        sys.exit()
 
     # Detects if the current command is a quit command.
     def is_quit_command(self):
