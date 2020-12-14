@@ -39,6 +39,8 @@ class VMController:
             command_type = my_parser.command_type()
             if command_type == 'C_ARITHMETIC':
                 my_writer.write_arithmetic(my_parser.arg1())
+            if command_type == 'C_PUSH':
+                my_writer.write_push_pop(my_parser.command_type(), my_parser.arg1(), my_parser.arg2())
             my_parser.advance()
 
         my_writer.write_to_file()

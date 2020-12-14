@@ -63,7 +63,7 @@ class VMParser:
 
     # Returns the first argument of the current command
     def arg2(self):
-        current_line = self.file_lines(self.current_line_pointer)
+        current_line = self.file_lines[self.current_line_pointer]
         return current_line.split(" ")[2]
 
     def get_current_line(self):
