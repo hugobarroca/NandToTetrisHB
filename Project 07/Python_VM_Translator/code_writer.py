@@ -21,6 +21,8 @@ class VMCodeWriter:
             self.output_content += '// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D+M\n'
         if arithmetic_command.startswith('sub'):
             self.output_content += '// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D-M\n'
+        if arithmetic_command.startswith('eq'):
+            '//eq\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=D-M\nD;JEQ\n'
 
     def write_push_pop(self, command, segment,index):
         # TODO Write this function
