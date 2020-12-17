@@ -42,7 +42,7 @@ class VMParser:
 
     # Returns the type of the current command
     def command_type(self):
-        arithmetic_commands = {'add', 'sub', 'neg'}
+        arithmetic_commands = {'add', 'sub', 'lt', 'gt', 'and', 'or', 'neg', 'not', 'eq'}
         current_line = self.get_current_line()
         if current_line in arithmetic_commands:
             return 'C_ARITHMETIC'

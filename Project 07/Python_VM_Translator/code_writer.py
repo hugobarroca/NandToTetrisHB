@@ -30,6 +30,15 @@ class VMCodeWriter:
         if arithmetic_command.startswith('gt'):
             self.output_content += '//eq\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=D-M\n@JUMP\nD;JGT\n@0\nD=A\n@SP\nA=M-1\nM=D\n' \
                                    '0;JMP\n(JUMP)\n@1\nD=-A\n@SP\nA=M-1\nM=D\n(END)\n@END\n0;JMP\n'
+        if arithmetic_command.startswith('and'):
+            self.output_content += '// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D&M\n'
+        if arithmetic_command.startswith('or'):
+            self.output_content += '// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D&M\n'
+        if arithmetic_command.startswith('neg'):
+            self.output_content += '// neg\n @ SP\nA = M\nM =-M\n'
+        if arithmetic_command.startswith('not'):
+            self.output_content += '// not\n @ SP\nA = M\nM =!M\n'
+
 
     def write_push_pop(self, command, segment,index):
         # TODO Write this function
