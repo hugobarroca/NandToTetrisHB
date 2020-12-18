@@ -2,6 +2,7 @@
 class VMCodeWriter:
 
     def __init__(self, output_file):
+        self.jump_pointer = 0
         self.output_file = output_file
         self.output_content = ''
         pass
@@ -22,14 +23,11 @@ class VMCodeWriter:
         if arithmetic_command.startswith('sub'):
             self.output_content += '// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D-M\n'
         if arithmetic_command.startswith('eq'):
-            self.output_content += '// eq\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=D-M\n@JUMP\nD;JEQ\n@0\nD=A\n@SP\nA=M-1\nM=D\n' \
-                                   '0;JMP\n(JUMP)\n@1\nD=-A\n@SP\nA=M-1\nM=D\n(END)\n@END\n0;JMP\n'
+            self.handle_jump('eq')
         if arithmetic_command.startswith('lt'):
-            self.output_content += '// lt\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=D-M\n@JUMP\nD;JLT\n@0\nD=A\n@SP\nA=M-1\nM=D\n' \
-                                   '0;JMP\n(JUMP)\n@1\nD=-A\n@SP\nA=M-1\nM=D\n(END)\n@END\n0;JMP\n'
+            self.handle_jump('lt')
         if arithmetic_command.startswith('gt'):
-            self.output_content += '// gt\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=D-M\n@JUMP\nD;JGT\n@0\nD=A\n@SP\nA=M-1\nM=D\n' \
-                                   '0;JMP\n(JUMP)\n@1\nD=-A\n@SP\nA=M-1\nM=D\n(END)\n@END\n0;JMP\n'
+            self.handle_jump('gt')
         if arithmetic_command.startswith('and'):
             self.output_content += '// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D&M\n'
         if arithmetic_command.startswith('or'):
@@ -39,8 +37,7 @@ class VMCodeWriter:
         if arithmetic_command.startswith('not'):
             self.output_content += '// not\n@SP\nA=M\nM=!M\n'
 
-
-    def write_push_pop(self, command, segment,index):
+    def write_push_pop(self, command, segment, index):
         # TODO Write this function
         if command == 'C_PUSH':
             if segment == 'constant':
@@ -48,3 +45,17 @@ class VMCodeWriter:
         else:
             pass
 
+    def handle_jump(self, command_type):
+        if command_type == 'gt':
+            jump_type = 'JGT'
+        elif command_type == 'lt':
+            jump_type = 'JLT'
+        else:
+            jump_type = 'JMP'
+
+        self.output_content += '// ' + command_type + '\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=D-M\n@JUMP.'
+        self.output_content += str(self.jump_pointer)
+        self.output_content += '\nD;' + jump_type + '\n@0\nD=A\n@SP\nA=M-1\nM=D\n0;JMP\n(JUMP.'
+        self.output_content += str(self.jump_pointer) + ')\n@1\nD=-A\n@SP\nA=M-1\nM=D\n'
+
+        self.jump_pointer = self.jump_pointer + 1
