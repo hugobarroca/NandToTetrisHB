@@ -50,12 +50,14 @@ class VMCodeWriter:
             jump_type = 'JGT'
         elif command_type == 'lt':
             jump_type = 'JLT'
-        else:
-            jump_type = 'JMP'
+        elif command_type == 'eq':
+            jump_type = 'JEQ'
 
         self.output_content += '// ' + command_type + '\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=D-M\n@JUMP.'
         self.output_content += str(self.jump_pointer)
-        self.output_content += '\nD;' + jump_type + '\n@0\nD=A\n@SP\nA=M-1\nM=D\n0;JMP\n(JUMP.'
-        self.output_content += str(self.jump_pointer) + ')\n@1\nD=-A\n@SP\nA=M-1\nM=D\n'
+        self.output_content += '\nD;' + jump_type + '\n@0\nD=A\n@SP\nA=M-1\nM=D\n@END.' + str(self.jump_pointer) +\
+                               '\n0;JMP\n(JUMP.'
+        self.output_content += str(self.jump_pointer) + ')\n@1\nD=-A\n@SP\nA=M-1\nM=D\n(END.' \
+                               + str(self.jump_pointer) + ')'
 
         self.jump_pointer = self.jump_pointer + 1
