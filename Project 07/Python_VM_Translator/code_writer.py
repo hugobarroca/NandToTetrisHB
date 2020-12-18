@@ -31,7 +31,7 @@ class VMCodeWriter:
         if arithmetic_command.startswith('and'):
             self.output_content += '// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D&M\n'
         if arithmetic_command.startswith('or'):
-            self.output_content += '// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D&M\n'
+            self.output_content += '// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D|M\n'
         if arithmetic_command.startswith('neg'):
             self.output_content += '// neg\n@SP\nA=M-1\nM=-M\n'
         if arithmetic_command.startswith('not'):
