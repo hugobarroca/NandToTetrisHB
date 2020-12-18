@@ -19,9 +19,9 @@ class VMCodeWriter:
     def write_arithmetic(self, arithmetic_command):
         # TODO
         if arithmetic_command.startswith('add'):
-            self.output_content += '// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D+M\n'
+            self.output_content += '// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M+D\n'
         if arithmetic_command.startswith('sub'):
-            self.output_content += '// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D-M\n'
+            self.output_content += '// sub\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D\n'
         if arithmetic_command.startswith('eq'):
             self.handle_jump('eq')
         if arithmetic_command.startswith('lt'):
