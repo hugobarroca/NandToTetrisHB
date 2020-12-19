@@ -1,5 +1,5 @@
-from code_writer import VMCodeWriter
-from vmparser import VMParser
+from CodeWriter import VMCodeWriter
+from VMParser import VMParser
 import sys
 
 
@@ -29,7 +29,7 @@ class VMController:
         user_input_parser = VMParser(self.current_user_command)
         assembly_program_writer = VMCodeWriter(assembly_file_name)
         try:
-            user_input_parser.read_file()
+            user_input_parser.read_file_lines_into_a_list()
         except FileNotFoundError:
             print('The referenced file could not be found. Check filename and path for typing errors.')
             return

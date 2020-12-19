@@ -8,13 +8,11 @@ class VMParser:
         self.file_lines = []
         self.current_line_pointer = 0
 
-    def read_file(self):
+    def read_file_lines_into_a_list(self):
         try:
             with open(self.input_file_path, encoding='utf-8') as f:
                 self.file_lines = f.readlines()
         except FileNotFoundError:
-            print("The referenced file \"" + self.input_file_path
-                  + "\" does not exist in the provided path. Please check for spelling errors.")
             raise FileNotFoundError
 
     def remove_whitespaces_and_newlines(self):
