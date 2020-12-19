@@ -23,17 +23,11 @@ class VMParser:
 
     # Returns true as long as the current command is still being processed.
     def has_more_commands(self):
-        if self.current_line_pointer < len(self.file_lines):
-            return True
-        else:
-            return False
+        return self.current_line_pointer < len(self.file_lines)
 
     # Advances the command that is meant to be read in the input string
     def advance(self):
-        if self.current_line_pointer < len(self.file_lines):
-            self.current_line_pointer += 1
-        else:
-            return False
+        self.current_line_pointer += 1 if self.has_more_commands() else False
 
     # Returns the type of the current command
     def command_type(self):
@@ -56,7 +50,6 @@ class VMParser:
         else:
             return current_line.split(" ")[1]
 
-    # Returns the first argument of the current command
     def arg2(self):
         current_line = self.file_lines[self.current_line_pointer]
         return current_line.split(" ")[2]

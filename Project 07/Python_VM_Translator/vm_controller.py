@@ -48,6 +48,4 @@ class VMController:
 
     def is_quit_command(self):
         quit_program_commands = {'q', 'quit', 'exit'}
-        if self.current_user_command in quit_program_commands:
-            return True
-        return False
+        return self.current_user_command in quit_program_commands
