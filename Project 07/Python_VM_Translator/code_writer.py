@@ -49,6 +49,8 @@ class VMCodeWriter:
                 self.handle_push(segment, 'THIS', index)
             if segment == 'that':
                 self.handle_push(segment, 'THAT', index)
+            if segment == 'temp':
+                self.handle_push(segment, '5', index)
         elif command == 'C_POP':
             if segment == 'local':
                 self.handle_pop(segment, 'LCL', index)
@@ -58,6 +60,8 @@ class VMCodeWriter:
                 self.handle_pop(segment, 'THIS', index)
             if segment == 'that':
                 self.handle_pop(segment, 'THAT', index)
+            if segment == 'temp':
+                self.handle_pop(segment, '5', index)
         else:
             pass
 
