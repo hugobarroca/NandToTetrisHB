@@ -51,6 +51,8 @@ class VMCodeWriter:
                 self.handle_push(segment, 'THAT', index)
             if segment == 'temp':
                 self.handle_push(segment, '5', index)
+            if segment == 'pointer':
+                self.handle_pointer_push(index)
         elif command == 'C_POP':
             if segment == 'local':
                 self.handle_pop(segment, 'LCL', index)
@@ -62,8 +64,24 @@ class VMCodeWriter:
                 self.handle_pop(segment, 'THAT', index)
             if segment == 'temp':
                 self.handle_pop(segment, '5', index)
+            if segment == 'pointer':
+                self.handle_pointer_pop(index)
         else:
             pass
+
+    def handle_pointer_push(self, index):
+        if index == 0:
+            self.output_content += '//push pointer 0\n@THIS\nD=M\n@SP\nM=M+1\nA=M-1\nM=D'
+        else:
+            self.output_content += '//push pointer 1\n@THAT\nD=M\n@SP\nM=M+1\nA=M-1\nM=D'
+
+    def handle_pointer_pop(self, index):
+        if index == 0:
+            self.output_content += '//pop pointer 0\n@SP\nM=M-1\nD=M\n@THIS\nM=D'
+        else:
+            self.output_content += '//pop pointer 1\n@SP\nM=M-1\nD=M\n@THAT\nM=D'
+
+
 
     def handle_pop(self, segment_name, base_address, index):
         self.output_content += '//pop ' + segment_name + ' ' + index + '\n@SP\nM=M-1\nA=M+1\nD=M\n@' \
