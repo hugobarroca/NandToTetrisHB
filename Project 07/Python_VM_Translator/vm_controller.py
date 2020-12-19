@@ -1,5 +1,5 @@
-from CodeWriter import VMCodeWriter
-from VMParser import VMParser
+from code_writer import VMCodeWriter
+from vm_parser import VMParser
 import sys
 
 
@@ -42,7 +42,7 @@ class VMController:
                 assembly_writer.write_push_pop(vm_parser.command_type(), vm_parser.arg1(),
                                                vm_parser.arg2())
             vm_parser.advance()
-        assembly_writer.write_to_file()
+        assembly_writer.write_output_to_file()
         print('Requested file has been translated successfully. Quiting program.')
         sys.exit()
 

@@ -1,4 +1,4 @@
-from VMController import VMController
+from vm_controller import VMController
 
 
 class Main:
