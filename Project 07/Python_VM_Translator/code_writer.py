@@ -22,11 +22,11 @@ class VMCodeWriter:
         if arithmetic_command.startswith('sub'):
             self.output_content += '// sub\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D\n'
         if arithmetic_command.startswith('eq'):
-            self.handle_jump('eq')
+            self.handle_jump('eq', 'JEQ')
         if arithmetic_command.startswith('lt'):
-            self.handle_jump('lt')
+            self.handle_jump('lt', 'JLT')
         if arithmetic_command.startswith('gt'):
-            self.handle_jump('gt')
+            self.handle_jump('gt', 'JGT')
         if arithmetic_command.startswith('and'):
             self.output_content += '// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D&M\n'
         if arithmetic_command.startswith('or'):
@@ -44,14 +44,7 @@ class VMCodeWriter:
         else:
             pass
 
-    def handle_jump(self, jump_condition):
-        if jump_condition == 'gt':
-            jump_type = 'JGT'
-        elif jump_condition == 'lt':
-            jump_type = 'JLT'
-        elif jump_condition == 'eq':
-            jump_type = 'JEQ'
-
+    def handle_jump(self, jump_condition, jump_type):
         self.output_content += '// ' + jump_condition + '\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=M-D\n@JUMP.'
         self.output_content += str(self.jump_pointer) + '\nD;' + jump_type
         self.output_content += '\n@0\nD=A\n@SP\nA=M-1\nM=D\n@END.' + str(self.jump_pointer) + '\n0;JMP\n(JUMP.'
