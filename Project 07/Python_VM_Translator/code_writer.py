@@ -18,9 +18,9 @@ class VMCodeWriter:
 
     def write_arithmetic(self, arithmetic_command):
         if arithmetic_command.startswith('add'):
-            self.output_content += '// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M+D\n'
+            self.handle_operation('add', '+')
         if arithmetic_command.startswith('sub'):
-            self.output_content += '// sub\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D\n'
+            self.handle_operation('sub', '-')
         if arithmetic_command.startswith('eq'):
             self.handle_jump('eq', 'JEQ')
         if arithmetic_command.startswith('lt'):
@@ -28,13 +28,13 @@ class VMCodeWriter:
         if arithmetic_command.startswith('gt'):
             self.handle_jump('gt', 'JGT')
         if arithmetic_command.startswith('and'):
-            self.output_content += '// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D&M\n'
+            self.handle_operation('and', '&')
         if arithmetic_command.startswith('or'):
-            self.output_content += '// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D|M\n'
+            self.handle_operation('or', '|')
         if arithmetic_command.startswith('neg'):
-            self.output_content += '// neg\n@SP\nA=M-1\nM=-M\n'
+            self.handle_negation('neg', '-')
         if arithmetic_command.startswith('not'):
-            self.output_content += '// not\n@SP\nA=M-1\nM=!M\n'
+            self.handle_negation('not', '!')
 
     def write_push_pop(self, command, segment, index):
         # TODO Missing memory segment implementations
@@ -44,10 +44,19 @@ class VMCodeWriter:
         else:
             pass
 
+    # TODO: Improve this method.
     def handle_jump(self, jump_condition, jump_type):
-        self.output_content += '// ' + jump_condition + '\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=M-D\n@JUMP.'
-        self.output_content += str(self.jump_pointer) + '\nD;' + jump_type
-        self.output_content += '\n@0\nD=A\n@SP\nA=M-1\nM=D\n@END.' + str(self.jump_pointer) + '\n0;JMP\n(JUMP.'
-        self.output_content += str(self.jump_pointer) + ')\n@1\nD=-A\n@SP\nA=M-1\nM=D\n(END.'
-        self.output_content += str(self.jump_pointer) + ')'
+        self.output_content += '// ' + jump_condition + '\n@0\nM=M-1\nA=M\nD=M\nA=A-1\nD=M-D\n@JUMP.' + \
+                               str(self.jump_pointer) + '\nD;' + jump_type + '\n@0\nD=A\n@SP\nA=M-1\nM=D\n@END.' + \
+                               str(self.jump_pointer) + '\n0;JMP\n(JUMP.' + \
+                               str(self.jump_pointer) + ')\n@1\nD=-A\n@SP\nA=M-1\nM=D\n(END.' + \
+                               str(self.jump_pointer) + ')'
         self.jump_pointer = self.jump_pointer + 1
+
+    # TODO: Improve this method.
+    def handle_operation(self, operation_type, operator):
+        self.output_content += '// ' + operation_type + '\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M' + operator + 'D\n'
+
+    # TODO: Improve this method.
+    def handle_negation(self, negation_type, operator):
+        self.output_content += '// ' + negation_type + '\n@SP\nA=M-1\nM=' + operator + 'M\n'
