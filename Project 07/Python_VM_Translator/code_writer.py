@@ -41,8 +41,33 @@ class VMCodeWriter:
         if command == 'C_PUSH':
             if segment == 'constant':
                 self.output_content += '// push constant ' + index + '\n@' + index + '\nD=A\n@SP\nM=M+1\nA=M-1\nM=D\n'
+            if segment == 'local':
+                self.handle_push(segment, 'LCL', index)
+            if segment == 'argument':
+                self.handle_push(segment, 'ARG', index)
+            if segment == 'this':
+                self.handle_push(segment, 'THIS', index)
+            if segment == 'that':
+                self.handle_push(segment, 'THAT', index)
+        elif command == 'C_POP':
+            if segment == 'local':
+                self.handle_pop(segment, 'LCL', index)
+            if segment == 'argument':
+                self.handle_pop(segment, 'ARG', index)
+            if segment == 'this':
+                self.handle_pop(segment, 'THIS', index)
+            if segment == 'that':
+                self.handle_pop(segment, 'THAT', index)
         else:
             pass
+
+    def handle_pop(self, segment_name, base_address, index):
+        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@SP\nM=M-1\nA=M+1\nD=M\n@' \
+                               + base_address + '\nA=M+' + index + '\nM=D\n'
+
+    def handle_push(self, segment_name, base_address, index):
+        self.output_content += '//push ' + segment_name + ' ' + index + '\n@' + \
+                               index + '\nD=A\n@' + base_address + '\nA=D+M\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
 
     # TODO: Improve this method.
     def handle_jump(self, jump_condition, jump_type):

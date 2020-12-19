@@ -41,6 +41,9 @@ class VMController:
             if vm_command_type == 'C_PUSH':
                 assembly_writer.write_push_pop(vm_parser.command_type(), vm_parser.arg1(),
                                                vm_parser.arg2())
+            if vm_command_type == 'C_POP':
+                assembly_writer.write_push_pop(vm_parser.command_type(), vm_parser.arg1(),
+                                               vm_parser.arg2())
             vm_parser.advance()
         assembly_writer.write_output_to_file()
         print('Requested file has been translated successfully. Quiting program.')
