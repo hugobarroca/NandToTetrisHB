@@ -3,13 +3,11 @@
 # addition, it removes all white space and comments.
 class VMParser:
 
-    # Initiates the file_contents variable with the contents of the supplied file.
     def __init__(self, input_file_path):
         self.input_file_path = input_file_path
         self.file_lines = []
         self.current_line_pointer = 0
 
-    # Reads the file and saves the contents in a list.
     def read_file(self):
         try:
             with open(self.input_file_path, encoding='utf-8') as f:
@@ -19,8 +17,7 @@ class VMParser:
                   + "\" does not exist in the provided path. Please check for spelling errors.")
             raise FileNotFoundError
 
-    # Removes whitespace from every line in the program
-    def remove_white_spaces(self):
+    def remove_whitespaces_and_newlines(self):
         new_file_lines = []
         for line in self.file_lines:
             new_file_lines.append(line.strip(' \r\n'))

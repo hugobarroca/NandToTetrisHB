@@ -1,5 +1,4 @@
 from VMController import VMController
-from vmparser import VMParser
 
 
 class Main:
