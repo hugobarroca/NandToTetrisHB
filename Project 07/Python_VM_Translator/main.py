@@ -8,3 +8,4 @@ class Main:
 
 # Files/SimpleAdd/SimpleAdd.vm
 # Files/StackTest/StackTest.vm
+# Files/MemoryAccess/BasicTest/BasicTest.vm
