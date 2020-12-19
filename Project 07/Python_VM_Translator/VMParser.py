@@ -1,4 +1,4 @@
-# As stated in the book "The Elements of Computing": Handles the parsing of a single .vmfile, and encapsulates access
+# As stated in the book "The Elements of Computing": Handles the parsing of a single .vm file, and encapsulates access
 # to the input code. It reads VM commands, parses them, and provides convenient access to their components. In
 # addition, it removes all white space and comments.
 class VMParser:
