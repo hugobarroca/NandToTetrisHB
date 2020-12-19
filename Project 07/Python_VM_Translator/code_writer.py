@@ -63,7 +63,7 @@ class VMCodeWriter:
             if segment == 'that':
                 self.handle_pop(segment, 'THAT', index)
             if segment == 'temp':
-                self.handle_pop(segment, '5', index)
+                self.handle_temp_pop(segment, '5', index)
             if segment == 'pointer':
                 self.handle_pointer_pop(index)
         else:
@@ -81,13 +81,21 @@ class VMCodeWriter:
         else:
             self.output_content += '//pop pointer 1\n@SP\nM=M-1\nD=M\n@THAT\nM=D'
 
-    def handle_pop(self, segment_name, base_address, index):
-        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address + '\nD=M\n@' + index +\
+    def handle_temp_pop(self, segment_name, base_address, index):
+        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address + '\nD=A\n@' + index +\
                                '\nD=D+A\n@SP\nM=M-1\nA=M\nD=D+M\nA=D-M\nM=D-A\n'
 
-    def handle_push(self, segment_name, base_address, index):
+    def handle_temp_push(self, segment_name, base_address, index):
         self.output_content += '//push ' + segment_name + ' ' + index + '\n@' + \
-                               index + '\nD=A\n@' + base_address + '\nA=D+M\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
+                               index + '\nD=A\n@' + base_address + '\nA=D+A\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
+
+    def handle_pop(self, segment_name, base_address_location, index):
+        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address_location + '\nD=M\n@' + index +\
+                               '\nD=D+A\n@SP\nM=M-1\nA=M\nD=D+M\nA=D-M\nM=D-A\n'
+
+    def handle_push(self, segment_name, base_address_location, index):
+        self.output_content += '//push ' + segment_name + ' ' + index + '\n@' + \
+                               index + '\nD=A\n@' + base_address_location + '\nA=D+M\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
 
     # TODO: Improve this method.
     def handle_jump(self, jump_condition, jump_type):
