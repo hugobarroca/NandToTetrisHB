@@ -70,16 +70,16 @@ class VMCodeWriter:
             pass
 
     def handle_pointer_push(self, index):
-        if index == 0:
-            self.output_content += '//push pointer 0\n@THIS\nD=M\n@SP\nM=M+1\nA=M-1\nM=D'
+        if index == '0':
+            self.output_content += '//push pointer 0\n@THIS\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
         else:
-            self.output_content += '//push pointer 1\n@THAT\nD=M\n@SP\nM=M+1\nA=M-1\nM=D'
+            self.output_content += '//push pointer 1\n@THAT\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
 
     def handle_pointer_pop(self, index):
-        if index == 0:
-            self.output_content += '//pop pointer 0\n@SP\nM=M-1\nD=M\n@THIS\nM=D'
+        if index == '0':
+            self.output_content += '//pop pointer 0\n@SP\nAM=M-1\nD=M\n@THIS\nM=D\n'
         else:
-            self.output_content += '//pop pointer 1\n@SP\nM=M-1\nD=M\n@THAT\nM=D'
+            self.output_content += '//pop pointer 1\n@SP\nAM=M-1\nD=M\n@THAT\nM=D\n'
 
     def handle_temp_pop(self, segment_name, base_address, index):
         self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address + '\nD=A\n@' + index +\
