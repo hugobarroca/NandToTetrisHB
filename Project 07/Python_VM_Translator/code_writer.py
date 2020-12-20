@@ -53,6 +53,8 @@ class VMCodeWriter:
                 self.handle_push(segment, '5', index)
             if segment == 'pointer':
                 self.handle_pointer_push(index)
+            if segment == 'static':
+                self.handle_static_push(index)
         elif command == 'C_POP':
             if segment == 'local':
                 self.handle_pop(segment, 'LCL', index)
@@ -66,28 +68,10 @@ class VMCodeWriter:
                 self.handle_temp_pop(segment, '5', index)
             if segment == 'pointer':
                 self.handle_pointer_pop(index)
+            if segment == 'static':
+                self.handle_static_pop(index)
         else:
             pass
-
-    def handle_pointer_push(self, index):
-        if index == '0':
-            self.output_content += '//push pointer 0\n@THIS\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
-        else:
-            self.output_content += '//push pointer 1\n@THAT\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
-
-    def handle_pointer_pop(self, index):
-        if index == '0':
-            self.output_content += '//pop pointer 0\n@SP\nAM=M-1\nD=M\n@THIS\nM=D\n'
-        else:
-            self.output_content += '//pop pointer 1\n@SP\nAM=M-1\nD=M\n@THAT\nM=D\n'
-
-    def handle_temp_pop(self, segment_name, base_address, index):
-        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address + '\nD=A\n@' + index +\
-                               '\nD=D+A\n@SP\nM=M-1\nA=M\nD=D+M\nA=D-M\nM=D-A\n'
-
-    def handle_temp_push(self, segment_name, base_address, index):
-        self.output_content += '//push ' + segment_name + ' ' + index + '\n@' + \
-                               index + '\nD=A\n@' + base_address + '\nA=D+A\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
 
     def handle_pop(self, segment_name, base_address_location, index):
         self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address_location + '\nD=M\n@' + index +\
@@ -96,6 +80,35 @@ class VMCodeWriter:
     def handle_push(self, segment_name, base_address_location, index):
         self.output_content += '//push ' + segment_name + ' ' + index + '\n@' + \
                                index + '\nD=A\n@' + base_address_location + '\nA=D+M\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
+
+    def handle_static_pop(self, index):
+        filename = self.assembly_file_name.split('/')[-1].replace('.asm', '')
+        self.output_content += '//pop static ' + index + ' \n@SP\nAM=M-1\nD=M\n@' + filename + '.' + index + '\nM=D\n'
+
+    def handle_static_push(self, index):
+        filename = self.assembly_file_name.split('/')[-1].replace('.asm', '')
+        self.output_content += '//push static ' + index + '\n@' + filename + '.' + index \
+                               + '\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
+
+    def handle_pointer_pop(self, index):
+        if index == '0':
+            self.output_content += '//pop pointer 0\n@SP\nAM=M-1\nD=M\n@THIS\nM=D\n'
+        else:
+            self.output_content += '//pop pointer 1\n@SP\nAM=M-1\nD=M\n@THAT\nM=D\n'
+
+    def handle_pointer_push(self, index):
+        if index == '0':
+            self.output_content += '//push pointer 0\n@THIS\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
+        else:
+            self.output_content += '//push pointer 1\n@THAT\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
+
+    def handle_temp_pop(self, segment_name, base_address, index):
+        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address + '\nD=A\n@' + index +\
+                               '\nD=D+A\n@SP\nM=M-1\nA=M\nD=D+M\nA=D-M\nM=D-A\n'
+
+    def handle_temp_push(self, segment_name, base_address, index):
+        self.output_content += '//push ' + segment_name + ' ' + index + '\n@' + \
+                               index + '\nD=A\n@' + base_address + '\nA=D+A\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
 
     # TODO: Improve this method.
     def handle_jump(self, jump_condition, jump_type):
