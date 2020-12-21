@@ -37,7 +37,6 @@ class VMCodeWriter:
             self.handle_negation('not', '!')
 
     def write_push_pop(self, command, segment, index):
-        # TODO Missing memory segment implementations
         if command == 'C_PUSH':
             if segment == 'constant':
                 self.output_content += '// push constant ' + index + '\n@' + index + '\nD=A\n@SP\nM=M+1\nA=M-1\nM=D\n'
