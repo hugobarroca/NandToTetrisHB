@@ -1,0 +1,13 @@
+# Nand 2 Tetris Unit 1.5 @ 4:14
+# Possible assembly solution for pop local 2
+@SP		//A=258
+D=A-1	//D=257
+M=D		//RAM[0]=257
+@SP		//A=257
+D=M		//D=5
+@LCL	//A=1015
+D=A		//D=1015
+@2		//A=2
+D=D+A	//D=1017
+A=D		//A=1017 (LCL[2])
+M=D		//RAM[1017]=2
