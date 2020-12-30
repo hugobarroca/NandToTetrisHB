@@ -39,6 +39,19 @@ class VMParser:
             return 'C_PUSH'
         if current_line.startswith('pop'):
             return 'C_POP'
+        if current_line.startswith('label'):
+            return 'C_LABEL'
+        if current_line.startswith('goto'):
+            return 'C_GOTO'
+        if current_line.startswith('if'):
+            return 'C_IF'
+        if current_line.startswith('function'):
+            return 'C_FUNCTION'
+        if current_line.startswith('return'):
+            return 'C_RETURN'
+        if current_line.startswith('call'):
+            return 'C_CALL'
+
 
     # Returns the first argument of the current command. In case of a C_ARITHMETIC, it returns the command itself.
     def arg1(self):
