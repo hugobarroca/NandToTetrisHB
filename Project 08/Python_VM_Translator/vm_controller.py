@@ -17,7 +17,7 @@ class VMController:
 
     def handle_user_input(self):
         while True:
-            self.current_user_command = input("Please enter the filename: \n")
+            self.current_user_command = input("Please enter the filename (q to quit): \n")
             if self.is_quit_command():
                 quit_program("Exiting program.")
                 sys.exit()
