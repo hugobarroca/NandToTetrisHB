@@ -52,7 +52,6 @@ class VMParser:
         if current_line.startswith('call'):
             return 'C_CALL'
 
-
     # Returns the first argument of the current command. In case of a C_ARITHMETIC, it returns the command itself.
     def arg1(self):
         current_line = self.file_lines[self.current_line_pointer]
@@ -69,3 +68,7 @@ class VMParser:
 
     def get_current_line(self):
         return self.file_lines[self.current_line_pointer]
+
+    # TODO
+    def write_init(self):
+        pass
