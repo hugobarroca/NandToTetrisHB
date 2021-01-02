@@ -74,7 +74,7 @@ class VMCodeWriter:
             pass
 
     def handle_pop(self, segment_name, base_address_location, index):
-        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address_location + '\nD=M\n@' + index +\
+        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address_location + '\nD=M\n@' + index + \
                                '\nD=D+A\n@SP\nM=M-1\nA=M\nD=D+M\nA=D-M\nM=D-A\n'
 
     def handle_push(self, segment_name, base_address_location, index):
@@ -103,7 +103,7 @@ class VMCodeWriter:
             self.output_content += '//push pointer 1\n@THAT\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
 
     def handle_temp_pop(self, segment_name, base_address, index):
-        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address + '\nD=A\n@' + index +\
+        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address + '\nD=A\n@' + index + \
                                '\nD=D+A\n@SP\nM=M-1\nA=M\nD=D+M\nA=D-M\nM=D-A\n'
 
     def handle_temp_push(self, segment_name, base_address, index):
@@ -128,13 +128,21 @@ class VMCodeWriter:
         self.output_content += '// ' + negation_type + '\n@SP\nA=M-1\nM=' + operator + 'M\n'
 
     def write_label(self, label):
-        self.output_content += f"({self.current_function}${label})"
+        self.output_content += f"//label {label}\n"
+        self.output_content += f"({self.current_function}${label})\n"
 
     def write_goto(self, label):
-        self.output_content += f"@{self.current_function}${label}\n0;JMP"
+        self.output_content += f"//goto {label}\n"
+        self.output_content += f"@{self.current_function}${label}\n0;JMP\n"
 
     def write_if(self, label):
+        self.output_content += f"//if-goto {label}\n"
         self.output_content += f"@0\nAM=M-1\nD=M\n@{self.current_function}${label}\nD;JNE\n"
+
+    def write_call(self, function_name, num_args):
+        self.output_content += f'({function_name})\n @ 0\nD = A\n'
+        for x in range (0, num_args):
+            self.output_content += "@0\nM=M+1\nA=M-1\nM=D\n"
 
     # TODO: This method writes the initial code at the beggining of each asm file that initializes the stack.
     def write_init(self):
