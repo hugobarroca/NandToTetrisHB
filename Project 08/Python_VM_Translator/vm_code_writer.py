@@ -5,6 +5,7 @@ class VMCodeWriter:
         self.jump_pointer = 0
         self.assembly_file_name = assembly_file_name
         self.output_content = ''
+        self.current_function = ''
 
     def write_output_to_file(self):
         f = open(self.assembly_file_name, "w")
@@ -125,3 +126,10 @@ class VMCodeWriter:
     # TODO: Improve this method.
     def handle_negation(self, negation_type, operator):
         self.output_content += '// ' + negation_type + '\n@SP\nA=M-1\nM=' + operator + 'M\n'
+
+    def write_label(self, label):
+        self.output_content += f"({self.current_function}${label})"
+
+    # TODO: This method writes the initial code at the beggining of each asm file that initializes the stack.
+    def write_init(self):
+        pass

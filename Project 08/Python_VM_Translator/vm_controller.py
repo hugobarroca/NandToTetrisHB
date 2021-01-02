@@ -1,4 +1,4 @@
-from code_writer import VMCodeWriter
+from vm_code_writer import VMCodeWriter
 from vm_parser import VMParser
 import sys
 
