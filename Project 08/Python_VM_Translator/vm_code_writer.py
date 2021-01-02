@@ -133,6 +133,9 @@ class VMCodeWriter:
     def write_goto(self, label):
         self.output_content += f"@{self.current_function}${label}\n0;JMP"
 
+    def write_if(self, label):
+        self.output_content += f"@0\nAM=M-1\nD=M\n@{self.current_function}${label}\nD;JNE\n"
+
     # TODO: This method writes the initial code at the beggining of each asm file that initializes the stack.
     def write_init(self):
         pass
