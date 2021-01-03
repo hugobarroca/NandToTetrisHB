@@ -52,6 +52,9 @@ class VMController:
                 assembly_writer.write_if(vm_parser.arg1())
             if vm_command_type == 'C_FUNCTION':
                 assembly_writer.current_function = vm_parser.arg1()
+                assembly_writer.write_function(vm_parser.arg1(), vm_parser.arg2())
+            if vm_command_type == 'C_RETURN':
+                assembly_writer.write_return()
             vm_parser.advance()
         assembly_writer.write_output_to_file()
         print('Requested file has been translated successfully. Quiting program.')

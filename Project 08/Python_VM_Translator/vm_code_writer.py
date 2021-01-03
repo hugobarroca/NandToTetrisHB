@@ -140,11 +140,18 @@ class VMCodeWriter:
         self.output_content += f"@0\nAM=M-1\nD=M\n@{self.current_function}${label}\nD;JNE\n"
 
     def write_function(self, function_name, num_locals):
-        self.output_content += f'({function_name})\n @ 0\nD = A\n'
+        self.output_content += f"// function {function_name}\n"
+        self.output_content += f'({function_name})\n@0\nD=A\n'
+        num_locals = int(num_locals)
         for x in range(0, num_locals):
             self.output_content += "@0\nM=M+1\nA=M-1\nM=D\n"
 
-
+    def write_return(self):
+        self.output_content += "// return \n"
+        self.output_content += "@LCL\nD=A\n@5\nM=D\n@5\nD=M-A\n@6\nM=D\n@0\nAM=M-1\nD=M\n@ARG"
+        self.output_content += "\nM=D\n@ARG\nD=A+1\n@SP\nM=D\n@5\nD=A\n@1\nD=D-A\n@THAT\nM=D"
+        self.output_content += "\n@5\nD=A\n@2\nD=D-A\n@THIS\nM=D\n@5\nD=A\n@3\nD=D-A\n@ARG\n"
+        self.output_content += "M=D\n@5\nD=A\n@4\nD=D-A\n@LCL\nM=D\n@6\nA=M\n0;JMP\n"
 
     # TODO: This method writes the initial code at the beggining of each asm file that initializes the stack.
     def write_init(self):
