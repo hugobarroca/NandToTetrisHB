@@ -147,11 +147,15 @@ class VMCodeWriter:
             self.output_content += "@0\nM=M+1\nA=M-1\nM=D\n"
 
     def write_return(self):
-        self.output_content += "// return \n"
-        self.output_content += "@LCL\nD=A\n@5\nM=D\n@5\nD=M-A\n@6\nM=D\n@0\nAM=M-1\nD=M\n@ARG"
-        self.output_content += "\nM=D\n@ARG\nD=A+1\n@SP\nM=D\n@5\nD=A\n@1\nD=D-A\n@THAT\nM=D"
-        self.output_content += "\n@5\nD=A\n@2\nD=D-A\n@THIS\nM=D\n@5\nD=A\n@3\nD=D-A\n@ARG\n"
-        self.output_content += "M=D\n@5\nD=A\n@4\nD=D-A\n@LCL\nM=D\n@6\nA=M\n0;JMP\n"
+        self.output_content += "// FRAME = LCL\n@LCL\nD=M\n@5\nM=D\n\n" \
+                               "// RET = *(FRAME - 5)\n@5\nD=A\nD=M-D\n@6\nM=D\n\n" \
+                               "// *ARG = pop()\n@0\nAM=M-1\nD=M\n@ARG\nM=D\n\n" \
+                               "// SP = ARG + 1\nD=M+1\n@SP\nM=D\n\n\n" \
+                               "// THAT = *(FRAME-1)\n@5\nD=M\nA=D-1\nD=M\n@THAT\nM=D\n\n" \
+                               "// THIS = *(FRAME-2)\n@5\nD=M\n@2\nA=D-A\nD=M\n@THIS\nM=D\n\n" \
+                               "// ARG = *(FRAME-3)\n@5\nD=M\n@3\nA=D-A\nD=M\n@ARG\nM=D\n\n" \
+                               "// LCL = *(FRAME-4)\n@5\nD=M\n@4\nA=D-A\nD=M\n@LCL\nM=D\n\n" \
+                               "// goto RET\n@6\nA=M\n0;JMP\n"
 
     # TODO: This method writes the initial code at the beggining of each asm file that initializes the stack.
     def write_init(self):
