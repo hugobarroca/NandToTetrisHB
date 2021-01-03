@@ -149,7 +149,7 @@ class VMCodeWriter:
     def write_return(self):
         self.output_content += "// FRAME = LCL\n@LCL\nD=M\n@5\nM=D\n\n" \
                                "// RET = *(FRAME - 5)\n@5\nD=A\nD=M-D\n@6\nM=D\n\n" \
-                               "// *ARG = pop()\n@0\nAM=M-1\nD=M\n@ARG\nM=D\n\n" \
+                               "// *ARG = pop()\n@0\nAM=M-1\nD=M\n@ARG\nA=M\nM=D\n\n" \
                                "// SP = ARG + 1\nD=M+1\n@SP\nM=D\n\n\n" \
                                "// THAT = *(FRAME-1)\n@5\nD=M\nA=D-1\nD=M\n@THAT\nM=D\n\n" \
                                "// THIS = *(FRAME-2)\n@5\nD=M\n@2\nA=D-A\nD=M\n@THIS\nM=D\n\n" \
