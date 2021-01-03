@@ -107,8 +107,16 @@ class VMCodeWriter:
                                '\nD=D+A\n@SP\nM=M-1\nA=M\nD=D+M\nA=D-M\nM=D-A\n'
 
     def handle_temp_push(self, segment_name, base_address, index):
-        self.output_content += '//push ' + segment_name + ' ' + index + '\n@' + \
-                               index + '\nD=A\n@' + base_address + '\nA=D+A\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
+        self.output_content +=  '//push ' + segment_name + ' ' + index + '\n' \
+                                '@' + index + '\n' \
+                                'D=A\n' \
+                                '@' + base_address + '\n' \
+                                'A=D+A\n' \
+                                'D=M\n' \
+                                '@SP\n' \
+                                'M=M+1\n' \
+                                'A=M-1\n' \
+                                'M=D\n'
 
     # TODO: Improve this method.
     def handle_jump(self, jump_condition, jump_type):
@@ -121,7 +129,7 @@ class VMCodeWriter:
 
     # TODO: Improve this method.
     def handle_operation(self, operation_type, operator):
-        self.output_content += '// ' + operation_type + '\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M' + operator + 'D\n'
+        self.output_content += '// ' + operation_type + '\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M' + operator + 'D\n\n'
 
     # TODO: Improve this method.
     def handle_negation(self, negation_type, operator):
@@ -147,15 +155,66 @@ class VMCodeWriter:
             self.output_content += "@0\nD=A\n@SP\nM=M+1\nA=M-1\nM=D\n"
 
     def write_return(self):
-        self.output_content += "// FRAME = LCL\n@LCL\nD=M\n@5\nM=D\n\n" \
-                               "// RET = *(FRAME - 5)\n@5\nD=A\nD=M-D\nA=D\nD=M\n@6\nM=D\n\n" \
-                               "// *ARG = pop()\n@0\nAM=M-1\nD=M\n@ARG\nA=M\nM=D\n\n" \
-                               "// SP = ARG + 1\n@ARG\nD=M+1\n@SP\nM=D\n\n\n" \
-                               "// THAT = *(FRAME-1)\n@5\nD=M\nA=D-1\nD=M\n@THAT\nM=D\n\n" \
-                               "// THIS = *(FRAME-2)\n@5\nD=M\n@2\nA=D-A\nD=M\n@THIS\nM=D\n\n" \
-                               "// ARG = *(FRAME-3)\n@5\nD=M\n@3\nA=D-A\nD=M\n@ARG\nM=D\n\n" \
-                               "// LCL = *(FRAME-4)\n@5\nD=M\n@4\nA=D-A\nD=M\n@LCL\nM=D\n\n" \
-                               "// goto RET\n@6\nA=M\n0;JMP\n"
+        self.output_content +=  "// FRAME = LCL\n" \
+                                "@LCL\n" \
+                                "D=M\n" \
+                                "@R13\n" \
+                                "M=D\n\n" \
+                                "// RET = *(FRAME - 5)\n" \
+                                "@5\n" \
+                                "D=A\n" \
+                                "@R13\n" \
+                                "D=M-D\n" \
+                                "A=D\n" \
+                                "D=M\n" \
+                                "@R14\n" \
+                                "M=D\n\n" \
+                                "// *ARG = pop()\n" \
+                                "@0\n" \
+                                "AM=M-1\n" \
+                                "D=M\n" \
+                                "@ARG\n" \
+                                "A=M\n" \
+                                "M=D\n\n" \
+                                "// SP = ARG + 1\n" \
+                                "@ARG\n" \
+                                "D=M+1\n" \
+                                "@SP\n" \
+                                "M=D\n\n\n" \
+                                "// THAT = *(FRAME-1)\n" \
+                                "@R13\n" \
+                                "D=M\nA=D-1\n" \
+                                "D=M\n" \
+                                "@THAT\n" \
+                                "M=D\n\n" \
+                                "// THIS = *(FRAME-2)\n" \
+                                "@R13\n" \
+                                "D=M\n" \
+                                "@2\n" \
+                                "A=D-A\n" \
+                                "D=M\n" \
+                                "@THIS\n" \
+                                "M=D\n\n" \
+                                "// ARG = *(FRAME-3)\n" \
+                                "@R13\n" \
+                                "D=M\n" \
+                                "@3\n" \
+                                "A=D-A\n" \
+                                "D=M\n" \
+                                "@ARG\n" \
+                                "M=D\n\n" \
+                                "// LCL = *(FRAME-4)\n" \
+                                "@R13\n" \
+                                "D=M\n" \
+                                "@4\n" \
+                                "A=D-A\n" \
+                                "D=M\n" \
+                                "@LCL\n" \
+                                "M=D\n\n" \
+                                "// goto RET\n" \
+                                "@R14\n" \
+                                "A=M\n" \
+                                "0;JMP\n"
 
     def write_call(self, function_name, num_args):
         self.output_content += f"// push return address\n" \
