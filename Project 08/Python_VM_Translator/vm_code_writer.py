@@ -82,13 +82,12 @@ class VMCodeWriter:
                                index + '\nD=A\n@' + base_address_location + '\nA=D+M\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
 
     def handle_static_pop(self, index):
-        filename = self.assembly_file_name.split('/')[-1].replace('.asm', '')
-        self.output_content += '//pop static ' + index + ' \n@SP\nAM=M-1\nD=M\n@' + filename + '.' + index + '\nM=D\n'
+        filename = self.current_file.split('\\')[-1].split('/')[-1].replace('.asm', '').replace('.vm', '')
+        self.output_content += f'//pop static {index} \n@SP\nAM=M-1\nD=M\n@{filename}.{index}\nM=D\n'
 
     def handle_static_push(self, index):
-        filename = self.assembly_file_name.split('/')[-1].replace('.asm', '')
-        self.output_content += '//push static ' + index + '\n@' + filename + '.' + index \
-                               + '\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
+        filename = self.current_file.split('\\')[-1].split('/')[-1].replace('.asm', '').replace('.vm', '')
+        self.output_content += f'//push static {index}\n@{filename}.{index}\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n'
 
     def handle_pointer_pop(self, index):
         if index == '0':
