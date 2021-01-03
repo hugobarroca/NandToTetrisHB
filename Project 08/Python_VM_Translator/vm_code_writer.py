@@ -5,7 +5,7 @@ class VMCodeWriter:
         self.jump_pointer = 0
         self.assembly_file_name = assembly_file_name
         self.output_content = ''
-        self.current_function = ''
+        self.current_function = 'null'
 
     def write_output_to_file(self):
         f = open(self.assembly_file_name, "w")
@@ -171,14 +171,60 @@ class VMCodeWriter:
 
     # TODO: This method writes the initial code at the beginning of each asm file that initializes the stack.
     def write_init(self):
-        self.output_content += f"//Initialize stack pointer to 256\n@256\nD=A\n@SP\nM=D\n\n" \
-                               f"//Initialize stack pointer to 256\n" \
-                               f"// push return address\n@{self.current_function}" \
-                               f"$function\nD=A\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
-                               f"//push LCL\n@LCL\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
-                               f"//push ARG\n@ARG\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
-                               f"//push THIS\n@THIS\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
-                               f"//push THAT\n@THAT\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
-                               f"//ARG = SP-n-5\n@5\nD=A\n@1\nD=D+A\n@SP\nD=M-D\n\n" \
-                               f"//LCL = SP\n@SP\nD=M\n@LCL\nM=D\n\n//goto f\n@Sys.init$function\n0;JMP\n\n" \
-                               f"//(return-address)\n({self.current_function}$function)\n\n\n"
+        self.output_content += f"//Initialize stack pointer to 256\n" \
+                               f"@256\n" \
+                               f"D=A\n" \
+                               f"@SP\n" \
+                               f"M=D\n\n" \
+                               f"// push return address\n" \
+                               f"@{self.current_function}$function\n" \
+                               f"D=A\n" \
+                               f"@SP\n" \
+                               f"M=M+1\n" \
+                               f"A=M-1\n" \
+                               f"M=D\n\n" \
+                               f"//push LCL\n" \
+                               f"@LCL\n" \
+                               f"D=M\n" \
+                               f"@SP\n" \
+                               f"M=M+1\n" \
+                               f"A=M-1\n" \
+                               f"M=D\n\n" \
+                               f"//push ARG\n" \
+                               f"@ARG\n" \
+                               f"D=M\n" \
+                               f"@SP\n" \
+                               f"M=M+1\n" \
+                               f"A=M-1\n" \
+                               f"M=D\n\n" \
+                               f"//push THIS\n" \
+                               f"@THIS\n" \
+                               f"D=M\n" \
+                               f"@SP\n" \
+                               f"M=M+1\n" \
+                               f"A=M-1\n" \
+                               f"M=D\n\n" \
+                               f"//push THAT\n" \
+                               f"@THAT\n" \
+                               f"D=M\n" \
+                               f"@SP\n" \
+                               f"M=M+1\n" \
+                               f"A=M-1\n" \
+                               f"M=D\n\n" \
+                               f"//ARG = SP-n-5\n" \
+                               f"@5\n" \
+                               f"D=A\n" \
+                               f"@1\n" \
+                               f"D=D+A\n" \
+                               f"@SP\n" \
+                               f"D=M-D\n\n" \
+                               f"//LCL = SP\n" \
+                               f"@SP\n" \
+                               f"D=M\n" \
+                               f"@LCL\n" \
+                               f"M=D\n\n" \
+                               f"//goto f\n" \
+                               f"@Sys.init$function\n" \
+                               f"0;JMP\n\n" \
+                               f"//(return-address)\n" \
+                               f"({self.current_function}$function)\n\n"
