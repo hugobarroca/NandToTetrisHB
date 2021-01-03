@@ -157,6 +157,18 @@ class VMCodeWriter:
                                "// LCL = *(FRAME-4)\n@5\nD=M\n@4\nA=D-A\nD=M\n@LCL\nM=D\n\n" \
                                "// goto RET\n@6\nA=M\n0;JMP\n"
 
+    def write_call(self, function_name, num_args):
+        self.output_content += f"// push return address\n@{self.current_function}" \
+                               f"$function\nD=A\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//push LCL\n@LCL\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//push ARG\n@ARG\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//push THIS\n@THIS\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//push THAT\n@THAT\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//ARG = SP-n-5\n@5\nD=A\n@{num_args}\nD=D+A\n@SP\nD=M-D\n\n" \
+                               f"//LCL = SP\n@SP\nD=M\n@LCL\nM=D\n\n" \
+                               f"//goto f\n@{function_name}$label\n0;JMP\n\n" \
+                               f"//(return-address)\n({self.current_function}$function)"
+
     # TODO: This method writes the initial code at the beginning of each asm file that initializes the stack.
     def write_init(self):
         pass
