@@ -150,13 +150,13 @@ class VMCodeWriter:
         self.output_content += "// FRAME = LCL\n@LCL\nD=M\n@5\nM=D\n\n" \
                                "// RET = *(FRAME - 5)\n@5\nD=A\nD=M-D\n@6\nM=D\n\n" \
                                "// *ARG = pop()\n@0\nAM=M-1\nD=M\n@ARG\nA=M\nM=D\n\n" \
-                               "// SP = ARG + 1\nD=M+1\n@SP\nM=D\n\n\n" \
+                               "// SP = ARG + 1\n@ARG\nD=M+1\n@SP\nM=D\n\n\n" \
                                "// THAT = *(FRAME-1)\n@5\nD=M\nA=D-1\nD=M\n@THAT\nM=D\n\n" \
                                "// THIS = *(FRAME-2)\n@5\nD=M\n@2\nA=D-A\nD=M\n@THIS\nM=D\n\n" \
                                "// ARG = *(FRAME-3)\n@5\nD=M\n@3\nA=D-A\nD=M\n@ARG\nM=D\n\n" \
                                "// LCL = *(FRAME-4)\n@5\nD=M\n@4\nA=D-A\nD=M\n@LCL\nM=D\n\n" \
                                "// goto RET\n@6\nA=M\n0;JMP\n"
 
-    # TODO: This method writes the initial code at the beggining of each asm file that initializes the stack.
+    # TODO: This method writes the initial code at the beginning of each asm file that initializes the stack.
     def write_init(self):
         pass
