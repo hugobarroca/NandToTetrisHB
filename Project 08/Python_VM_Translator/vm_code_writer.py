@@ -171,4 +171,14 @@ class VMCodeWriter:
 
     # TODO: This method writes the initial code at the beginning of each asm file that initializes the stack.
     def write_init(self):
-        pass
+        self.output_content += f"//Initialize stack pointer to 256\n@256\nD=A\n@SP\nM=D\n\n" \
+                               f"//Initialize stack pointer to 256\n" \
+                               f"// push return address\n@{self.current_function}" \
+                               f"$function\nD=A\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//push LCL\n@LCL\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//push ARG\n@ARG\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//push THIS\n@THIS\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//push THAT\n@THAT\nD=M\n@SP\nM=M+1\nA=M-1\nM=D\n\n" \
+                               f"//ARG = SP-n-5\n@5\nD=A\n@1\nD=D+A\n@SP\nD=M-D\n\n" \
+                               f"//LCL = SP\n@SP\nD=M\n@LCL\nM=D\n\n//goto f\n@Sys.init$function\n0;JMP\n\n" \
+                               f"//(return-address)\n({self.current_function}$function)\n\n\n"
