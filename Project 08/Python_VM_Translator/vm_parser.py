@@ -18,7 +18,7 @@ class VMParser:
     def remove_whitespaces_and_newlines(self):
         new_file_lines = []
         for line in self.file_lines:
-            new_file_lines.append(line.strip(' \r\n'))
+            new_file_lines.append(line.strip(' \r\n').split("//")[0])
         self.file_lines = new_file_lines
 
     # Returns true as long as the current command is still being processed.
@@ -33,8 +33,9 @@ class VMParser:
     def command_type(self):
         arithmetic_commands = {'add', 'sub', 'lt', 'gt', 'and', 'or', 'neg', 'not', 'eq'}
         current_line = self.get_current_line()
-        if current_line in arithmetic_commands:
-            return 'C_ARITHMETIC'
+        for command in arithmetic_commands:
+            if current_line.startswith(command):
+                return 'C_ARITHMETIC'
         if current_line.startswith('push'):
             return 'C_PUSH'
         if current_line.startswith('pop'):

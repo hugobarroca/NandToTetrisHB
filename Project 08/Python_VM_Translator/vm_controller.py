@@ -48,13 +48,12 @@ class VMController:
         self.current_writer = assembly_writer
 
         self.current_writer.write_init()
-        vm_parser = VMParser(self.current_file)
-        self.read_write_vm_file(vm_parser)
 
         for filename in os.listdir(self.current_user_command):
-            if filename.endswith('.vm') and filename != 'Sys.vm':
+            if filename.endswith('.vm'):
                 self.current_file = filename
                 filepath = self.current_directory + "\\" + filename
+                self.current_writer.set_file_name(filename)
                 vm_parser = VMParser(filepath)
                 self.read_write_vm_file(vm_parser)
 
@@ -100,6 +99,7 @@ class VMController:
                 self.current_writer.write_if(vm_parser.arg1())
             if vm_command_type == 'C_FUNCTION':
                 self.current_writer.current_function = vm_parser.arg1()
+                self.current_writer.return_counter = 0
                 self.current_writer.write_function(vm_parser.arg1(), vm_parser.arg2())
             if vm_command_type == 'C_RETURN':
                 self.current_writer.write_return()
