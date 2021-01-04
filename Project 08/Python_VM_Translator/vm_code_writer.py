@@ -74,8 +74,17 @@ class VMCodeWriter:
             pass
 
     def handle_pop(self, segment_name, base_address_location, index):
-        self.output_content += '//pop ' + segment_name + ' ' + index + '\n@' + base_address_location + '\nD=M\n@' + index + \
-                               '\nD=D+A\n@SP\nM=M-1\nA=M\nD=D+M\nA=D-M\nM=D-A\n'
+        self.output_content += f'//pop {segment_name} {index}\n' \
+                               f'@{base_address_location}\n' \
+                               f'D=M\n' \
+                               f'@{index}\n' \
+                               f'D=D+A\n' \
+                               f'@SP\n' \
+                               f'M=M-1\n' \
+                               f'A=M\n' \
+                               f'D=D+M\n' \
+                               f'A=D-M\n' \
+                               f'M=D-A\n'
 
     def handle_push(self, segment_name, base_address_location, index):
         self.output_content += '//push ' + segment_name + ' ' + index + '\n@' + \
