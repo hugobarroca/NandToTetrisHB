@@ -69,7 +69,3 @@ class VMParser:
 
     def get_current_line(self):
         return self.file_lines[self.current_line_pointer]
-
-    # TODO: This method writes the initial code at the beggining of each asm file that initializes the stack.
-    def write_init(self):
-        pass
