@@ -3,7 +3,7 @@
 # addition, it removes all white space and comments.
 class VMParser:
 
-    def __init__(self, input_file_path):
+    def __init__(self):
         self.input_file_path = input_file_path
         self.file_lines = []
         self.current_line_pointer = 0

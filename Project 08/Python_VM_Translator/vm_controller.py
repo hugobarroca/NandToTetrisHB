@@ -27,12 +27,15 @@ class VMController:
                 quit_program("Exiting program.")
                 sys.exit()
             else:
-                is_file = os.path.isfile(self.current_user_command)
-                if is_file:
-                    self.create_assembly_file_from_file()
-                else:
-                    self.current_directory = self.current_user_command
-                    self.create_assembly_file_from_directory()
+                self.handle_path(self.current_user_command)
+
+    def handle_path(self, path):
+        is_file = os.path.isfile(path)
+        if is_file:
+            self.create_assembly_file_from_file()
+        else:
+            self.current_directory = self.current_user_command
+            self.create_assembly_file_from_directory()
 
     def create_assembly_file_from_directory(self):
         self.current_file = self.current_directory + '\\Sys.vm'
