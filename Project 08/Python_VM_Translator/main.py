@@ -10,6 +10,6 @@ class Main:
             controller = VMController()
             controller.handle_user_input()
         else:
-            print("Starting program in argument-processing mode!")
+            print("Starting program in argument-processing mode!\n")
             controller = VMController(sys.argv[1])
             controller.handle_user_input()

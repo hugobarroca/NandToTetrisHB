@@ -83,31 +83,54 @@ class VMController:
             filename = vm_parser.input_file_path
             print(f'The referenced file {filename} could not be found. Check filename and path for typing errors.')
             return
+
         vm_parser.remove_whitespaces_and_newlines()
+
         while vm_parser.has_more_commands():
             vm_command_type = vm_parser.command_type()
+
             if vm_command_type == 'C_ARITHMETIC':
-                self.current_writer.write_arithmetic(vm_parser.arg1())
+                command_name = vm_parser.arg1()
+                self.current_writer.write_arithmetic(command_name)
+
             if vm_command_type == 'C_PUSH':
-                self.current_writer.write_push_pop(vm_parser.command_type(), vm_parser.arg1(),
-                                                   vm_parser.arg2())
+                memory_segment = vm_parser.arg1()
+                memory_index = vm_parser.arg2()
+                self.current_writer.write_push_pop(vm_parser.command_type(), memory_segment, memory_index)
+
             if vm_command_type == 'C_POP':
-                self.current_writer.write_push_pop(vm_parser.command_type(), vm_parser.arg1(),
-                                                   vm_parser.arg2())
+                memory_segment = vm_parser.arg1()
+                memory_index = vm_parser.arg2()
+                self.current_writer.write_push_pop(vm_parser.command_type(), memory_segment, memory_index)
+
             if vm_command_type == 'C_LABEL':
-                self.current_writer.write_label(vm_parser.arg1())
+                label = vm_parser.arg1()
+                self.current_writer.write_label(label)
+
             if vm_command_type == 'C_GOTO':
-                self.current_writer.write_goto(vm_parser.arg1())
+                label = vm_parser.arg1()
+                self.current_writer.write_goto(label)
+
             if vm_command_type == 'C_IF':
-                self.current_writer.write_if(vm_parser.arg1())
+                label = vm_parser.arg1()
+                self.current_writer.write_if(label)
+
             if vm_command_type == 'C_FUNCTION':
-                self.current_writer.current_function = vm_parser.arg1()
+                function_name = vm_parser.arg1()
+                num_local_variables = vm_parser.arg2()
+                self.current_writer.current_function = function_name
                 self.current_writer.return_counter = 0
-                self.current_writer.write_function(vm_parser.arg1(), vm_parser.arg2())
+
+                self.current_writer.write_function(function_name, num_local_variables)
+
             if vm_command_type == 'C_RETURN':
                 self.current_writer.write_return()
+
             if vm_command_type == 'C_CALL':
-                self.current_writer.write_call(vm_parser.arg1(), vm_parser.arg2())
+                function_name = vm_parser.arg1()
+                num_argument_variables = vm_parser.arg2()
+                self.current_writer.write_call(function_name, num_argument_variables)
+
             vm_parser.advance()
 
     def is_quit_command(self):
