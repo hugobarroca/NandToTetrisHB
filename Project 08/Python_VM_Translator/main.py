@@ -6,7 +6,7 @@ from vm_controller import VMController
 class Main:
     if __name__ == '__main__':
         if len(sys.argv) == 1:
-            print("Starting program in interactive mode!")
+            print("Starting program in interactive mode!\n")
             controller = VMController()
             controller.handle_user_input()
         else:
