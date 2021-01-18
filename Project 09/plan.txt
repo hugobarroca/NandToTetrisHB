@@ -1,0 +1,18 @@
+# Snake
+
+// Self esplanatory 
+Class Coordinate:
+    -
+
+// Guardar todas as coordenadas em que se encontra numa estrutura FILO.
+Class Snake:
+    - 
+
+// Desenhar o board + snake + foods. 
+// Guarda o tamanho do board, a coordenada atual da food.
+Class SnakeBoard:
+    -
+
+//Desenha a board.
+Class GUI:
+    - 
