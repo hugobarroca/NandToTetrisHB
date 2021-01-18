@@ -1,6 +1,6 @@
-class Main{
+class main{
 	function void main() {
-		Output.printString("Hello!")
+		do Output.printString("Hello!");
 		return;
 	}
 }
