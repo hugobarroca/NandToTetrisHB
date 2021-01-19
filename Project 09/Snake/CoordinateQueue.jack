@@ -1,0 +1,39 @@
+class CoordinateQueue{
+    field int size;
+    field int last;
+    field Array queue;
+
+    constructor CoordinateQueue new(int size){
+        let size = size;
+        let last = 0;
+        let queue = Array.new(size);
+        return this;
+    }
+
+    method void insert(Coordinate coordinate){
+        if(last < 10){
+            let queue[last] = coordinate;
+            let last = last + 1;
+        }
+        return;
+    }
+
+    method void remove(){
+        var int i;
+        let i = 0;
+        if(last > 0){
+            while(i < queue.size()){
+                let queue[i] = queue[i + 1];
+                let i = i + 1;
+            }
+            let last = last - 1;
+        }
+        return;
+    }
+
+    method void dispose(){
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}
