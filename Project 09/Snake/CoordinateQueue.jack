@@ -18,6 +18,29 @@ class CoordinateQueue{
         return;
     }
 
+    method boolean exists(Coordinate coordinate){
+        var int i;
+        var int arg_x;
+        var int arg_y;
+        var int temp_x;
+        var int temp_y;
+        var Coordinate temp_coor;
+
+        let arg_x = coordinate.getX();
+        let arg_y = coordinate.getY();
+        let i = 0;
+        while(i < size){
+            let temp_coor = queue[i];
+            let temp_x = temp_coor.getX();
+            let temp_y = temp_coor.getY();
+            if( (temp_x = arg_x) & (temp_y = arg_x) ){
+                return true;
+            }
+            let i = i + 1;
+        }
+        return false;
+    }
+
     method void remove(){
         var int i;
         let i = 0;
