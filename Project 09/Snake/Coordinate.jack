@@ -12,5 +12,13 @@ class Coordinate{
         do Memory.deAlloc(this);
         return;
     }
+
+    method int getX(){
+        return x;
+    }
+
+    method int getY(){
+        return y;
+    }
     
 }
