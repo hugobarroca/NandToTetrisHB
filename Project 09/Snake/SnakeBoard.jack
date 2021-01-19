@@ -1,10 +1,14 @@
 class SnakeBoard{
     field int width;
     field int height;
+    field int current_direction;
 
-    constructor SnakeBoard new(int width, height){
+    constructor SnakeBoard new(int width, int height){
         let width = width;
         let height = height;
-
+        let current_direction = 0;
+        return this;
     }
+
+    
 }

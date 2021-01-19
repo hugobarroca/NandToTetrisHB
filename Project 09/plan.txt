@@ -1,6 +1,6 @@
 # Snake
 
-// Self esplanatory 
+// Guarda uma coordenada x e y.
 Class Coordinate:
     -
 
