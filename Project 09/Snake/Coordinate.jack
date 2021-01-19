@@ -1,0 +1,16 @@
+class Coordinate{
+    field int x;
+    field int y;
+
+    constructor Coordinate new(int width, int height){
+        let x = y;
+        let y = y;
+        return this;
+    }
+
+    method void dispose(){
+        do Memory.deAlloc(this);
+        return;
+    }
+    
+}
