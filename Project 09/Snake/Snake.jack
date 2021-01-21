@@ -2,7 +2,7 @@ class Snake{
     field int size;
     field CoordinateQueue coordinates;
     field Coordinate head;
-    field boolean grow;
+    field boolean grew;
 
     constructor Snake new(){
         let size = 1;
@@ -27,7 +27,7 @@ class Snake{
 
 
         if(size > 10){
-            let grow = true;
+            let grew = true;
             let size = size + 1;
             let coordinate = Coordinate.new(temp_x, temp_y);
         }
@@ -36,6 +36,14 @@ class Snake{
 
     method void move(int direction){
         return;
+    }
+
+    method Array getCoordinates(){
+        return coordinates;
+    }
+
+    method int getSize(){
+        return size;
     }
 
 }
