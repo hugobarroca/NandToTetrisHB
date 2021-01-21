@@ -1,0 +1,32 @@
+class SnakeGame{
+    field int current_direction;
+
+    constructor SnakeGame new(){
+        let current_direction = 0;
+        return this;
+    }
+
+    method void run(){
+        
+        while(true){
+            do Output.printString("Hello!");
+        }
+        return;
+    }
+
+    method void drawBorder(int borderWidth){
+        do Screen.setColor(true);
+        do Screen.drawRectangle(0, 0, 511, borderWidth); // North Border
+        do Screen.drawRectangle(0, 255-borderWidth, 511, 255); // South Border
+        do Screen.drawRectangle(0, borderWidth+1, borderWidth, 255-borderWidth); // West Border
+        do Screen.drawRectangle(511-borderWidth, borderWidth+1, 511, 255-borderWidth); // East Border
+        return;
+    }
+
+    method void dispose(){
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    
+}
