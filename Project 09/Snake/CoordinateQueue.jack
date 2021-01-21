@@ -54,6 +54,10 @@ class CoordinateQueue{
         return;
     }
 
+    method Array getQueue(){
+        return queue;
+    }
+
     method void dispose(){
         do Memory.deAlloc(this);
         return;
