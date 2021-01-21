@@ -1,25 +1,50 @@
 class SnakeGame{
     field int current_direction;
+    field Snake snake;
 
     constructor SnakeGame new(){
+        let snake = Snake.new();
         let current_direction = 0;
         return this;
     }
 
     method void run(){
-        
+        var char currentKey;
+
+        do drawBorder(16);
         while(true){
-            do Output.printString("Hello!");
+            let currentKey = Keyboard.keyPressed();
+            if (~(currentKey = 0)){
+                return;
+            }
         }
         return;
     }
 
+    method void drawSnake(){
+        var Array coordinates;
+        var Coordinate currentCoordinate;
+        var int size;
+        var int i;
+        
+        let coordinates = snake.getCoordinates();
+        let size = snake.getSize();
+        let i = 0;
+
+        while (i < size){
+            let currentCoordinate = coordinates[i];
+            i++;
+        }
+
+
+    }
+
     method void drawBorder(int borderWidth){
         do Screen.setColor(true);
-        do Screen.drawRectangle(0, 0, 511, borderWidth); // North Border
-        do Screen.drawRectangle(0, 255-borderWidth, 511, 255); // South Border
-        do Screen.drawRectangle(0, borderWidth+1, borderWidth, 255-borderWidth); // West Border
-        do Screen.drawRectangle(511-borderWidth, borderWidth+1, 511, 255-borderWidth); // East Border
+        do Screen.drawRectangle(0, 0, 511, borderWidth);                                // North Border
+        do Screen.drawRectangle(0, 255-borderWidth, 511, 255);                          // South Border
+        do Screen.drawRectangle(0, borderWidth+1, borderWidth, 255-borderWidth);        // West Border
+        do Screen.drawRectangle(511-borderWidth, borderWidth+1, 511, 255-borderWidth);  // East Border
         return;
     }
 

@@ -2,7 +2,7 @@ class Main{
 	function void main() {
 		var SnakeGame game;
 		let game = SnakeGame.new();
-		do game.drawBorder(16);
+		do game.run();
 		return;
 	}
 }
