@@ -3,8 +3,8 @@ class Coordinate{
     field int y;
 
     constructor Coordinate new(int width, int height){
-        let x = y;
-        let y = y;
+        let x = width;
+        let y = height;
         return this;
     }
 
