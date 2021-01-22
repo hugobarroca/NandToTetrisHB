@@ -1,42 +1,69 @@
 class SnakeGame{
-    field int current_direction;
     field Snake snake;
 
     constructor SnakeGame new(){
         let snake = Snake.new();
-        let current_direction = 0;
         return this;
     }
 
     method void run(){
         var char currentKey;
+        var char lastKey;
+        var int moveCounter;
+        var int direction;
 
-        do drawBorder(16);
+        do drawBorder(8);
+        do drawSnake();
+        let moveCounter = 0;
         while(true){
+            let direction = 0;
             let currentKey = Keyboard.keyPressed();
+            
             if (~(currentKey = 0)){
-                return;
+                if (currentKey = 81){
+                    return;
+                }else{
+                    let lastKey = currentKey;
+                }
+            }            
+            if (moveCounter = 10){
+                if (lastKey = 131) { let direction = 1; }   // up arrow
+                if (lastKey = 133) { let direction = 2; }   // down arrow
+                if (lastKey = 130) { let direction = 3; }   // left arrow
+                if (lastKey = 132) { let direction = 4; }   // right arrow
+                if (~(direction = 0)){
+                    do snake.move(direction);
+                    do drawSnake();
+                }
+                let moveCounter = 0;
+            } else {
+                let moveCounter = moveCounter + 1;
             }
+            do Sys.wait(100);
         }
         return;
     }
 
     method void drawSnake(){
-        var Array coordinates;
+        var CoordinateQueue coordinatesQueue;
+        var Array coordinatesArray;
         var Coordinate currentCoordinate;
         var int size;
         var int i;
         
-        let coordinates = snake.getCoordinates();
-        let size = snake.getSize();
+        let coordinatesQueue = snake.getCoordinates();
+        let coordinatesArray = coordinatesQueue.getArray();
+        let size = coordinatesQueue.getNrElements();
         let i = 0;
 
         while (i < size){
-            let currentCoordinate = coordinates[i];
-            i++;
+            let currentCoordinate = coordinatesArray[i];
+            do Output.printInt(currentCoordinate.getX());
+            do Output.printChar(32);
+            do Screen.drawRectangle(currentCoordinate.getX()*8, currentCoordinate.getY()*8, (currentCoordinate.getX()*8)+8, (currentCoordinate.getY()*8)+8);
+            let i = i + 1;
         }
-
-
+        return;
     }
 
     method void drawBorder(int borderWidth){
@@ -52,6 +79,5 @@ class SnakeGame{
         do Memory.deAlloc(this);
         return;
     }
-
     
 }
