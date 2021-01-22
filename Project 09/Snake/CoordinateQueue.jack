@@ -1,20 +1,48 @@
+/* This class represents a Queue data structure, created to hold Coordinate-type objects.
+It uses an Array structure in order to store it's elements. Elements are added from left to right, and are removed also from left to right.
+    Fields:
+        nrOfElements - Number of elements currently in the Queue.
+        arraySize - Size allocated to the Queue's array.
+        lastElementIndex - Index of the last element added of the queue. It's updated when an object is inserted. It's -1 when queue is empty.
+*/
 class CoordinateQueue{
-    field int size;
-    field int last;
-    field Array queue;
+    field Array queueArray;
+    field int arraySize;
+    field int nrOfElements;
+    field int lastElementIndex;
+
 
     constructor CoordinateQueue new(int size){
-        let size = size;
-        let last = 0;
-        let queue = Array.new(size);
+        let arraySize = size;
+        let queueArray = Array.new(arraySize);
+        let nrOfElements = 0;
+        let lastElementIndex = -1;
         return this;
     }
 
+// Inserts a Coordinate into the Queue. Updates the "last" field.
     method void insert(Coordinate coordinate){
-        if(last < 10){
-            let queue[last] = coordinate;
-            let last = last + 1;
+        if(lastElementIndex < arraySize - 1){
+            let queueArray[lastElementIndex + 1] = coordinate;
+            let nrOfElements = nrOfElements + 1;
+            let lastElementIndex = lastElementIndex + 1;
         }
+        return;
+    }
+
+    method void remove(){
+        var int i;
+
+        let i = 0;
+        while(i < arraySize){
+            if (~(i = arraySize - 1)){
+                let queueArray[i] = queueArray[i + 1];
+            }
+            let i = i + 1;
+        }
+        
+        let nrOfElements = nrOfElements - 1;
+        let lastElementIndex = lastElementIndex - 1;
         return;
     }
 
@@ -29,8 +57,8 @@ class CoordinateQueue{
         let arg_x = coordinate.getX();
         let arg_y = coordinate.getY();
         let i = 0;
-        while(i < size){
-            let temp_coor = queue[i];
+        while(i < arraySize){
+            let temp_coor = queueArray[i];
             let temp_x = temp_coor.getX();
             let temp_y = temp_coor.getY();
             if( (temp_x = arg_x) & (temp_y = arg_x) ){
@@ -41,26 +69,20 @@ class CoordinateQueue{
         return false;
     }
 
-    method void remove(){
-        var int i;
-        let i = 0;
-        if(last > 0){
-            while(i < queue.size()){
-                let queue[i] = queue[i + 1];
-                let i = i + 1;
-            }
-            let last = last - 1;
-        }
-        return;
+    method Array getArray(){
+        return queueArray;
     }
 
-    method Array getQueue(){
-        return queue;
+    method int getSize(){
+        return arraySize;
+    }
+
+    method int getNrElements(){
+        return nrOfElements;
     }
 
     method void dispose(){
         do Memory.deAlloc(this);
         return;
     }
-
 }
