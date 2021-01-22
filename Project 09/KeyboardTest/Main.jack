@@ -1,0 +1,13 @@
+class Main{
+	function void main() {
+        var char key;
+        while(true){
+            let key = Keyboard.keyPressed();
+            if (~(key = 0)){
+                do Output.printInt(key);
+                do Sys.wait(100);
+            }
+        }
+		return;
+	}
+}
