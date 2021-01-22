@@ -16,3 +16,9 @@ Class SnakeBoard:
 //Desenha a board.
 Class GUI:
     - 
+
+
+
+
+Screen has 256 rows and 512 columns.
+We can divide the screen evenly in square of 32px by 32px.
