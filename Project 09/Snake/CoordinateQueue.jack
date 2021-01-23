@@ -20,7 +20,8 @@ class CoordinateQueue{
         return this;
     }
 
-// Inserts a Coordinate into the Queue. Updates the "last" field.
+// Inserts a Coordinate into the Queue, into the leftmost side of the queue array, and moves all other objects one to the right.
+// If the array is full, it does nothing.
     method void insert(Coordinate coordinate){
         var int i;
         let i = 1;
