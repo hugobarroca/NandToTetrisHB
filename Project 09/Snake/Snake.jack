@@ -2,17 +2,20 @@ class Snake{
     field int size;
     field CoordinateQueue coordinates;
     field Coordinate head;
+    field Coordinate tail;
     field boolean grew;
 
     constructor Snake new(){
         let coordinates = CoordinateQueue.new(10);
         let head = Coordinate.new(31, 15);
+        let tail = head;
         let size = 1;
         do coordinates.insert(head);
         return this;
     }
 
     method void move(int direction){
+        var Array queueArray;
         var Coordinate coordinate;
         var int temp_x;
         var int temp_y;
@@ -31,6 +34,11 @@ class Snake{
 
         let coordinate = Coordinate.new(temp_x, temp_y);
         let head = coordinate;
+
+        // Get snake's tail
+        let queueArray = coordinates.getArray();
+        let tail = queueArray[0];
+
 
         do coordinates.remove();
         do coordinates.insert(head);
@@ -67,6 +75,10 @@ class Snake{
 
     method int getSize(){
         return size;
+    }
+
+    method Coordinate getTail(){
+        return tail;
     }
 
 }
