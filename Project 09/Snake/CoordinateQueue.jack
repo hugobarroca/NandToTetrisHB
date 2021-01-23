@@ -23,14 +23,8 @@ class CoordinateQueue{
 // Inserts a Coordinate into the Queue, into the leftmost side of the queue array, and moves all other objects one to the right.
 // If the array is full, it does nothing.
     method void insert(Coordinate coordinate){
-        var int i;
-        let i = 1;
         if(lastElementIndex < arraySize - 1){
-            while(i < arraySize){
-                let queueArray[i] = queueArray[i-1];
-                let i = i + 1;
-            }
-            let queueArray[0] = coordinate;
+            let queueArray[lastElementIndex + 1] = coordinate;
             let nrOfElements = nrOfElements + 1;
             let lastElementIndex = lastElementIndex + 1;
         }
@@ -39,6 +33,11 @@ class CoordinateQueue{
 
     method void remove(){
         var int i;
+
+
+        do Output.printString("R:");
+        do printArray();
+
 
         let i = 0;
         while(i < arraySize){
@@ -86,6 +85,21 @@ class CoordinateQueue{
 
     method int getNrElements(){
         return nrOfElements;
+    }
+
+    method void printArray(){
+
+        var int i;
+
+        let i = 0;
+        do Output.printString("(");
+        while(i < arraySize){
+            do Output.printInt(queueArray[i]);
+            do Output.printString(",");
+            let i = i + 1;
+        }
+        do Output.printString(")");
+        return;
     }
 
     method void dispose(){
