@@ -1,5 +1,5 @@
 /* This class represents a Queue data structure, created to hold Coordinate-type objects.
-It uses an Array structure in order to store it's elements. Elements are added from left to right, and are removed also from left to right.
+It uses an Array in order to store it's elements. Elements are added from left to right, and are removed also from left to right.
     Fields:
         nrOfElements - Number of elements currently in the Queue.
         arraySize - Size allocated to the Queue's array.
@@ -22,8 +22,14 @@ class CoordinateQueue{
 
 // Inserts a Coordinate into the Queue. Updates the "last" field.
     method void insert(Coordinate coordinate){
+        var int i;
+        let i = 1;
         if(lastElementIndex < arraySize - 1){
-            let queueArray[lastElementIndex + 1] = coordinate;
+            while(i < arraySize){
+                let queueArray[i] = queueArray[i-1];
+                let i = i + 1;
+            }
+            let queueArray[0] = coordinate;
             let nrOfElements = nrOfElements + 1;
             let lastElementIndex = lastElementIndex + 1;
         }
