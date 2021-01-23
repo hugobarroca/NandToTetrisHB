@@ -26,7 +26,7 @@ class SnakeGame{
                     let lastKey = currentKey;
                 }
             }            
-            if (moveCounter = 10){
+            if (moveCounter = 5){
                 if (lastKey = 131) { let direction = 1; }   // up arrow
                 if (lastKey = 133) { let direction = 2; }   // down arrow
                 if (lastKey = 130) { let direction = 3; }   // left arrow
@@ -60,8 +60,6 @@ class SnakeGame{
 
         while (i < size){
             let currentCoordinate = coordinatesArray[i];
-            do Output.printInt(currentCoordinate.getX());
-            do Output.printChar(32);
             do Screen.drawRectangle(currentCoordinate.getX()*8, currentCoordinate.getY()*8, (currentCoordinate.getX()*8)+8, (currentCoordinate.getY()*8)+8);
             let i = i + 1;
         }

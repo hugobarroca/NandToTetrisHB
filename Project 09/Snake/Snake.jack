@@ -23,14 +23,10 @@ class Snake{
         let temp_x = head.getX();
         let temp_y = head.getY();
 
-        if(direction = 1){let temp_y = temp_y + 1;}
-        if(direction = 2){let temp_y = temp_y - 1;}
+        if(direction = 1){let temp_y = temp_y - 1;}
+        if(direction = 2){let temp_y = temp_y + 1;}
         if(direction = 3){let temp_x = temp_x - 1;}
         if(direction = 4){let temp_x = temp_x + 1;}
-
-        do Output.printInt(temp_x);
-        do Output.printInt(temp_y);
-        do Output.printChar(32);
 
         let coordinate = Coordinate.new(temp_x, temp_y);
         let head = coordinate;
@@ -55,16 +51,17 @@ class Snake{
         let temp_x = head.getX();
         let temp_y = head.getY();
 
-        if(direction = 1){let temp_x = temp_y + 1;}
-        if(direction = 2){let temp_x = temp_y - 1;}
+        if(direction = 1){let temp_x = temp_y - 1;}
+        if(direction = 2){let temp_x = temp_y + 1;}
         if(direction = 3){let temp_y = temp_x - 1;}
         if(direction = 4){let temp_y = temp_x + 1;}
 
-
-        if(size > 10){
+        if(size < 10){
             let grew = true;
             let size = size + 1;
             let coordinate = Coordinate.new(temp_x, temp_y);
+            let head = coordinate;
+            do coordinates.insert(head);
         }
         return;
     }
