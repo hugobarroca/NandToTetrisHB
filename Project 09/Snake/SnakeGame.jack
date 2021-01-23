@@ -33,7 +33,7 @@ class SnakeGame{
                 if (lastKey = 132) { let direction = 4; }   // right arrow
                 if (~(direction = 0)){
                     do snake.move(direction);
-                    do drawSnake();
+                    do drawMovingSnake();
                 }
                 let moveCounter = 0;
             } else {
@@ -56,6 +56,8 @@ class SnakeGame{
         let size = coordinatesQueue.getNrElements();
         let i = 0;
 
+        do Screen.setColor(true);
+
         while (i < size){
             let currentCoordinate = coordinatesArray[i];
             do Output.printInt(currentCoordinate.getX());
@@ -63,6 +65,24 @@ class SnakeGame{
             do Screen.drawRectangle(currentCoordinate.getX()*8, currentCoordinate.getY()*8, (currentCoordinate.getX()*8)+8, (currentCoordinate.getY()*8)+8);
             let i = i + 1;
         }
+        do Screen.setColor(false);
+        return;
+    }
+
+    method void drawMovingSnake(){
+        var Coordinate tail;
+        var int tailX;
+        var int tailY;
+
+        let tail = snake.getTail();
+        let tailX = tail.getX();
+        let tailY = tail.getY();
+
+
+        do Screen.setColor(false);
+        do Screen.drawRectangle(tailX*8, tailY*8, (tailX*8)+8, (tailY*8)+8);
+
+        do drawSnake();
         return;
     }
 
@@ -72,6 +92,7 @@ class SnakeGame{
         do Screen.drawRectangle(0, 255-borderWidth, 511, 255);                          // South Border
         do Screen.drawRectangle(0, borderWidth+1, borderWidth, 255-borderWidth);        // West Border
         do Screen.drawRectangle(511-borderWidth, borderWidth+1, 511, 255-borderWidth);  // East Border
+        do Screen.setColor(false);
         return;
     }
 
