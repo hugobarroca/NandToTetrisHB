@@ -12,9 +12,10 @@ class SnakeGame{
         var int moveCounter;
         var int direction;
 
-        do drawBorder(8);
+        //do drawBorder(8);
         do drawSnake();
         let moveCounter = 0;
+
         while(true){
             let direction = 0;
             let currentKey = Keyboard.keyPressed();
@@ -25,15 +26,17 @@ class SnakeGame{
                 }else{
                     let lastKey = currentKey;
                 }
-            }            
+            }
+      
             if (moveCounter = 5){
                 if (lastKey = 131) { let direction = 1; }   // up arrow
                 if (lastKey = 133) { let direction = 2; }   // down arrow
                 if (lastKey = 130) { let direction = 3; }   // left arrow
                 if (lastKey = 132) { let direction = 4; }   // right arrow
                 if (~(direction = 0)){
+                    do undrawTail();
                     do snake.move(direction);
-                    do drawMovingSnake();
+                    do drawHead();
                 }
                 let moveCounter = 0;
             } else {
@@ -54,36 +57,39 @@ class SnakeGame{
         let coordinatesQueue = snake.getCoordinates();
         let coordinatesArray = coordinatesQueue.getArray();
         let size = coordinatesQueue.getNrElements();
+
         let i = 0;
-
-        do Screen.setColor(true);
-
         while (i < size){
             let currentCoordinate = coordinatesArray[i];
-            do Screen.drawRectangle(currentCoordinate.getX()*8, currentCoordinate.getY()*8, (currentCoordinate.getX()*8)+8, (currentCoordinate.getY()*8)+8);
+            do drawCoordinate(currentCoordinate, true);
             let i = i + 1;
         }
+        return;
+    }
+
+    method void drawHead(){
+        do drawCoordinate(snake.getHead(), true);
+        return;
+    }
+
+    method void undrawTail(){
+        do drawCoordinate(snake.getTail(), false);
+        return;
+    }
+
+// Draws or undraws the given coordinate.
+    method void drawCoordinate(Coordinate coord, boolean draw){
+        var int coordX;
+        var int coordY;
+        let coordX = coord.getX();
+        let coordY = coord.getY();
+        do Screen.setColor(draw);
+        do Screen.drawRectangle(coordX*8, coordY*8, (coordX*8)+8, (coordY*8)+8);
         do Screen.setColor(false);
         return;
     }
 
-    method void drawMovingSnake(){
-        var Coordinate tail;
-        var int tailX;
-        var int tailY;
-
-        let tail = snake.getTail();
-        let tailX = tail.getX();
-        let tailY = tail.getY();
-
-
-        do Screen.setColor(false);
-        do Screen.drawRectangle(tailX*8, tailY*8, (tailX*8)+8, (tailY*8)+8);
-
-        do drawSnake();
-        return;
-    }
-
+// Draws the border of the game. The border will have a thickness of borderWidth pixels.
     method void drawBorder(int borderWidth){
         do Screen.setColor(true);
         do Screen.drawRectangle(0, 0, 511, borderWidth);                                // North Border
