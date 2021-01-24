@@ -25,7 +25,6 @@ class Snake{
 // It also removes the previous tail from the snake queue.
     method void move(int direction){
         var Array queueArray;
-        var Coordinate coordinate;
         var int temp_x;
         var int temp_y;
         
@@ -37,13 +36,12 @@ class Snake{
         if(direction = 3){let temp_x = temp_x - 1;}
         if(direction = 4){let temp_x = temp_x + 1;}
 
-        let coordinate = Coordinate.new(temp_x, temp_y);
-        let head = coordinate;
+        let head = Coordinate.new(temp_x, temp_y);
 
         do coordinates.remove();
         do coordinates.insert(head);
 
-        // Get snake's tail
+        // Get new tail
         let queueArray = coordinates.getArray();
         let tail = queueArray[0];
 
