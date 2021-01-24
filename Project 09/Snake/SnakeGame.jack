@@ -1,49 +1,80 @@
+// This class emulates the snake game in the hack platform. 
+// It creates a board of 64 x 32 squares, with each square having an 8px long side.
 class SnakeGame{
+    field int seed;
     field Snake snake;
+    field Coordinate food;
 
     constructor SnakeGame new(){
         let snake = Snake.new();
+        let seed = 1;
         return this;
     }
 
     method void run(){
+        var Coordinate fruit;
+        var Coordinate head;
         var char currentKey;
         var char lastKey;
         var int moveCounter;
         var int direction;
+        var bool eqX;
+        var bool eqY;
 
-        //do drawBorder(8);
+        do drawBorder(8);
         do drawSnake();
         let moveCounter = 0;
+        let direction = 4;
 
+        do spawnFood();
         while(true){
-            let direction = 0;
             let currentKey = Keyboard.keyPressed();
             
-            if (~(currentKey = 0)){
-                if (currentKey = 81){
-                    return;
-                }else{
-                    let lastKey = currentKey;
-                }
+            if (currentKey = 81){
+                return;
+            }else{
+                let lastKey = currentKey;
             }
-      
-            if (moveCounter = 5){
+
+            if (moveCounter = 1){
                 if (lastKey = 131) { let direction = 1; }   // up arrow
                 if (lastKey = 133) { let direction = 2; }   // down arrow
                 if (lastKey = 130) { let direction = 3; }   // left arrow
                 if (lastKey = 132) { let direction = 4; }   // right arrow
-                if (~(direction = 0)){
-                    do undrawTail();
-                    do snake.move(direction);
-                    do drawHead();
+                do undrawTail();
+                do snake.move(direction);
+                let head = snake.getHead();
+                let eqX = head.getX();
+                let eqY = head.getY();
+                if(eqX = food.getX() & eqY = food.getY()){
+                    do snake.grow(direction);
+                    //do spawnFood();
                 }
+                do drawHead();
                 let moveCounter = 0;
             } else {
                 let moveCounter = moveCounter + 1;
             }
             do Sys.wait(100);
         }
+        return;
+    }
+
+    method void spawnFood(){
+        var int x;
+        var int y;
+
+        do LCGRandom.setSeed(seed);
+        let x = LCGRandom.randRange(2, 60);
+        let y = LCGRandom.randRange(2, 30);
+
+        let food = Coordinate.new(x, y);
+        do drawCoordinate(food, true);
+        return;
+    }
+
+    method void despawnFood(){
+        do drawCoordinate(food, false);
         return;
     }
 
