@@ -5,6 +5,7 @@ class Snake{
     field Coordinate head;
     field Coordinate tail;
 
+    // Creates a new Snake object.
     constructor Snake new(){
         let MAX_SIZE = 10;
         let coordinates = CoordinateQueue.new(MAX_SIZE);
@@ -48,30 +49,33 @@ class Snake{
         return;
     }
 
+// Creates a new coordinate in the specified direction, sets it as head and adds it to the snake queue.
     method void grow(int direction){
-        var Coordinate coordinate;
+        var Array queueArray;
         var int temp_x;
         var int temp_y;
-
+        
         let temp_x = head.getX();
         let temp_y = head.getY();
 
-        if(direction = 1){let temp_x = temp_y - 1;}
-        if(direction = 2){let temp_x = temp_y + 1;}
-        if(direction = 3){let temp_y = temp_x - 1;}
-        if(direction = 4){let temp_y = temp_x + 1;}
+        if(direction = 1){let temp_y = temp_y - 1;}
+        if(direction = 2){let temp_y = temp_y + 1;}
+        if(direction = 3){let temp_x = temp_x - 1;}
+        if(direction = 4){let temp_x = temp_x + 1;}
 
-        if(size < MAX_SIZE){
-            let size = size + 1;
-            let coordinate = Coordinate.new(temp_x, temp_y);
-            let head = coordinate;
-            do coordinates.insert(head);
-        }
+        let head = Coordinate.new(temp_x, temp_y);
+
+        do coordinates.insert(head);
+
         return;
     }
 
-    method Array getCoordinates(){
+    method Array getCoordinatesQueue(){
         return coordinates;
+    }
+
+    method Array getCoordinatesArray(){
+        return coordinates.getArray();
     }
 
     method int getSize(){

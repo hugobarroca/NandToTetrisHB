@@ -11,7 +11,7 @@ class CoordinateQueue{
     field int nrOfElements;
     field int lastElementIndex;
 
-
+    //Creates a new empty Queue, with an array of size "size".
     constructor CoordinateQueue new(int size){
         let arraySize = size;
         let queueArray = Array.new(arraySize);
@@ -20,12 +20,12 @@ class CoordinateQueue{
         return this;
     }
 
-// Inserts a Coordinate into the Queue, into the leftmost side of the queue array, and moves all other objects one to the right.
-// If the array is full, it does nothing.
+    // Inserts a Coordinate into the Queue, into the rightmost side of the queue array.
+    // If the array is full, it does nothing.
     method void insert(Coordinate coordinate){
-        var int secondToLastIndex;
-        let secondToLastIndex = arraySize - 1;
-        if(lastElementIndex < secondToLastIndex){
+        // If there's still at least one empty address left in the array;
+        if(lastElementIndex < (arraySize - 1)){
+            // Put the given coordinate in that address.
             let queueArray[lastElementIndex + 1] = coordinate;
             let nrOfElements = nrOfElements + 1;
             let lastElementIndex = lastElementIndex + 1;
@@ -33,42 +33,24 @@ class CoordinateQueue{
         return;
     }
 
+    // Removes a coordinate from the leftmost side of the Queue, and moves all other coordinates one to the left.
     method void remove(){
+        var Coordinate removedCoordinate;
         var int i;
-
         let i = 0;
+
+        let removedCoordinate = queueArray[0];
+        // Iterate through all elements of the array, except the last (it's value is ignored);
         while(i < (nrOfElements - 1)){
+            // Each element takes on the value of the next element.
             let queueArray[i] = queueArray[i + 1];
             let i = i + 1;
         }
-        
+
+        do removedCoordinate.dispose();
         let nrOfElements = nrOfElements - 1;
         let lastElementIndex = lastElementIndex - 1;
-
         return;
-    }
-
-    method boolean exists(Coordinate coordinate){
-        var int i;
-        var int arg_x;
-        var int arg_y;
-        var int temp_x;
-        var int temp_y;
-        var Coordinate temp_coor;
-
-        let arg_x = coordinate.getX();
-        let arg_y = coordinate.getY();
-        let i = 0;
-        while(i < arraySize){
-            let temp_coor = queueArray[i];
-            let temp_x = temp_coor.getX();
-            let temp_y = temp_coor.getY();
-            if( (temp_x = arg_x) & (temp_y = arg_x) ){
-                return true;
-            }
-            let i = i + 1;
-        }
-        return false;
     }
 
     method Array getArray(){

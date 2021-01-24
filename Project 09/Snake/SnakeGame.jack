@@ -1,10 +1,11 @@
-// This class emulates the snake game in the hack platform. 
+// This class emulates the snake game in the hack platform.
 // It creates a board of 64 x 32 squares, with each square having an 8px long side.
 class SnakeGame{
-    field int seed;
     field Snake snake;
     field Coordinate food;
+    field int seed;
 
+    // Creates a new SnakeGame.
     constructor SnakeGame new(){
         let snake = Snake.new();
         let seed = 1;
@@ -12,16 +13,17 @@ class SnakeGame{
     }
 
     method void run(){
-        var Coordinate fruit;
         var Coordinate head;
         var char currentKey;
         var char lastKey;
         var int moveCounter;
         var int direction;
-        var bool eqX;
-        var bool eqY;
+        var int eqX;
+        var int eqY;
+        var int feqX;
+        var int feqY;
 
-        do drawBorder(8);
+        //do drawBorder(8);
         do drawSnake();
         let moveCounter = 0;
         let direction = 4;
@@ -36,21 +38,29 @@ class SnakeGame{
                 let lastKey = currentKey;
             }
 
-            if (moveCounter = 1){
+            if (moveCounter = 2){
                 if (lastKey = 131) { let direction = 1; }   // up arrow
                 if (lastKey = 133) { let direction = 2; }   // down arrow
                 if (lastKey = 130) { let direction = 3; }   // left arrow
                 if (lastKey = 132) { let direction = 4; }   // right arrow
-                do undrawTail();
-                do snake.move(direction);
+
                 let head = snake.getHead();
                 let eqX = head.getX();
                 let eqY = head.getY();
-                if(eqX = food.getX() & eqY = food.getY()){
+                let feqX = food.getX();
+                let feqY = food.getY();
+
+                if(~(eqX = feqX & eqY = feqY)){
+                    do undrawTail();
+                    do snake.move(direction);
+                    do drawHead();
+                }else{
+                    do despawnFood();
+                    do spawnFood();
                     do snake.grow(direction);
-                    //do spawnFood();
+                    do drawHead();
                 }
-                do drawHead();
+
                 let moveCounter = 0;
             } else {
                 let moveCounter = moveCounter + 1;
@@ -70,6 +80,7 @@ class SnakeGame{
 
         let food = Coordinate.new(x, y);
         do drawCoordinate(food, true);
+        let seed = seed + 1;
         return;
     }
 
@@ -78,37 +89,34 @@ class SnakeGame{
         return;
     }
 
+
     method void drawSnake(){
-        var CoordinateQueue coordinatesQueue;
         var Array coordinatesArray;
-        var Coordinate currentCoordinate;
-        var int size;
         var int i;
         
-        let coordinatesQueue = snake.getCoordinates();
-        let coordinatesArray = coordinatesQueue.getArray();
-        let size = coordinatesQueue.getNrElements();
+        let coordinatesArray = snake.getCoordinatesArray();
 
         let i = 0;
-        while (i < size){
-            let currentCoordinate = coordinatesArray[i];
-            do drawCoordinate(currentCoordinate, true);
+        while (i < snake.getSize()){
+            do drawCoordinate(coordinatesArray[i], true);
             let i = i + 1;
         }
         return;
     }
 
+    // Draws the Snake's current head.
     method void drawHead(){
         do drawCoordinate(snake.getHead(), true);
         return;
     }
 
+    // Erases the Snake's currrent tail.
     method void undrawTail(){
         do drawCoordinate(snake.getTail(), false);
         return;
     }
 
-// Draws or undraws the given coordinate.
+    // Draws or erases the given coordinate.
     method void drawCoordinate(Coordinate coord, boolean draw){
         var int coordX;
         var int coordY;
@@ -120,7 +128,7 @@ class SnakeGame{
         return;
     }
 
-// Draws the border of the game. The border will have a thickness of borderWidth pixels.
+    // Draws the border of the game. The border will have a thickness of borderWidth pixels.
     method void drawBorder(int borderWidth){
         do Screen.setColor(true);
         do Screen.drawRectangle(0, 0, 511, borderWidth);                                // North Border
@@ -131,6 +139,7 @@ class SnakeGame{
         return;
     }
 
+    // Disposes of the SnakeGame object.
     method void dispose(){
         do Memory.deAlloc(this);
         return;
