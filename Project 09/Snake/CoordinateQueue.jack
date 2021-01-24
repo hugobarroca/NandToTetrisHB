@@ -33,22 +33,19 @@ class CoordinateQueue{
 
     method void remove(){
         var int i;
+        var int secondToLastElementIndex;
 
-
-        do Output.printString("R:");
-        do printArray();
-
+        let secondToLastElementIndex = nrOfElements - 1;
 
         let i = 0;
-        while(i < arraySize){
-            if (~(i = arraySize - 1)){
-                let queueArray[i] = queueArray[i + 1];
-            }
+        while(i < secondToLastElementIndex){
+            let queueArray[i] = queueArray[i + 1];
             let i = i + 1;
         }
         
         let nrOfElements = nrOfElements - 1;
         let lastElementIndex = lastElementIndex - 1;
+
         return;
     }
 
@@ -88,17 +85,22 @@ class CoordinateQueue{
     }
 
     method void printArray(){
-
         var int i;
+        var Coordinate coord;
 
         let i = 0;
-        do Output.printString("(");
-        while(i < arraySize){
-            do Output.printInt(queueArray[i]);
+
+        do Output.printString("[");
+        while(i < nrOfElements){
+            let coord = queueArray[i];
+            do Output.printString("(");
+            do Output.printInt(coord.getX());
             do Output.printString(",");
+            do Output.printInt(coord.getY());
+            do Output.printString(")");
             let i = i + 1;
         }
-        do Output.printString(")");
+        do Output.printString("]");
         return;
     }
 
