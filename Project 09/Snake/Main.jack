@@ -1,8 +1,12 @@
 class Main{
 	function void main() {
+		var int score;
 		var SnakeGame game;
 		let game = SnakeGame.new();
-		do game.run();
+		let score = game.run();
+		do Output.printString("You score was: ");
+		do Output.printInt(score);
+		do Output.printString("!");
 		return;
 	}
 }

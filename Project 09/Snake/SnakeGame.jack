@@ -4,15 +4,17 @@ class SnakeGame{
     field Snake snake;
     field Coordinate food;
     field int seed;
+    field int score;
 
     // Creates a new SnakeGame.
     constructor SnakeGame new(){
         let snake = Snake.new();
         let seed = 1;
+        let score = 0;
         return this;
     }
 
-    method void run(){
+    method int run(){
         var Coordinate head;
         var char currentKey;
         var char lastKey;
@@ -22,6 +24,7 @@ class SnakeGame{
         var int eqY;
         var int feqX;
         var int feqY;
+        var boolean collided;
 
         //do drawBorder(8);
         do drawSnake();
@@ -29,26 +32,32 @@ class SnakeGame{
         let direction = 4;
 
         do spawnFood();
+
         while(true){
             let currentKey = Keyboard.keyPressed();
             
             if (currentKey = 81){
-                return;
+                return score;
             }else{
                 let lastKey = currentKey;
             }
 
             if (moveCounter = 2){
-                if (lastKey = 131) { let direction = 1; }   // up arrow
-                if (lastKey = 133) { let direction = 2; }   // down arrow
-                if (lastKey = 130) { let direction = 3; }   // left arrow
-                if (lastKey = 132) { let direction = 4; }   // right arrow
+                if (lastKey = 131 & ~(direction = 2)) { let direction = 1; }   // up arrow
+                if (lastKey = 133 & ~(direction = 1)) { let direction = 2; }   // down arrow
+                if (lastKey = 130 & ~(direction = 4)) { let direction = 3; }   // left arrow
+                if (lastKey = 132 & ~(direction = 3)) { let direction = 4; }   // right arrow
 
                 let head = snake.getHead();
                 let eqX = head.getX();
                 let eqY = head.getY();
                 let feqX = food.getX();
                 let feqY = food.getY();
+
+                let collided = detectColision(head);
+                if(collided){
+                    return score;
+                }
 
                 if(~(eqX = feqX & eqY = feqY)){
                     do undrawTail();
@@ -67,7 +76,7 @@ class SnakeGame{
             }
             do Sys.wait(100);
         }
-        return;
+        return score;
     }
 
     method void spawnFood(){
@@ -84,8 +93,36 @@ class SnakeGame{
         return;
     }
 
+    method boolean detectColision(Coordinate coord){
+        var Array snakeArray;
+        var int snakeX;
+        var int snakeY;
+        var Coordinate snakeCord;
+        var int currentX;
+        var int currentY;
+        var int size;
+        var int i;
+
+        let i = 0;
+        let size = snake.getSize();
+        let snakeArray = snake.getCoordinatesArray();
+        let currentX = coord.getX();
+        let currentY = coord.getY();
+        while(i < (size - 1)){
+            let snakeCord = snakeArray[i];
+            let snakeX = snakeCord.getX();
+            let snakeY = snakeCord.getY();
+            if ((snakeX = currentX) & (snakeY = currentY)){
+                return true;
+            }
+            let i = i + 1;
+        }
+        return false;
+    }
+
     method void despawnFood(){
-        do drawCoordinate(food, false);
+        let score = score + 1;
+        do food.dispose();
         return;
     }
 

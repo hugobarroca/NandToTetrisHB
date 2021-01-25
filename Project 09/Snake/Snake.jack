@@ -7,6 +7,8 @@ class Snake{
 
     // Creates a new Snake object.
     constructor Snake new(){
+        var int i;
+
         let MAX_SIZE = 10;
         let coordinates = CoordinateQueue.new(MAX_SIZE);
         let head = Coordinate.new(31, 15);
@@ -14,9 +16,14 @@ class Snake{
         let size = 1;
         do coordinates.insert(head);
 
-        let head = Coordinate.new(30, 15);
-        let size = size + 1;
-        do coordinates.insert(head);
+        let i = 0;
+        while (i < 5){
+            let head = Coordinate.new(32 + i, 15);
+            let size = size + 1;
+            do coordinates.insert(head);
+            let i = i + 1;
+        }
+
 
 
         return this;
