@@ -10,39 +10,52 @@ import java.util.Scanner;
 
 public class JackTokenizer {
 	private String currentToken;
+	private String fileContent;
 
-	public JackTokenizer(File inputFile) {
+	public JackTokenizer(File inputFile) throws FileNotFoundException {
 		currentToken = null;
-		String fileContent = "";
+		fileContent = "";
+		readFileIntoString(inputFile);
+
+	}
+
+	private void readFileIntoString(File inputFile) throws FileNotFoundException {
+		String currentLine = null;
 		String currentWord = null;
+		Scanner fileScanner = null;
+		Scanner lineScanner = null;
 
-		try {
-			Scanner myReader = new Scanner(inputFile);
+		if (!inputFile.isDirectory()) {
+			fileScanner = new Scanner(inputFile);
 
-			while (myReader.hasNextLine()) {
-				Scanner check = new Scanner(myReader.nextLine());
-				if (!myReader.nextLine().startsWith("//")) {
-					while (check.hasNext()) {
-						currentWord = check.next();
+			while (fileScanner.hasNextLine()) {
+				currentLine = fileScanner.nextLine();
+				if (!(currentLine.startsWith("//") | currentLine.startsWith("/**"))) {
+					lineScanner = new Scanner(currentLine);
+					while (lineScanner.hasNext()) {
+						currentWord = lineScanner.next();
 						if (!currentWord.equals("//")) {
-							fileContent += check.next();
+							fileContent += currentWord;
+							fileContent += " ";
 						} else {
 							break;
 						}
-
 					}
+					lineScanner.close();
 				}
 			}
-
-		} catch (FileNotFoundException e) {
-			System.out.println("There was a problem reading the requested file! Make sure the chosen path is correct!");
-			e.printStackTrace();
+			fileScanner.close();
+		} else {
+			System.out.println("ERROR: JackTokenizer was given a directory!");
 		}
-
 	}
 
 	public boolean hasMoreTokens() {
 		// TODO: Implement method.
 		return true;
+	}
+
+	public void printFileContent() {
+		System.out.println(fileContent);
 	}
 }
