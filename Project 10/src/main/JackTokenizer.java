@@ -29,6 +29,7 @@ public class JackTokenizer {
 		String currentLine = null;
 		String currentWord = null;
 		Scanner fileScanner = null;
+		boolean multilineComment = false;
 
 		if (inputFile.isDirectory()) {
 			System.out.println("ERROR: JackTokenizer was given a directory!");
@@ -40,9 +41,16 @@ public class JackTokenizer {
 		// Iterate through every line in the file.
 		while (fileScanner.hasNextLine()) {
 			currentLine = fileScanner.nextLine();
-
-			if ((!(currentLine.startsWith("//"))))
+			
+			if (currentLine.startsWith("/**"))
+				multilineComment = true;
+			
+			if (currentLine.contains("*/"))
+				multilineComment = false;
+			
+			if (currentLine.startsWith("//") || multilineComment)
 				continue;
+			
 			stripTokens(currentWord);
 		}
 
@@ -100,7 +108,7 @@ public class JackTokenizer {
 		lexicalElements.put("false",       "KEYWORD");
 		lexicalElements.put("null",        "KEYWORD");
 		lexicalElements.put("this",        "KEYWORD");
-		lexicalElements.put("let",         "KEYWORD");8
+		lexicalElements.put("let",         "KEYWORD");
 		lexicalElements.put("do",          "KEYWORD");
 		lexicalElements.put("if",          "KEYWORD");
 		lexicalElements.put("else",        "KEYWORD");
