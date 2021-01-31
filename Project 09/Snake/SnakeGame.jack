@@ -26,7 +26,7 @@ class SnakeGame{
         var int feqY;
         var boolean collided;
 
-        //do drawBorder(8);
+        do drawBorder(8);
         do drawSnake();
         let moveCounter = 0;
         let direction = 4;
