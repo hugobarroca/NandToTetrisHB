@@ -44,7 +44,11 @@ public class JackTokenizer {
 			while (fileContent.startsWith("/**")) {
 				fileContent = fileContent.split(Pattern.quote("*/"))[1];
 			}
+			
+			//Remove all leading whitespace.
+			fileContent = fileContent.replaceFirst("^ *", "");
 
+			// Checks if the next word is either a symbol or a keyword.
 			for (String symbol : lexicalElements.keySet()) {
 				if (fileContent.startsWith(symbol)) {
 					tokenList.add(symbol);
@@ -53,8 +57,22 @@ public class JackTokenizer {
 					break;
 				}
 			}
+			
+			//Check if the next symbol is a string
+			if (fileContent.startsWith("\"") && unrecognizedSymbol) {
+				fileContent = fileContent.split(Pattern.quote("\""), 2)[1];
+				String[] tempString = fileContent.split(Pattern.quote("\""), 2);
+				tokenList.add(tempString[0]);
+				fileContent = tempString[1];
+				unrecognizedSymbol = false;
+				
+			}
+			
+			
 			if (unrecognizedSymbol) {
-				System.out.println("Current symbol was not recognized!");
+				System.out.println(">>DEBUG<< Current symbol was not recognized!\n");
+				System.out.println(fileContent);
+				System.exit(1);
 			}
 		}
 
