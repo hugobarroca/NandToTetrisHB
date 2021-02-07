@@ -38,12 +38,10 @@ public class JackTokenizer {
 			fileContent += nextLine;
 		}
 
-		fileContent.replace(" ", "");
-
 		while (fileContent != "") {
 			boolean unrecognizedSymbol = true;
 
-			if (fileContent.startsWith(Pattern.quote("\\/\\*\\*"))) {
+			while (fileContent.startsWith("/**")) {
 				fileContent = fileContent.split(Pattern.quote("*/"))[1];
 			}
 
