@@ -22,15 +22,15 @@ public class JackTokenizer {
 	}
 
 	private void populateTokenList() throws FileNotFoundException {
-		
+
 		while (fileContent != "") {
 			boolean unrecognizedSymbol = true;
 
 			while (fileContent.startsWith("/**")) {
 				fileContent = fileContent.split(Pattern.quote("*/"))[1];
 			}
-			
-			//Remove all leading whitespace.
+
+			// Remove all leading whitespace.
 			fileContent = fileContent.replaceFirst("^ *", "");
 
 			// Checks if the next word is either a symbol or a keyword.
@@ -39,31 +39,36 @@ public class JackTokenizer {
 					tokenList.add(symbol);
 					fileContent = fileContent.split(Pattern.quote(symbol), 2)[1];
 					unrecognizedSymbol = false;
-					break;
 				}
 			}
-			
-			//Check if the next symbol is a string
-			if (fileContent.startsWith("\"") && unrecognizedSymbol) {
+
+			if (!unrecognizedSymbol)
+				continue;
+
+			if (fileContent.startsWith("\"")) {
 				fileContent = fileContent.split(Pattern.quote("\""), 2)[1];
 				String[] tempString = fileContent.split(Pattern.quote("\""), 2);
 				tokenList.add(tempString[0]);
 				fileContent = tempString[1];
 				unrecognizedSymbol = false;
-				
+			} else if (Character.isDigit(fileContent.charAt(0))) {
+				String[] tempString = fileContent.split(" ", 2);
+				tokenList.add(tempString[0]);
+				fileContent = tempString[1];
+				unrecognizedSymbol = false;
+			} else if (Character.isDigit(fileContent.charAt(0))) {
+				String[] tempString = fileContent.split(" ", 2);
+				tokenList.add(tempString[0]);
+				fileContent = tempString[1];
+				unrecognizedSymbol = false;
+			} else if (!Character.isDigit(fileContent.charAt(0))) {
+				String[] tempString = fileContent.split(" ", 2);
+				tokenList.add(tempString[0]);
+				fileContent = tempString[1];
+				unrecognizedSymbol = false;
 			}
-			
-			
-			
-			
-			if (unrecognizedSymbol) {
-				System.out.println(">>DEBUG<< Current symbol was not recognized!\n");
-				System.out.println(fileContent);
-				System.exit(1);
-			}
+
 		}
-
-
 
 	}
 
@@ -84,10 +89,10 @@ public class JackTokenizer {
 			}
 			fileContent += nextLine;
 		}
-		
+
 		fileScanner.close();
 	}
-	
+
 	public boolean hasMoreTokens() {
 		// TODO: Implement method.
 		return true;
@@ -141,5 +146,10 @@ public class JackTokenizer {
 
 	public void printFileContent() {
 		System.out.println(fileContent);
+	}
+	
+	public void printXML() {
+		//TODO
+		return;
 	}
 }

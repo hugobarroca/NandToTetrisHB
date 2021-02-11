@@ -7,12 +7,12 @@ public class Main {
 	public static void main(String[] args) {
 		File[] programFiles;
 		File programToParse;
-		
-		if(args.length == 0){
+
+		if (args.length == 0) {
 			System.out.println("No arguments were given! Quitting program!");
 			System.exit(1);
 		}
-		
+
 		System.out.println("Starting compilation process!");
 
 		programToParse = new File(args[0]);
@@ -21,20 +21,19 @@ public class Main {
 			System.out.println("Parsing directory: " + programToParse.getAbsolutePath());
 			programFiles = programToParse.listFiles();
 			for (File programFile : programFiles) {
-				parseFile(programFile);
+				if (programFile.getName().endsWith(".jack"))
+					parseFile(programFile);
 			}
 		} else {
 			parseFile(programToParse);
 		}
-		System.out.println("Done!");
 	}
 
 	public static void parseFile(File programFile) {
-		JackTokenizer tokenizer;
 		try {
 			System.out.println("Attempting to process file: " + programFile.getAbsolutePath());
-			tokenizer = new JackTokenizer(programFile);
-			tokenizer.printFileContent();
+			JackTokenizer tokenizer = new JackTokenizer(programFile);
+			tokenizer.printXML();
 		} catch (FileNotFoundException e) {
 			System.out.println("There was an issue opening the file!");
 			e.printStackTrace();
