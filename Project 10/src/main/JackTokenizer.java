@@ -17,27 +17,12 @@ public class JackTokenizer {
 		fileContent = "";
 		tokenList = new ArrayList<String>();
 		populateLexicalElements();
-		populateTokenList(inputFile);
+		readFileContent(inputFile);
+		populateTokenList();
 	}
 
-	private void populateTokenList(File inputFile) throws FileNotFoundException {
-		Scanner fileScanner = null;
-
-		if (inputFile.isDirectory()) {
-			System.out.println("ERROR: JackTokenizer was given a directory!");
-			System.exit(1);
-		}
-
-		fileScanner = new Scanner(inputFile);
-
-		while (fileScanner.hasNextLine()) {
-			String nextLine = fileScanner.nextLine();
-			if (nextLine.contains("//")) {
-				nextLine = nextLine.split("//")[0];
-			}
-			fileContent += nextLine;
-		}
-
+	private void populateTokenList() throws FileNotFoundException {
+		
 		while (fileContent != "") {
 			boolean unrecognizedSymbol = true;
 
@@ -69,6 +54,8 @@ public class JackTokenizer {
 			}
 			
 			
+			
+			
 			if (unrecognizedSymbol) {
 				System.out.println(">>DEBUG<< Current symbol was not recognized!\n");
 				System.out.println(fileContent);
@@ -76,10 +63,31 @@ public class JackTokenizer {
 			}
 		}
 
-		fileScanner.close();
+
 
 	}
 
+	private void readFileContent(File inputFile) throws FileNotFoundException {
+		Scanner fileScanner = null;
+
+		if (inputFile.isDirectory()) {
+			System.out.println("ERROR: JackTokenizer was given a directory!");
+			System.exit(1);
+		}
+
+		fileScanner = new Scanner(inputFile);
+
+		while (fileScanner.hasNextLine()) {
+			String nextLine = fileScanner.nextLine();
+			if (nextLine.contains("//")) {
+				nextLine = nextLine.split("//")[0];
+			}
+			fileContent += nextLine;
+		}
+		
+		fileScanner.close();
+	}
+	
 	public boolean hasMoreTokens() {
 		// TODO: Implement method.
 		return true;
