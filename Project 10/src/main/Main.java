@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class Main {
+	
+	// Main method of the application
 	public static void main(String[] args) {
 		File[] programFiles;
 		File programToParse;
@@ -29,11 +31,14 @@ public class Main {
 		}
 	}
 
+	
 	public static void parseFile(File programFile) {
 		try {
 			System.out.println("Attempting to process file: " + programFile.getAbsolutePath());
 			JackTokenizer tokenizer = new JackTokenizer(programFile);
 			tokenizer.printXML();
+			System.out.println("Printing token list:");
+			tokenizer.printTokenList();
 		} catch (FileNotFoundException e) {
 			System.out.println("There was an issue opening the file!");
 			e.printStackTrace();
