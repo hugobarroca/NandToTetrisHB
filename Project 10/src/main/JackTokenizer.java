@@ -2,6 +2,8 @@ package main;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -23,16 +25,15 @@ public class JackTokenizer {
 
 	private void populateTokenList() throws FileNotFoundException {
 		boolean unrecognizedSymbol = true;
-		
+
 		while (fileContent != "") {
 			unrecognizedSymbol = true;
 			fileContent = fileContent.strip();
-			
+
 			while (fileContent.startsWith("/**")) {
 				fileContent = fileContent.split(Pattern.quote("*/"), 2)[1].strip();
 			}
 
-			// Checks if the next word is a lexical element (symbol or keyword).
 			for (String word : lexicalElements.keySet()) {
 				if (fileContent.startsWith(word)) {
 					processKeyword(word);
@@ -46,7 +47,7 @@ public class JackTokenizer {
 
 			if (fileContent == "")
 				return;
-			
+
 			boolean isDigit = Character.isDigit(fileContent.charAt(0));
 			boolean isAlphabetic = Character.isAlphabetic(fileContent.charAt(0));
 
@@ -61,18 +62,25 @@ public class JackTokenizer {
 		}
 
 	}
-	
+
+	// Removes word from fileContent and adds it to tokenList.
 	private void processKeyword(String word) {
 		String[] classifiedWord = new String[2];
 		classifiedWord[0] = word;
 		classifiedWord[1] = lexicalElements.get(word);
-		if(word == "<" || word == ">" || word == "\"" || word == "&")
+		
+		classifiedWord[1] = classifiedWord[1].replace("<", "&lt;");
+		classifiedWord[1] = classifiedWord[1].replace(">", "&gt;");
+		classifiedWord[1] = classifiedWord[1].replace("\"", "&quot;");
+		classifiedWord[1] = classifiedWord[1].replace("&", "&amp;");
 		
 		tokenList.add(classifiedWord);
 		fileContent = fileContent.split(Pattern.quote(word), 2)[1];
 		fileContent = fileContent.strip();
 	}
 
+	// Removes string from fileContent, excluding double quotes, and adds it to
+	// tokenList.
 	private void processString() {
 		fileContent = fileContent.strip();
 		fileContent = fileContent.split(Pattern.quote("\""), 2)[1];
@@ -84,6 +92,7 @@ public class JackTokenizer {
 		fileContent = tempString[1];
 	}
 
+	// Removes number from fileContent and adds it to tokenList.
 	private void processNumber() {
 		fileContent = fileContent.strip();
 		char character = fileContent.charAt(0);
@@ -101,6 +110,7 @@ public class JackTokenizer {
 		tokenList.add(classifiedWord);
 	}
 
+	// Removes an identifier from fileContent and adds it to tokenList.
 	private void processAlphabetic() {
 		fileContent = fileContent.strip();
 		char character = fileContent.charAt(0);
@@ -191,18 +201,21 @@ public class JackTokenizer {
 		lexicalElements.put("~", "symbol");
 	}
 
-	public void printFileContent() {
-		System.out.println(fileContent);
-	}
+	public void generateXML(String filepath) {
+		try {
+			File xmlFile = new File(filepath);
+			if (xmlFile.createNewFile()) {
+				FileWriter xmlWriter = new FileWriter(filepath);
+				xmlWriter.write(getXML());
+				xmlWriter.close();
+				System.out.println("XML created: " + xmlFile.getName());
+			} else
+				System.out.println("File already exists.");
 
-	public void printTokenList() {
-		for (String[] token : tokenList) {
-			System.out.println(token);
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
 		}
-	}
-
-	public void printXML() {
-		System.out.println(getXML());
 	}
 
 	public String getXML() {
