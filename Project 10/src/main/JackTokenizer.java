@@ -69,10 +69,10 @@ public class JackTokenizer {
 		classifiedWord[0] = word;
 		classifiedWord[1] = lexicalElements.get(word);
 		
-		classifiedWord[1] = classifiedWord[1].replace("<", "&lt;");
-		classifiedWord[1] = classifiedWord[1].replace(">", "&gt;");
-		classifiedWord[1] = classifiedWord[1].replace("\"", "&quot;");
-		classifiedWord[1] = classifiedWord[1].replace("&", "&amp;");
+		classifiedWord[0] = classifiedWord[0].replace("<", "&lt;");
+		classifiedWord[0] = classifiedWord[0].replace(">", "&gt;");
+		classifiedWord[0] = classifiedWord[0].replace("\"", "&quot;");
+		classifiedWord[0] = classifiedWord[0].replace("&", "&amp;");
 		
 		tokenList.add(classifiedWord);
 		fileContent = fileContent.split(Pattern.quote(word), 2)[1];
