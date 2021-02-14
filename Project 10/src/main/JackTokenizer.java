@@ -208,7 +208,7 @@ public class JackTokenizer {
 			xmlContent += classifiedWord[0];
 			xmlContent += "</" + classifiedWord[1] + ">";
 		}
-		System.out.print("</tokens>");
+		xmlContent += "</tokens>";
 		return xmlContent;
 	}
 }
