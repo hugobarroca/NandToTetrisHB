@@ -37,8 +37,8 @@ public class Main {
 			System.out.println("Attempting to process file: " + programFile.getAbsolutePath());
 			JackTokenizer tokenizer = new JackTokenizer(programFile);
 			tokenizer.printXML();
-			System.out.println("Printing token list:");
-			tokenizer.printTokenList();
+//			System.out.println("Printing token list:");
+//			tokenizer.printTokenList();
 		} catch (FileNotFoundException e) {
 			System.out.println("There was an issue opening the file!");
 			e.printStackTrace();

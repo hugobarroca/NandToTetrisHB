@@ -9,13 +9,13 @@ import java.util.regex.Pattern;
 
 public class JackTokenizer {
 	private String fileContent;
-	private ArrayList<String> tokenList;
+	private ArrayList<String[]> tokenList;
 	private HashMap<String, String> lexicalElements;
 
 	public JackTokenizer(File inputFile) throws FileNotFoundException {
 		lexicalElements = new HashMap<String, String>();
 		fileContent = "";
-		tokenList = new ArrayList<String>();
+		tokenList = new ArrayList<String[]>();
 		populateLexicalElements();
 		readFileContent(inputFile);
 		populateTokenList();
@@ -28,15 +28,20 @@ public class JackTokenizer {
 			fileContent = fileContent.strip();
 			
 			while (fileContent.startsWith("/**")) {
-				fileContent = fileContent.split(Pattern.quote("*/"))[1];
+				fileContent = fileContent.split(Pattern.quote("*/"), 2)[1];
 				fileContent = fileContent.strip();
 			}
 
-			// Checks if the next word is either a symbol or a keyword.
-			for (String symbol : lexicalElements.keySet()) {
-				if (fileContent.startsWith(symbol)) {
-					tokenList.add(symbol);
-					fileContent = fileContent.split(Pattern.quote(symbol), 2)[1];
+			// Checks if the next word is a lexical element (symbol or keyword).
+			for (String word : lexicalElements.keySet()) {
+				if (fileContent.startsWith(word)) {
+					String[] classifiedWord = new String[2];
+					classifiedWord[0] = word;
+					classifiedWord[1] = lexicalElements.get(word);
+					if(word == "<" || word == ">" || word == "\"" || word == "&")
+					
+					tokenList.add(classifiedWord);
+					fileContent = fileContent.split(Pattern.quote(word), 2)[1];
 					unrecognizedSymbol = false;
 					fileContent = fileContent.strip();
 					break;
@@ -53,7 +58,7 @@ public class JackTokenizer {
 			boolean isAlphabetic = Character.isAlphabetic(fileContent.charAt(0));
 
 			if (fileContent.startsWith("\"")) {
-				processSingleLineComment();
+				processString();
 			} else if (isDigit) {
 				processNumber();
 			} else if (isAlphabetic) {
@@ -64,11 +69,14 @@ public class JackTokenizer {
 
 	}
 
-	private void processSingleLineComment() {
+	private void processString() {
 		fileContent = fileContent.strip();
 		fileContent = fileContent.split(Pattern.quote("\""), 2)[1];
 		String[] tempString = fileContent.split(Pattern.quote("\""), 2);
-		tokenList.add(tempString[0]);
+		String[] classifiedWord = new String[2];
+		classifiedWord[0] = tempString[0];
+		classifiedWord[1] = "stringConstant";
+		tokenList.add(classifiedWord);
 		fileContent = tempString[1];
 	}
 	
@@ -83,7 +91,10 @@ public class JackTokenizer {
 			i++;
 		}
 		fileContent = fileContent.substring(i + 1);
-		tokenList.add(number);
+		String[] classifiedWord = new String[2];
+		classifiedWord[0] = number;
+		classifiedWord[1] = "integerConstant";
+		tokenList.add(classifiedWord);
 	}
 	
 	private void processAlphabetic() {
@@ -98,7 +109,10 @@ public class JackTokenizer {
 			i++;
 		}
 		fileContent = fileContent.substring(i);
-		tokenList.add(identifier);
+		String[] classifiedWord = new String[2];
+		classifiedWord[0] = identifier;
+		classifiedWord[1] = "identifier";
+		tokenList.add(classifiedWord);
 	}
 
 	private void readFileContent(File inputFile) throws FileNotFoundException {
@@ -129,48 +143,48 @@ public class JackTokenizer {
 
 	private void populateLexicalElements() {
 		// Populate keywords
-		lexicalElements.put("class", "KEYWORD");
-		lexicalElements.put("constructor", "KEYWORD");
-		lexicalElements.put("function", "KEYWORD");
-		lexicalElements.put("method", "KEYWORD");
-		lexicalElements.put("field", "KEYWORD");
-		lexicalElements.put("static", "KEYWORD");
-		lexicalElements.put("var", "KEYWORD");
-		lexicalElements.put("int", "KEYWORD");
-		lexicalElements.put("char", "KEYWORD");
-		lexicalElements.put("boolean", "KEYWORD");
-		lexicalElements.put("void", "KEYWORD");
-		lexicalElements.put("true", "KEYWORD");
-		lexicalElements.put("false", "KEYWORD");
-		lexicalElements.put("null", "KEYWORD");
-		lexicalElements.put("this", "KEYWORD");
-		lexicalElements.put("let", "KEYWORD");
-		lexicalElements.put("do", "KEYWORD");
-		lexicalElements.put("if", "KEYWORD");
-		lexicalElements.put("else", "KEYWORD");
-		lexicalElements.put("while", "KEYWORD");
-		lexicalElements.put("return", "KEYWORD");
+		lexicalElements.put("class", "keyword");
+		lexicalElements.put("constructor", "keyword");
+		lexicalElements.put("function", "keyword");
+		lexicalElements.put("method", "keyword");
+		lexicalElements.put("field", "keyword");
+		lexicalElements.put("static", "keyword");
+		lexicalElements.put("var", "keyword");
+		lexicalElements.put("int", "keyword");
+		lexicalElements.put("char", "keyword");
+		lexicalElements.put("boolean", "keyword");
+		lexicalElements.put("void", "keyword");
+		lexicalElements.put("true", "keyword");
+		lexicalElements.put("false", "keyword");
+		lexicalElements.put("null", "keyword");
+		lexicalElements.put("this", "keyword");
+		lexicalElements.put("let", "keyword");
+		lexicalElements.put("do", "keyword");
+		lexicalElements.put("if", "keyword");
+		lexicalElements.put("else", "keyword");
+		lexicalElements.put("while", "keyword");
+		lexicalElements.put("return", "keyword");
 
 		// Populate Symbols
-		lexicalElements.put("{", "SYMBOL");
-		lexicalElements.put("}", "SYMBOL");
-		lexicalElements.put("(", "SYMBOL");
-		lexicalElements.put(")", "SYMBOL");
-		lexicalElements.put("[", "SYMBOL");
-		lexicalElements.put("]", "SYMBOL");
-		lexicalElements.put(".", "SYMBOL");
-		lexicalElements.put(",", "SYMBOL");
-		lexicalElements.put(";", "SYMBOL");
-		lexicalElements.put("+", "SYMBOL");
-		lexicalElements.put("-", "SYMBOL");
-		lexicalElements.put("*", "SYMBOL");
-		lexicalElements.put("/", "SYMBOL");
-		lexicalElements.put("&", "SYMBOL");
-		lexicalElements.put("|", "SYMBOL");
-		lexicalElements.put("<", "SYMBOL");
-		lexicalElements.put(">", "SYMBOL");
-		lexicalElements.put("=", "SYMBOL");
-		lexicalElements.put("~", "SYMBOL");
+		lexicalElements.put("{", "symbol");
+		lexicalElements.put("}", "symbol");
+		lexicalElements.put("(", "symbol");
+		lexicalElements.put(")", "symbol");
+		lexicalElements.put("[", "symbol");
+		lexicalElements.put("]", "symbol");
+		lexicalElements.put(".", "symbol");
+		lexicalElements.put(",", "symbol");
+		lexicalElements.put(";", "symbol");
+		lexicalElements.put("+", "symbol");
+		lexicalElements.put("-", "symbol");
+		lexicalElements.put("*", "symbol");
+		lexicalElements.put("/", "symbol");
+		lexicalElements.put("&", "symbol");
+		lexicalElements.put("|", "symbol");
+		lexicalElements.put("<", "symbol");
+		lexicalElements.put(">", "symbol");
+		lexicalElements.put("=", "symbol");
+		lexicalElements.put("~", "symbol");
 	}
 
 	public void printFileContent() {
@@ -178,13 +192,23 @@ public class JackTokenizer {
 	}
 
 	public void printTokenList() {
-		for (String token : tokenList) {
+		for (String[] token : tokenList) {
 			System.out.println(token);
 		}
 	}
-
+	
 	public void printXML() {
-		// TODO
-		return;
+		System.out.println(getXML());
+	}
+
+	public String getXML() {
+		String xmlContent = "<tokens>";
+		for ( String[] classifiedWord : tokenList) {
+			xmlContent += "<" + classifiedWord[1] + ">";
+			xmlContent += classifiedWord[0];
+			xmlContent += "</" + classifiedWord[1] + ">";
+		}
+		System.out.print("</tokens>");
+		return xmlContent;
 	}
 }
