@@ -22,28 +22,21 @@ public class JackTokenizer {
 	}
 
 	private void populateTokenList() throws FileNotFoundException {
-
+		boolean unrecognizedSymbol = true;
+		
 		while (fileContent != "") {
-			boolean unrecognizedSymbol = true;
+			unrecognizedSymbol = true;
 			fileContent = fileContent.strip();
 			
 			while (fileContent.startsWith("/**")) {
-				fileContent = fileContent.split(Pattern.quote("*/"), 2)[1];
-				fileContent = fileContent.strip();
+				fileContent = fileContent.split(Pattern.quote("*/"), 2)[1].strip();
 			}
 
 			// Checks if the next word is a lexical element (symbol or keyword).
 			for (String word : lexicalElements.keySet()) {
 				if (fileContent.startsWith(word)) {
-					String[] classifiedWord = new String[2];
-					classifiedWord[0] = word;
-					classifiedWord[1] = lexicalElements.get(word);
-					if(word == "<" || word == ">" || word == "\"" || word == "&")
-					
-					tokenList.add(classifiedWord);
-					fileContent = fileContent.split(Pattern.quote(word), 2)[1];
+					processKeyword(word);
 					unrecognizedSymbol = false;
-					fileContent = fileContent.strip();
 					break;
 				}
 			}
@@ -68,6 +61,17 @@ public class JackTokenizer {
 		}
 
 	}
+	
+	private void processKeyword(String word) {
+		String[] classifiedWord = new String[2];
+		classifiedWord[0] = word;
+		classifiedWord[1] = lexicalElements.get(word);
+		if(word == "<" || word == ">" || word == "\"" || word == "&")
+		
+		tokenList.add(classifiedWord);
+		fileContent = fileContent.split(Pattern.quote(word), 2)[1];
+		fileContent = fileContent.strip();
+	}
 
 	private void processString() {
 		fileContent = fileContent.strip();
@@ -79,7 +83,7 @@ public class JackTokenizer {
 		tokenList.add(classifiedWord);
 		fileContent = tempString[1];
 	}
-	
+
 	private void processNumber() {
 		fileContent = fileContent.strip();
 		char character = fileContent.charAt(0);
@@ -96,7 +100,7 @@ public class JackTokenizer {
 		classifiedWord[1] = "integerConstant";
 		tokenList.add(classifiedWord);
 	}
-	
+
 	private void processAlphabetic() {
 		fileContent = fileContent.strip();
 		char character = fileContent.charAt(0);
@@ -196,14 +200,14 @@ public class JackTokenizer {
 			System.out.println(token);
 		}
 	}
-	
+
 	public void printXML() {
 		System.out.println(getXML());
 	}
 
 	public String getXML() {
 		String xmlContent = "<tokens>";
-		for ( String[] classifiedWord : tokenList) {
+		for (String[] classifiedWord : tokenList) {
 			xmlContent += "<" + classifiedWord[1] + ">";
 			xmlContent += classifiedWord[0];
 			xmlContent += "</" + classifiedWord[1] + ">";
