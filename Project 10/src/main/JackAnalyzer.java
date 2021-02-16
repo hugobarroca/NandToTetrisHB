@@ -5,15 +5,15 @@ import java.io.FileNotFoundException;
 
 public class JackAnalyzer {
 	String path;
+	boolean verboseMode;
 
-	public JackAnalyzer(String path) {
+	public JackAnalyzer(String path, boolean verboseMode) {
 		this.path = path;
+		this.verboseMode = verboseMode;
 	}
 
 	public void compileFileOrDirectory() {
 		File programToParse;
-
-		System.out.println("Starting compilation process!");
 
 		programToParse = new File(path);
 
@@ -21,13 +21,13 @@ public class JackAnalyzer {
 			parseDirectory(programToParse);
 		else
 			parseFile(programToParse);
-
 	}
 
-	public static void parseDirectory(File programToParse) {
+	public void parseDirectory(File programToParse) {
 		File[] programFiles;
 
-		System.out.println("Parsing directory: " + programToParse.getAbsolutePath());
+		if (verboseMode)
+			System.out.println("Parsing directory: " + programToParse.getAbsolutePath());
 
 		programFiles = programToParse.listFiles();
 		for (File programFile : programFiles) {
@@ -36,13 +36,15 @@ public class JackAnalyzer {
 		}
 	}
 
-	public static void parseFile(File programFile) {
+	public void parseFile(File programFile) {
 		try {
-			System.out.println("Attempting to process file: " + programFile.getAbsolutePath());
-			JackTokenizer tokenizer = new JackTokenizer(programFile);
+			JackTokenizer tokenizer = new JackTokenizer(programFile, verboseMode);
 			tokenizer.generateXML(programFile.getAbsolutePath().replace("jack", "xml"));
+			if (verboseMode)
+				System.out.println("Processed file: " + programFile.getAbsolutePath());
 		} catch (FileNotFoundException e) {
-			System.out.println("There was an issue opening the file!");
+			if (verboseMode)
+				System.out.println("Could not process the file: " + programFile.getAbsolutePath());
 			e.printStackTrace();
 		}
 	}

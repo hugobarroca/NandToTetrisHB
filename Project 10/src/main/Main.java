@@ -8,7 +8,7 @@ public class Main {
 			System.exit(1);
 		}
 		
-		JackAnalyzer analyzer = new JackAnalyzer(args[0]);
+		JackAnalyzer analyzer = new JackAnalyzer(args[0], false);
 		analyzer.compileFileOrDirectory();
 
 	}

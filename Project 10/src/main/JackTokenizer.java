@@ -13,11 +13,13 @@ public class JackTokenizer {
 	private String fileContent;
 	private ArrayList<String[]> tokenList;
 	private HashMap<String, String> lexicalElements;
+	boolean verboseMode;
 
-	public JackTokenizer(File inputFile) throws FileNotFoundException {
+	public JackTokenizer(File inputFile, boolean verboseMode) throws FileNotFoundException {
 		lexicalElements = new HashMap<String, String>();
 		fileContent = "";
 		tokenList = new ArrayList<String[]>();
+		this.verboseMode = verboseMode;
 		populateLexicalElements();
 		readFileContent(inputFile);
 		populateTokenList();
@@ -68,12 +70,12 @@ public class JackTokenizer {
 		String[] classifiedWord = new String[2];
 		classifiedWord[0] = word;
 		classifiedWord[1] = lexicalElements.get(word);
-		
+
 		classifiedWord[0] = classifiedWord[0].replace("<", "&lt;");
 		classifiedWord[0] = classifiedWord[0].replace(">", "&gt;");
 		classifiedWord[0] = classifiedWord[0].replace("\"", "&quot;");
 		classifiedWord[0] = classifiedWord[0].replace("&", "&amp;");
-		
+
 		tokenList.add(classifiedWord);
 		fileContent = fileContent.split(Pattern.quote(word), 2)[1];
 		fileContent = fileContent.strip();
@@ -208,9 +210,10 @@ public class JackTokenizer {
 				FileWriter xmlWriter = new FileWriter(filepath);
 				xmlWriter.write(getXML());
 				xmlWriter.close();
-				System.out.println("XML created: " + xmlFile.getName());
-			} else
-				System.out.println("File already exists.");
+				if (verboseMode)
+					System.out.println("XML created: " + xmlFile.getName());
+			} else if (verboseMode)
+				System.out.println("File already exists: " + xmlFile.getName());
 
 		} catch (IOException e) {
 			System.out.println("An error occurred.");
