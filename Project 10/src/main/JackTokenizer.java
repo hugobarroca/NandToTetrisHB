@@ -13,7 +13,8 @@ public class JackTokenizer {
 	private String fileContent;
 	private ArrayList<String[]> tokenList;
 	private HashMap<String, String> lexicalElements;
-	boolean verboseMode;
+	private boolean verboseMode;
+	
 
 	public JackTokenizer(File inputFile, boolean verboseMode) throws FileNotFoundException {
 		lexicalElements = new HashMap<String, String>();
@@ -65,7 +66,7 @@ public class JackTokenizer {
 
 	}
 
-	// Removes word from fileContent and adds it to tokenList.
+// Removes word from fileContent and adds it to tokenList.
 	private void processKeyword(String word) {
 		String[] classifiedWord = new String[2];
 		classifiedWord[0] = word;
@@ -81,8 +82,8 @@ public class JackTokenizer {
 		fileContent = fileContent.strip();
 	}
 
-	// Removes string from fileContent, excluding double quotes, and adds it to
-	// tokenList.
+// Removes string from fileContent, excluding double quotes, and adds it to
+// tokenList.
 	private void processString() {
 		fileContent = fileContent.strip();
 		fileContent = fileContent.split(Pattern.quote("\""), 2)[1];
@@ -94,7 +95,7 @@ public class JackTokenizer {
 		fileContent = tempString[1];
 	}
 
-	// Removes number from fileContent and adds it to tokenList.
+// Removes number from fileContent and adds it to tokenList.
 	private void processNumber() {
 		fileContent = fileContent.strip();
 		char character = fileContent.charAt(0);
@@ -112,7 +113,7 @@ public class JackTokenizer {
 		tokenList.add(classifiedWord);
 	}
 
-	// Removes an identifier from fileContent and adds it to tokenList.
+// Removes an identifier from fileContent and adds it to tokenList.
 	private void processAlphabetic() {
 		fileContent = fileContent.strip();
 		char character = fileContent.charAt(0);
@@ -157,8 +158,9 @@ public class JackTokenizer {
 		return true;
 	}
 
+//Adds all possible keywords and symbols to the lexical elements hash map.
 	private void populateLexicalElements() {
-		// Populate keywords
+		//Keywords
 		lexicalElements.put("class", "keyword");
 		lexicalElements.put("constructor", "keyword");
 		lexicalElements.put("function", "keyword");
@@ -181,7 +183,7 @@ public class JackTokenizer {
 		lexicalElements.put("while", "keyword");
 		lexicalElements.put("return", "keyword");
 
-		// Populate Symbols
+		//Symbols
 		lexicalElements.put("{", "symbol");
 		lexicalElements.put("}", "symbol");
 		lexicalElements.put("(", "symbol");
@@ -203,7 +205,8 @@ public class JackTokenizer {
 		lexicalElements.put("~", "symbol");
 	}
 
-	public void generateXML(String filepath) {
+// Writes all read tokens to an XML file.
+	public void generateXMLFile(String filepath) {
 		try {
 			File xmlFile = new File(filepath);
 			if (xmlFile.createNewFile()) {
@@ -221,6 +224,7 @@ public class JackTokenizer {
 		}
 	}
 
+// Generates an xml-formated string, with each token tagged with it's token type.
 	public String getXML() {
 		String xmlContent = "<tokens>";
 		for (String[] classifiedWord : tokenList) {
