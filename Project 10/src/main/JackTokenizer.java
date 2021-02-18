@@ -1,20 +1,19 @@
 package main;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.regex.Pattern;
+import java.util.Scanner;
 
 public class JackTokenizer {
 	private String fileContent;
 	private ArrayList<String[]> tokenList;
 	private HashMap<String, String> lexicalElements;
 	private boolean verboseMode;
-	
 
 	public JackTokenizer(File inputFile, boolean verboseMode) throws FileNotFoundException {
 		lexicalElements = new HashMap<String, String>();
@@ -154,13 +153,13 @@ public class JackTokenizer {
 	}
 
 	public boolean hasMoreTokens() {
-		// TODO: Implement method.
-		return true;
+		//TODO: Implement this method.
+		return false;
 	}
 
 //Adds all possible keywords and symbols to the lexical elements hash map.
 	private void populateLexicalElements() {
-		//Keywords
+		// Keywords
 		lexicalElements.put("class", "keyword");
 		lexicalElements.put("constructor", "keyword");
 		lexicalElements.put("function", "keyword");
@@ -183,7 +182,7 @@ public class JackTokenizer {
 		lexicalElements.put("while", "keyword");
 		lexicalElements.put("return", "keyword");
 
-		//Symbols
+		// Symbols
 		lexicalElements.put("{", "symbol");
 		lexicalElements.put("}", "symbol");
 		lexicalElements.put("(", "symbol");
