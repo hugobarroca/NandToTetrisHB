@@ -11,14 +11,14 @@ import java.util.Scanner;
 
 public class JackTokenizer {
 	private String fileContent;
-	private ArrayList<String[]> tokenList;
+	private ArrayList<Token> tokenList;
 	private HashMap<String, String> lexicalElements;
 	private boolean verboseMode;
 
 	public JackTokenizer(File inputFile, boolean verboseMode) throws FileNotFoundException {
 		lexicalElements = new HashMap<String, String>();
 		fileContent = "";
-		tokenList = new ArrayList<String[]>();
+		tokenList = new ArrayList<Token>();
 		this.verboseMode = verboseMode;
 		populateLexicalElements();
 		readFileContent(inputFile);
@@ -67,31 +67,27 @@ public class JackTokenizer {
 
 // Removes word from fileContent and adds it to tokenList.
 	private void processKeyword(String word) {
-		String[] classifiedWord = new String[2];
-		classifiedWord[0] = word;
-		classifiedWord[1] = lexicalElements.get(word);
+		String type = lexicalElements.get(word);
+		String value = word.replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("&", "&amp;");
+		Token token = new Token(type, value);
 
-		classifiedWord[0] = classifiedWord[0].replace("<", "&lt;");
-		classifiedWord[0] = classifiedWord[0].replace(">", "&gt;");
-		classifiedWord[0] = classifiedWord[0].replace("\"", "&quot;");
-		classifiedWord[0] = classifiedWord[0].replace("&", "&amp;");
-
-		tokenList.add(classifiedWord);
+		tokenList.add(token);
 		fileContent = fileContent.split(Pattern.quote(word), 2)[1];
 		fileContent = fileContent.strip();
 	}
 
-// Removes string from fileContent, excluding double quotes, and adds it to
-// tokenList.
+// Removes string from fileContent, and adds it to the
+// tokenList without the double quotes.
 	private void processString() {
 		fileContent = fileContent.strip();
-		fileContent = fileContent.split(Pattern.quote("\""), 2)[1];
-		String[] tempString = fileContent.split(Pattern.quote("\""), 2);
-		String[] classifiedWord = new String[2];
-		classifiedWord[0] = tempString[0];
-		classifiedWord[1] = "stringConstant";
-		tokenList.add(classifiedWord);
-		fileContent = tempString[1];
+		String[] tempString = fileContent.split(Pattern.quote("\""), 3); // Removes first double quote.
+		fileContent = tempString[2];
+
+		String type = "stringConstant";
+		String value = tempString[1];
+		Token token = new Token(type, value);
+
+		tokenList.add(token);
 	}
 
 // Removes number from fileContent and adds it to tokenList.
@@ -106,10 +102,12 @@ public class JackTokenizer {
 			i++;
 		}
 		fileContent = fileContent.substring(i + 1);
-		String[] classifiedWord = new String[2];
-		classifiedWord[0] = number;
-		classifiedWord[1] = "integerConstant";
-		tokenList.add(classifiedWord);
+		
+		String type = "integerConstant";
+		String value = number;
+		Token token = new Token(type, value);
+		
+		tokenList.add(token);
 	}
 
 // Removes an identifier from fileContent and adds it to tokenList.
@@ -125,10 +123,11 @@ public class JackTokenizer {
 			i++;
 		}
 		fileContent = fileContent.substring(i);
-		String[] classifiedWord = new String[2];
-		classifiedWord[0] = identifier;
-		classifiedWord[1] = "identifier";
-		tokenList.add(classifiedWord);
+
+		String type = "identifier";
+		String value = identifier;
+		Token token = new Token(type, value);
+		tokenList.add(token);
 	}
 
 	private void readFileContent(File inputFile) throws FileNotFoundException {
@@ -153,7 +152,7 @@ public class JackTokenizer {
 	}
 
 	public boolean hasMoreTokens() {
-		//TODO: Implement this method.
+		// TODO: Implement this method.
 		return false;
 	}
 
@@ -226,10 +225,10 @@ public class JackTokenizer {
 // Generates an xml-formated string, with each token tagged with it's token type.
 	public String getXML() {
 		String xmlContent = "<tokens>";
-		for (String[] classifiedWord : tokenList) {
-			xmlContent += "<" + classifiedWord[1] + ">";
-			xmlContent += classifiedWord[0];
-			xmlContent += "</" + classifiedWord[1] + ">";
+		for (Token token : tokenList) {
+			xmlContent += "<" + token.getType() + ">";
+			xmlContent += token.getValue();
+			xmlContent += "</" + token.getType() + ">";
 		}
 		xmlContent += "</tokens>";
 		return xmlContent;
