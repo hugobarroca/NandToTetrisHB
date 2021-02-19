@@ -14,12 +14,14 @@ public class JackTokenizer {
 	private ArrayList<Token> tokenList;
 	private HashMap<String, String> lexicalElements;
 	private boolean verboseMode;
+	private int currentTokenIndex;
 
 	public JackTokenizer(File inputFile, boolean verboseMode) throws FileNotFoundException {
 		lexicalElements = new HashMap<String, String>();
 		fileContent = "";
 		tokenList = new ArrayList<Token>();
 		this.verboseMode = verboseMode;
+		currentTokenIndex = -1;
 		populateLexicalElements();
 		readFileContent(inputFile);
 		populateTokenList();
@@ -102,11 +104,11 @@ public class JackTokenizer {
 			i++;
 		}
 		fileContent = fileContent.substring(i + 1);
-		
+
 		String type = "integerConstant";
 		String value = number;
 		Token token = new Token(type, value);
-		
+
 		tokenList.add(token);
 	}
 
@@ -152,8 +154,14 @@ public class JackTokenizer {
 	}
 
 	public boolean hasMoreTokens() {
-		// TODO: Implement this method.
+		if (currentTokenIndex < tokenList.size())
+			return true;
 		return false;
+	}
+
+	public void advanceToken() {
+		if (currentTokenIndex < tokenList.size())
+			currentTokenIndex++;
 	}
 
 //Adds all possible keywords and symbols to the lexical elements hash map.
