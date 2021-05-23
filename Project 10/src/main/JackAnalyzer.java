@@ -3,18 +3,15 @@ package main;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-// This class takes in the path to a .jack file, or a directory with multiple .jack files,
-// and compiles them into their respective .vm files.
 public class JackAnalyzer {
 	String path;
-	boolean verboseMode; // Turns on informative messages to the console.
+	boolean verboseMode;
 
 	public JackAnalyzer(String path, boolean verboseMode) {
 		this.path = path;
 		this.verboseMode = verboseMode;
 	}
 
-// Takes in the field "path" and compiles all corresponding jack files.
 	public void compileFileOrDirectory() {
 		File programToParse;
 
@@ -26,7 +23,6 @@ public class JackAnalyzer {
 			parseFile(programToParse);
 	}
 
-// Compiles all jack files in the directory passed as an argument.
 	public void parseDirectory(File programToParse) {
 		File[] programFiles;
 
@@ -40,7 +36,6 @@ public class JackAnalyzer {
 		}
 	}
 
-// Compiles a single jack file.
 	public void parseFile(File programFile) {
 		try {
 			JackTokenizer tokenizer = new JackTokenizer(programFile, verboseMode);

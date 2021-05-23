@@ -27,6 +27,100 @@ public class JackTokenizer {
 		populateTokenList();
 	}
 
+	public void generateXMLFile(String filepath) {
+		try {
+			File xmlFile = new File(filepath);
+			if (xmlFile.createNewFile()) {
+				FileWriter xmlWriter = new FileWriter(filepath);
+				xmlWriter.write(getXML());
+				xmlWriter.close();
+				if (verboseMode)
+					System.out.println("XML created: " + xmlFile.getName());
+			} else if (verboseMode)
+				System.out.println("File already exists: " + xmlFile.getName());
+
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+	}
+
+	public String getXML() {
+		String xmlContent = "<tokens>";
+		for (Token token : tokenList) {
+			xmlContent += "<" + token.getType() + ">";
+			xmlContent += token.getValue();
+			xmlContent += "</" + token.getType() + ">";
+		}
+		xmlContent += "</tokens>";
+		return xmlContent;
+	}
+
+	private void populateLexicalElements() {
+		lexicalElements.put("class", "keyword");
+		lexicalElements.put("constructor", "keyword");
+		lexicalElements.put("function", "keyword");
+		lexicalElements.put("method", "keyword");
+		lexicalElements.put("field", "keyword");
+		lexicalElements.put("static", "keyword");
+		lexicalElements.put("var", "keyword");
+		lexicalElements.put("int", "keyword");
+		lexicalElements.put("char", "keyword");
+		lexicalElements.put("boolean", "keyword");
+		lexicalElements.put("void", "keyword");
+		lexicalElements.put("true", "keyword");
+		lexicalElements.put("false", "keyword");
+		lexicalElements.put("null", "keyword");
+		lexicalElements.put("this", "keyword");
+		lexicalElements.put("let", "keyword");
+		lexicalElements.put("do", "keyword");
+		lexicalElements.put("if", "keyword");
+		lexicalElements.put("else", "keyword");
+		lexicalElements.put("while", "keyword");
+		lexicalElements.put("return", "keyword");
+
+		lexicalElements.put("{", "symbol");
+		lexicalElements.put("}", "symbol");
+		lexicalElements.put("(", "symbol");
+		lexicalElements.put(")", "symbol");
+		lexicalElements.put("[", "symbol");
+		lexicalElements.put("]", "symbol");
+		lexicalElements.put(".", "symbol");
+		lexicalElements.put(",", "symbol");
+		lexicalElements.put(";", "symbol");
+		lexicalElements.put("+", "symbol");
+		lexicalElements.put("-", "symbol");
+		lexicalElements.put("*", "symbol");
+		lexicalElements.put("/", "symbol");
+		lexicalElements.put("&", "symbol");
+		lexicalElements.put("|", "symbol");
+		lexicalElements.put("<", "symbol");
+		lexicalElements.put(">", "symbol");
+		lexicalElements.put("=", "symbol");
+		lexicalElements.put("~", "symbol");
+	}
+
+	private void readFileContent(File inputFile) throws FileNotFoundException {
+		Scanner fileScanner = null;
+
+		if (inputFile.isDirectory()) {
+			System.out.println("ERROR: JackTokenizer was given a directory!");
+			System.exit(1);
+		}
+
+		fileScanner = new Scanner(inputFile);
+
+		while (fileScanner.hasNextLine()) {
+			String nextLine = fileScanner.nextLine();
+			if (nextLine.contains("//")) {
+				nextLine = nextLine.split("//")[0];
+			}
+			fileContent += nextLine;
+		}
+
+		fileScanner.close();
+	}
+
 	private void populateTokenList() throws FileNotFoundException {
 		boolean unrecognizedSymbol = true;
 
@@ -67,10 +161,9 @@ public class JackTokenizer {
 
 	}
 
-// Removes word from fileContent and adds it to tokenList.
 	private void processKeyword(String word) {
 		String type = lexicalElements.get(word);
-		String value = word.replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("&", "&amp;");
+		String value = replaceSpecialCharacters(word);
 		Token token = new Token(type, value);
 
 		tokenList.add(token);
@@ -78,8 +171,18 @@ public class JackTokenizer {
 		fileContent = fileContent.strip();
 	}
 
-// Removes string from fileContent, and adds it to the
-// tokenList without the double quotes.
+	private String replaceSpecialCharacters(String value){
+		if(value.contains("<"))
+			return "&lt;";
+		if(value.contains(">"))
+			return "&gt;";
+		if(value.contains("\""))
+			return "&quot;";
+		if(value.contains("&"))
+			return "&amp;";
+		return value;
+	}
+
 	private void processString() {
 		fileContent = fileContent.strip();
 		String[] tempString = fileContent.split(Pattern.quote("\""), 3); // Removes first double quote.
@@ -92,7 +195,6 @@ public class JackTokenizer {
 		tokenList.add(token);
 	}
 
-// Removes number from fileContent and adds it to tokenList.
 	private void processNumber() {
 		fileContent = fileContent.strip();
 		char character = fileContent.charAt(0);
@@ -103,7 +205,7 @@ public class JackTokenizer {
 			number += character;
 			i++;
 		}
-		fileContent = fileContent.substring(i + 1);
+		fileContent = fileContent.substring(i);
 
 		String type = "integerConstant";
 		String value = number;
@@ -112,7 +214,6 @@ public class JackTokenizer {
 		tokenList.add(token);
 	}
 
-// Removes an identifier from fileContent and adds it to tokenList.
 	private void processAlphabetic() {
 		fileContent = fileContent.strip();
 		char character = fileContent.charAt(0);
@@ -132,27 +233,6 @@ public class JackTokenizer {
 		tokenList.add(token);
 	}
 
-	private void readFileContent(File inputFile) throws FileNotFoundException {
-		Scanner fileScanner = null;
-
-		if (inputFile.isDirectory()) {
-			System.out.println("ERROR: JackTokenizer was given a directory!");
-			System.exit(1);
-		}
-
-		fileScanner = new Scanner(inputFile);
-
-		while (fileScanner.hasNextLine()) {
-			String nextLine = fileScanner.nextLine();
-			if (nextLine.contains("//")) {
-				nextLine = nextLine.split("//")[0];
-			}
-			fileContent += nextLine;
-		}
-
-		fileScanner.close();
-	}
-
 	public boolean hasMoreTokens() {
 		if (currentTokenIndex < tokenList.size())
 			return true;
@@ -164,81 +244,4 @@ public class JackTokenizer {
 			currentTokenIndex++;
 	}
 
-//Adds all possible keywords and symbols to the lexical elements hash map.
-	private void populateLexicalElements() {
-		// Keywords
-		lexicalElements.put("class", "keyword");
-		lexicalElements.put("constructor", "keyword");
-		lexicalElements.put("function", "keyword");
-		lexicalElements.put("method", "keyword");
-		lexicalElements.put("field", "keyword");
-		lexicalElements.put("static", "keyword");
-		lexicalElements.put("var", "keyword");
-		lexicalElements.put("int", "keyword");
-		lexicalElements.put("char", "keyword");
-		lexicalElements.put("boolean", "keyword");
-		lexicalElements.put("void", "keyword");
-		lexicalElements.put("true", "keyword");
-		lexicalElements.put("false", "keyword");
-		lexicalElements.put("null", "keyword");
-		lexicalElements.put("this", "keyword");
-		lexicalElements.put("let", "keyword");
-		lexicalElements.put("do", "keyword");
-		lexicalElements.put("if", "keyword");
-		lexicalElements.put("else", "keyword");
-		lexicalElements.put("while", "keyword");
-		lexicalElements.put("return", "keyword");
-
-		// Symbols
-		lexicalElements.put("{", "symbol");
-		lexicalElements.put("}", "symbol");
-		lexicalElements.put("(", "symbol");
-		lexicalElements.put(")", "symbol");
-		lexicalElements.put("[", "symbol");
-		lexicalElements.put("]", "symbol");
-		lexicalElements.put(".", "symbol");
-		lexicalElements.put(",", "symbol");
-		lexicalElements.put(";", "symbol");
-		lexicalElements.put("+", "symbol");
-		lexicalElements.put("-", "symbol");
-		lexicalElements.put("*", "symbol");
-		lexicalElements.put("/", "symbol");
-		lexicalElements.put("&", "symbol");
-		lexicalElements.put("|", "symbol");
-		lexicalElements.put("<", "symbol");
-		lexicalElements.put(">", "symbol");
-		lexicalElements.put("=", "symbol");
-		lexicalElements.put("~", "symbol");
-	}
-
-// Writes all read tokens to an XML file.
-	public void generateXMLFile(String filepath) {
-		try {
-			File xmlFile = new File(filepath);
-			if (xmlFile.createNewFile()) {
-				FileWriter xmlWriter = new FileWriter(filepath);
-				xmlWriter.write(getXML());
-				xmlWriter.close();
-				if (verboseMode)
-					System.out.println("XML created: " + xmlFile.getName());
-			} else if (verboseMode)
-				System.out.println("File already exists: " + xmlFile.getName());
-
-		} catch (IOException e) {
-			System.out.println("An error occurred.");
-			e.printStackTrace();
-		}
-	}
-
-// Generates an xml-formated string, with each token tagged with it's token type.
-	public String getXML() {
-		String xmlContent = "<tokens>";
-		for (Token token : tokenList) {
-			xmlContent += "<" + token.getType() + ">";
-			xmlContent += token.getValue();
-			xmlContent += "</" + token.getType() + ">";
-		}
-		xmlContent += "</tokens>";
-		return xmlContent;
-	}
 }
