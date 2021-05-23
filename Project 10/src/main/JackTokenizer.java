@@ -21,7 +21,7 @@ public class JackTokenizer {
 		fileContent = "";
 		tokenList = new ArrayList<Token>();
 		this.verboseMode = verboseMode;
-		currentTokenIndex = -1;
+		currentTokenIndex = 0;
 		populateLexicalElements();
 		readFileContent(inputFile);
 		populateTokenList();
@@ -244,4 +244,31 @@ public class JackTokenizer {
 			currentTokenIndex++;
 	}
 
+	public String tokenType(){
+		return tokenList.get(currentTokenIndex).getType();
+	}
+
+	public String keyWord(){
+		return tokenList.get(currentTokenIndex).getValue();
+	}
+
+	public String symbol(){
+		return tokenList.get(currentTokenIndex).getValue();
+	}
+
+	public String identifier(){
+		return tokenList.get(currentTokenIndex).getValue();
+	}
+
+	public String intVal(){
+		return tokenList.get(currentTokenIndex).getValue();
+	}
+
+	public String stringVal(){
+		return tokenList.get(currentTokenIndex).getValue();
+	}
+
+	public String nextSymbol(){
+		return tokenList.get(currentTokenIndex + 1).getValue();
+	}
 }

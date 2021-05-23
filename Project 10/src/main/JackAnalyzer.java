@@ -38,8 +38,10 @@ public class JackAnalyzer {
 
 	public void parseFile(File programFile) {
 		try {
-			JackTokenizer tokenizer = new JackTokenizer(programFile, verboseMode);
-			tokenizer.generateXMLFile(programFile.getAbsolutePath().replace("jack", "xml"));
+			File outputFile = new File(programFile.getAbsolutePath().replace("jack", "xml"));
+			CompilationEngine engine = new CompilationEngine(programFile, outputFile);
+			engine.compileClass();
+			engine.writeToOutput();
 			if (verboseMode)
 				System.out.println("Processed file: " + programFile.getAbsolutePath());
 		} catch (FileNotFoundException e) {
