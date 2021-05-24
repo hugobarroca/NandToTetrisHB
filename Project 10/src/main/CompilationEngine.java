@@ -44,7 +44,7 @@ public class CompilationEngine {
         compileKeyword();
         compileType();
         compileIdentifier();
-        while (tokenizer.symbol() == ",") {
+        while (tokenizer.symbol().equals(",")) {
             compileSymbol();
             compileIdentifier();
         }
@@ -63,7 +63,7 @@ public class CompilationEngine {
         compileSymbol();
         output += "<subroutineBody>";
         compileSymbol();
-        while (tokenizer.keyWord() == "var") {
+        while (tokenizer.keyWord().equals("var")) {
             compileVarDec();
         }
         compileStatements();
@@ -74,15 +74,14 @@ public class CompilationEngine {
 
     public void compileParameterList() {
         output += "<parameterList>";
-        while (tokenizer.tokenType() == "identifier" || tokenizer.keyWord() == "int" || tokenizer.keyWord() == "char" || tokenizer.keyWord() == "boolean") {
+        if (tokenizer.tokenType().equals("identifier") || tokenizer.keyWord().equals("int") || tokenizer.keyWord().equals("char") || tokenizer.keyWord().equals("boolean")) {
             compileType();
             compileIdentifier();
-            while (tokenizer.symbol() == ",") {
+            while (tokenizer.symbol().equals(",")) {
                 compileSymbol();
                 compileType();
                 compileIdentifier();
             }
-            compileSymbol();
         }
         output += "</parameterList>";
     }
@@ -92,7 +91,7 @@ public class CompilationEngine {
         compileKeyword();
         compileType();
         compileIdentifier();
-        while (tokenizer.symbol() == ",") {
+        while (tokenizer.symbol().equals(",")) {
             compileSymbol();
             compileIdentifier();
         }
@@ -103,16 +102,12 @@ public class CompilationEngine {
     public void compileStatements() {
         output += "<statements>";
         while (isStatement()) {
-            if (tokenizer.keyWord() == "let") {
-                compileLet();
-            } else if (tokenizer.keyWord() == "if") {
-                compileIf();
-            } else if (tokenizer.keyWord() == "while") {
-                compileWhile();
-            } else if (tokenizer.keyWord() == "do") {
-                compileDo();
-            } else if (tokenizer.keyWord() == "return") {
-                compileReturn();
+            switch (tokenizer.keyWord()) {
+                case "let" -> compileLet();
+                case "if" -> compileIf();
+                case "while" -> compileWhile();
+                case "do" -> compileDo();
+                case "return" -> compileReturn();
             }
         }
         output += "</statements>";
@@ -121,7 +116,7 @@ public class CompilationEngine {
     public void compileDo() {
         output += "<doStatement>";
         compileKeyword();
-        if (tokenizer.nextSymbol() == "(") {
+        if (tokenizer.nextSymbol().equals("(")) {
             compileIdentifier();
             compileSymbol();
             compileExpressionList();
@@ -145,7 +140,7 @@ public class CompilationEngine {
         compileKeyword();
         compileIdentifier();
 
-        if (tokenizer.symbol() == "[") {
+        if (tokenizer.symbol().equals("[")) {
             compileSymbol();
             compileExpression();
             compileSymbol();
@@ -173,7 +168,7 @@ public class CompilationEngine {
     public void compileReturn() {
         output += "<returnStatement>";
         compileKeyword();
-        if (tokenizer.symbol() != ";") {
+        if (!tokenizer.symbol().equals(";")) {
             compileExpression();
         }
         compileSymbol();
@@ -189,7 +184,7 @@ public class CompilationEngine {
         compileSymbol();
         compileStatements();
         compileSymbol();
-        if (tokenizer.keyWord() == "else") {
+        if (tokenizer.keyWord().equals("else")) {
             compileKeyword();
             compileSymbol();
             compileStatements();
@@ -210,19 +205,22 @@ public class CompilationEngine {
 
     public void compileTerm() {
         output += "<term>";
-        if (tokenizer.tokenType() == "int_const") {
+        if (tokenizer.tokenType().equals("integerConstant")) {
             output += "<" + tokenizer.tokenType() + ">" + tokenizer.intVal() + "</" + tokenizer.tokenType() + ">";
-        } else if (tokenizer.tokenType() == "string_const") {
+            tokenizer.advanceToken();
+        } else if (tokenizer.tokenType().equals("stringConstant")) {
             output += "<" + tokenizer.tokenType() + ">" + tokenizer.stringVal() + "</" + tokenizer.tokenType() + ">";
-        } else if (tokenizer.tokenType() == "keyword") {
+            tokenizer.advanceToken();
+        } else if (tokenizer.tokenType().equals("keyword")) {
             output += "<" + tokenizer.tokenType() + ">" + tokenizer.keyWord() + "</" + tokenizer.tokenType() + ">";
-        } else if (tokenizer.tokenType() == "identifier" && tokenizer.nextSymbol() == "[") {
+            tokenizer.advanceToken();
+        } else if (tokenizer.tokenType().equals("identifier") && tokenizer.nextSymbol().equals("[")) {
             compileIdentifier();
             compileSymbol();
             compileExpression();
             compileSymbol();
-        } else if (tokenizer.tokenType() == "identifier" && (tokenizer.nextSymbol() == "(" || tokenizer.nextSymbol() == ".")) {
-            if (tokenizer.nextSymbol() == ".") {
+        } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) {
+            if (tokenizer.nextSymbol().equals(".")) {
                 compileIdentifier();
                 compileSymbol();
                 compileIdentifier();
@@ -235,13 +233,13 @@ public class CompilationEngine {
                 compileExpressionList();
                 compileSymbol();
             }
-        } else if (tokenizer.tokenType() == "identifier") {
+        } else if (tokenizer.tokenType().equals("identifier")) {
             compileIdentifier();
-        } else if (tokenizer.symbol() == "(") {
+        } else if (tokenizer.symbol().equals("(")) {
             compileSymbol();
             compileExpression();
             compileSymbol();
-        } else if (tokenizer.symbol() == "-" || tokenizer.symbol() == "~") {
+        } else if (tokenizer.symbol().equals("-") || tokenizer.symbol().equals("~")) {
             compileSymbol();
             compileTerm();
         }
@@ -252,9 +250,9 @@ public class CompilationEngine {
         output += "<expressionList>";
         if (isExpression()) {
             compileExpression();
-            while (tokenizer.symbol() == ",") {
+            while (tokenizer.symbol().equals(",")) {
                 compileSymbol();
-                isExpression();
+                compileExpression();
             }
         }
         output += "</expressionList>";
@@ -262,7 +260,7 @@ public class CompilationEngine {
 
     //My Own
     public void compileType() {
-        if (tokenizer.tokenType() == "identifier") {
+        if (tokenizer.tokenType().equals("identifier")) {
             output += "<identifier>" + tokenizer.identifier() + "</identifier>";
         } else {
             output += "<keyword>" + tokenizer.keyWord() + "</keyword>";
@@ -286,28 +284,28 @@ public class CompilationEngine {
     }
 
     public boolean isSubroutine() {
-        return tokenizer.keyWord() == "function" || tokenizer.keyWord() == "method" || tokenizer.keyWord() == "constructor";
+        return tokenizer.keyWord().equals("function") || tokenizer.keyWord().equals("method") || tokenizer.keyWord().equals("constructor");
     }
 
     public boolean isClassVarDec() {
-        return tokenizer.keyWord() == "static" || tokenizer.keyWord() == "field";
+        return tokenizer.keyWord().equals("static") || tokenizer.keyWord().equals("field");
     }
 
     public boolean isStatement() {
-        return tokenizer.keyWord() == "let" || tokenizer.keyWord() == "if" || tokenizer.keyWord() == "while" || tokenizer.keyWord() == "do" || tokenizer.keyWord() == "return";
+        return tokenizer.keyWord().equals("let") || tokenizer.keyWord().equals("if") || tokenizer.keyWord().equals("while") || tokenizer.keyWord().equals("do") || tokenizer.keyWord().equals("return");
     }
 
     public boolean isExpression() {
-        return tokenizer.tokenType() == "int_const" || tokenizer.tokenType() == "string_const" || tokenizer.tokenType() == "keyword" || tokenizer.tokenType() == "identifier" || tokenizer.symbol() == "(" || tokenizer.symbol() == "-" || tokenizer.symbol() == "~";
+        return tokenizer.tokenType().equals("integerConstant") || tokenizer.tokenType().equals("stringConstant") || tokenizer.tokenType().equals("keyword") || tokenizer.tokenType().equals("identifier") || tokenizer.symbol().equals("(") || tokenizer.symbol().equals("-") || tokenizer.symbol().equals("~");
     }
 
     public boolean isOperation() {
         String current = tokenizer.symbol();
-        return current == "+" || current == "-" || current == "*" || current == "/" || current == "&" || current == "|" || current == "<" || current == ">" || current == "=";
+        return current.equals("+") || current.equals("-") || current.equals("*") || current.equals("/") || current.equals("&") || current.equals("|") || current.equals("<") || current.equals(">") || current.equals("=");
     }
 
     public void writeToOutput() {
-        FileWriter xmlWriter = null;
+        FileWriter xmlWriter;
         try {
             xmlWriter = new FileWriter(outputFile);
             xmlWriter.write(output);
