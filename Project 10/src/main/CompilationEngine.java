@@ -301,7 +301,7 @@ public class CompilationEngine {
 
     public boolean isOperation() {
         String current = tokenizer.symbol();
-        return current.equals("+") || current.equals("-") || current.equals("*") || current.equals("/") || current.equals("&") || current.equals("|") || current.equals("<") || current.equals(">") || current.equals("=");
+        return current.equals("+") || current.equals("-") || current.equals("*") || current.equals("/") || current.equals("&amp;") || current.equals("|") || current.equals("&lt;") || current.equals("&gt;") || current.equals("=");
     }
 
     public void writeToOutput() {
