@@ -1,112 +1,94 @@
 package main;
 
+import main.enums.Kind;
+
 import java.util.Hashtable;
 
 public class SymbolTable {
-    private Hashtable<Integer, Symbol> classScopeTable;
-    private Hashtable<Integer, Symbol> subroutineScopeTable;
-    private int currentIndex;
+    private Hashtable<String, Symbol> classScopeTable;
+    private Hashtable<String, Symbol> subroutineScopeTable;
+    private int staticIndex;
+    private int fieldIndex;
+    private int argIndex;
+    private int varIndex;
 
-    public SymbolTable(){
-        classScopeTable = new Hashtable<Integer, Symbol>();
-        subroutineScopeTable = null;
-        currentIndex = 0;
+    public SymbolTable() {
+        classScopeTable = new Hashtable<String, Symbol>();
+        subroutineScopeTable = new Hashtable<String, Symbol>();
+        staticIndex = 0;
+        fieldIndex = 0;
+        argIndex = 0;
+        varIndex = 0;
     }
 
-    public void define(String name, String type, String kind){
-        if(subroutineScopeTable == null){
-            classScopeTable.put(currentIndex, new Symbol(currentIndex, name, type, kind));
-        }else{
-            subroutineScopeTable.put(currentIndex, new Symbol(currentIndex, name, type, kind));
+    public void define(String name, String type, Kind kind) {
+        if (kind == Kind.STATIC) {
+            classScopeTable.put(name, new Symbol(staticIndex, name, type, kind));
+            staticIndex++;
         }
-        currentIndex++;
+
+        if (kind == Kind.FIELD) {
+            classScopeTable.put(name, new Symbol(fieldIndex, name, type, kind));
+            fieldIndex++;
+        }
+
+        if (kind == Kind.ARG) {
+            subroutineScopeTable.put(name, new Symbol(argIndex, name, type, kind));
+            argIndex++;
+        }
+
+        if (kind == Kind.VAR) {
+            subroutineScopeTable.put(name, new Symbol(varIndex, name, type, kind));
+            varIndex++;
+        }
     }
 
-    public void startSubroutine(){
+    public void startSubroutine() {
         subroutineScopeTable.clear();
     }
 
-    public int varCount(String kind){
-        int count = 0;
-        int i = 0;
-        while (i < currentIndex){
-            Symbol symbol = classScopeTable.get(i);
-            if(symbol.getKind() == kind){
-                count += 1;
-            }
-            i++;
+    public int varCount(Kind kind) {
+        if (kind == Kind.STATIC) {
+            return staticIndex;
         }
-        while (i < currentIndex){
-            Symbol symbol = subroutineScopeTable.get(i);
-            if(symbol.getKind() == kind){
-                count += 1;
-            }
-            i++;
+        if (kind == Kind.FIELD) {
+            return fieldIndex;
         }
-        return count;
+        if (kind == Kind.ARG) {
+            return argIndex;
+        }
+        return varIndex;
+
     }
 
-    public String kindOf(String name){
-        int i = 0;
-        while (i < currentIndex){
-            Symbol symbol = classScopeTable.get(i);
-            if(symbol.getName() == name){
-                return symbol.getKind();
-            }
-            i++;
-        }
-        i=0;
-        while (i < currentIndex){
-            Symbol symbol = subroutineScopeTable.get(i);
-            if(symbol.getName() == name){
-                return symbol.getKind();
-            }
-            i++;
-        }
-        return "NONE";
+    public Kind kindOf(String name) {
+        Symbol symbolInSubroutine = subroutineScopeTable.get(name);
+        Symbol symbolInClass = classScopeTable.get(name);
+
+        if(symbolInSubroutine != null)
+            return symbolInSubroutine.getKind();
+        if(symbolInClass != null)
+            return symbolInClass.getKind();
+        return Kind.NONE;
     }
 
-    public String typeOf(String name){
-        int i = 0;
-        while (i < currentIndex){
-            Symbol symbol = classScopeTable.get(i);
-            if(symbol.getName() == name){
-                return symbol.getType();
-            }
-            i++;
-        }
-        i=0;
-        while (i < currentIndex){
-            Symbol symbol = subroutineScopeTable.get(i);
-            if(symbol.getName() == name){
-                return symbol.getType();
-            }
-            i++;
-        }
-        return "NONE";
+    public String typeOf(String name) {
+        Symbol symbolInSubroutine = subroutineScopeTable.get(name);
+        Symbol symbolInClass = classScopeTable.get(name);
+
+        if(symbolInSubroutine != null)
+            return symbolInSubroutine.getType();
+        return symbolInClass.getType();
     }
 
-    public int indexOf(String name){
-        int i = 0;
-        while (i < currentIndex){
-            Symbol symbol = classScopeTable.get(i);
-            if(symbol.getName() == name){
-                return symbol.getIndex();
-            }
-            i++;
-        }
-        i=0;
-        while (i < currentIndex){
-            Symbol symbol = subroutineScopeTable.get(i);
-            if(symbol.getName() == name){
-                return symbol.getIndex();
-            }
-            i++;
-        }
-        return -1;
+    public int indexOf(String name) {
+        Symbol symbolInSubroutine = subroutineScopeTable.get(name);
+        Symbol symbolInClass = classScopeTable.get(name);
+
+        if(symbolInSubroutine != null)
+            return symbolInSubroutine.getIndex();
+        return symbolInClass.getIndex();
     }
-
-
 
 
 }

@@ -1,12 +1,14 @@
 package main;
 
+import main.enums.Kind;
+
 public class Symbol {
     private int index;
     private String name;
     private String type;
-    private String kind;
+    private Kind kind;
 
-    public Symbol(int index, String name, String type, String kind){
+    public Symbol(int index, String name, String type, Kind kind){
         this.index = index;
         this.name = name;
         this.type = type;
@@ -21,7 +23,7 @@ public class Symbol {
         return name;
     }
 
-    public String getKind() {
+    public Kind getKind() {
         return kind;
     }
 
