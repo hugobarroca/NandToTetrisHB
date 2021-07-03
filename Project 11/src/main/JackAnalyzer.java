@@ -23,13 +23,13 @@ public class JackAnalyzer {
 			parseFile(programToParse);
 	}
 
-	public void parseDirectory(File programToParse) {
+	public void parseDirectory(File directory) {
 		File[] programFiles;
 
 		if (verboseMode)
-			System.out.println("Parsing directory: " + programToParse.getAbsolutePath());
+			System.out.println("Parsing directory: " + directory.getAbsolutePath());
 
-		programFiles = programToParse.listFiles();
+		programFiles = directory.listFiles();
 		for (File programFile : programFiles) {
 			if (programFile.getName().endsWith(".jack"))
 				parseFile(programFile);

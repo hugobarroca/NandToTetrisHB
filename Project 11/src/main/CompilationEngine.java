@@ -6,9 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class CompilationEngine {
+    JackTokenizer tokenizer;
+    SymbolTable symbolTable;
     File inputFile;
     File outputFile;
-    JackTokenizer tokenizer;
     String output;
 
 
@@ -17,6 +18,7 @@ public class CompilationEngine {
         this.outputFile = outputFile;
         this.output = "";
         tokenizer = new JackTokenizer(inputFile, true);
+        symbolTable = new SymbolTable();
     }
 
     public void compileClass() {
@@ -262,6 +264,7 @@ public class CompilationEngine {
     public void compileType() {
         if (tokenizer.tokenType().equals("identifier")) {
             output += "<identifier>" + tokenizer.identifier() + "</identifier>";
+            //TODO: Implement symbol table here
         } else {
             output += "<keyword>" + tokenizer.keyWord() + "</keyword>";
         }
