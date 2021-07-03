@@ -1,9 +1,12 @@
 package main;
 
+import main.enums.Kind;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Locale;
 
 public class CompilationEngine {
     JackTokenizer tokenizer;
@@ -24,7 +27,7 @@ public class CompilationEngine {
     public void compileClass() {
         output += "<class>";
 
-        compileKeyword();
+        var kind = compileKeyword();
         compileIdentifier();
         compileSymbol();
 
@@ -37,15 +40,21 @@ public class CompilationEngine {
         }
         compileSymbol();
 
+        output += "(" + kind + ":def:" + "NO)";
+
         output += "</class>";
     }
 
     public void compileClassVarDec() {
         output += "<classVarDec>";
 
-        compileKeyword();
-        compileType();
-        compileIdentifier();
+        var kind = compileKeyword();
+        var type = compileIdentifierOrKeyword();
+        var identifier = compileIdentifier();
+
+        symbolTable.define(identifier, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
+        output += "(" + kind + ":def:" + "YES:" + symbolTable.indexOf(identifier) + ")";
+
         while (tokenizer.symbol().equals(",")) {
             compileSymbol();
             compileIdentifier();
@@ -58,8 +67,16 @@ public class CompilationEngine {
     public void compileSubroutine() {
         output += "<subroutineDec>";
         compileKeyword();
-        compileType();
+
+        if (tokenizer.tokenType().equals("identifier")) {
+            compileIdentifier();
+            output += "(class:use:NO)";
+        } else {
+            compileKeyword();
+        }
+
         compileIdentifier();
+        output += "(subroutine:def:NO)";
         compileSymbol();
         compileParameterList();
         compileSymbol();
@@ -77,11 +94,11 @@ public class CompilationEngine {
     public void compileParameterList() {
         output += "<parameterList>";
         if (tokenizer.tokenType().equals("identifier") || tokenizer.keyWord().equals("int") || tokenizer.keyWord().equals("char") || tokenizer.keyWord().equals("boolean")) {
-            compileType();
+            compileIdentifierOrKeyword();
             compileIdentifier();
             while (tokenizer.symbol().equals(",")) {
                 compileSymbol();
-                compileType();
+                compileIdentifierOrKeyword();
                 compileIdentifier();
             }
         }
@@ -90,12 +107,31 @@ public class CompilationEngine {
 
     public void compileVarDec() {
         output += "<varDec>";
-        compileKeyword();
-        compileType();
-        compileIdentifier();
+
+        var kind = compileKeyword();
+        String varIdentifier = null;
+        String type;
+
+        if (tokenizer.tokenType().equals("identifier")) {
+            type = compileIdentifier();
+            varIdentifier = type;
+        } else {
+            type = compileKeyword();
+        }
+
+        var identifier = compileIdentifier();
+
+        symbolTable.define(identifier, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
+        if(varIdentifier != null){
+            output += "(class:used:NO)";
+        }
+        output += "(" + kind + ":def:YES:" + symbolTable.indexOf(identifier) +")";
+
         while (tokenizer.symbol().equals(",")) {
             compileSymbol();
-            compileIdentifier();
+            var identifier2 = compileIdentifier();
+            symbolTable.define(identifier2, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
+            output += "(" + kind + ":def:YES:" + symbolTable.indexOf(identifier2) +")";
         }
         compileSymbol();
         output += "</varDec>";
@@ -120,13 +156,16 @@ public class CompilationEngine {
         compileKeyword();
         if (tokenizer.nextSymbol().equals("(")) {
             compileIdentifier();
+            output += "(subroutine:use:NO)";
             compileSymbol();
             compileExpressionList();
             compileSymbol();
         } else {
             compileIdentifier();
+            output += "(class:use:NO)";
             compileSymbol();
             compileIdentifier();
+            output += "(subroutine:use:NO)";
             compileSymbol();
             compileExpressionList();
             compileSymbol();
@@ -140,7 +179,9 @@ public class CompilationEngine {
         output += "<letStatement>";
 
         compileKeyword();
-        compileIdentifier();
+        var identifier = compileIdentifier();
+
+        output += "(" + symbolTable.kindOf(identifier) + ":use:YES:" + symbolTable.indexOf(identifier) +")";
 
         if (tokenizer.symbol().equals("[")) {
             compileSymbol();
@@ -218,25 +259,32 @@ public class CompilationEngine {
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("identifier") && tokenizer.nextSymbol().equals("[")) {
             compileIdentifier();
+            output += "(class:use:NO)";
             compileSymbol();
             compileExpression();
             compileSymbol();
+
+
         } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) {
             if (tokenizer.nextSymbol().equals(".")) {
                 compileIdentifier();
+                output += "(class:use:NO)";
                 compileSymbol();
                 compileIdentifier();
+                output += "(subroutine:use:NO)";
                 compileSymbol();
                 compileExpressionList();
                 compileSymbol();
             } else {
                 compileIdentifier();
+                output += "(subroutine:use:NO)";
                 compileSymbol();
                 compileExpressionList();
                 compileSymbol();
             }
         } else if (tokenizer.tokenType().equals("identifier")) {
-            compileIdentifier();
+            var identifier = compileIdentifier();
+            output += "(" + symbolTable.kindOf(identifier) + ":use:YES:"  + symbolTable.indexOf(identifier) + ")";
         } else if (tokenizer.symbol().equals("(")) {
             compileSymbol();
             compileExpression();
@@ -260,30 +308,33 @@ public class CompilationEngine {
         output += "</expressionList>";
     }
 
-    //My Own
-    public void compileType() {
+    //region My Functions
+    public String compileIdentifierOrKeyword() {
         if (tokenizer.tokenType().equals("identifier")) {
-            output += "<identifier>" + tokenizer.identifier() + "</identifier>";
-            //TODO: Implement symbol table here
+            return compileIdentifier();
         } else {
-            output += "<keyword>" + tokenizer.keyWord() + "</keyword>";
+            return compileKeyword();
         }
-        tokenizer.advanceToken();
     }
+
 
     public void compileSymbol() {
         output += "<symbol>" + tokenizer.symbol() + "</symbol>";
         tokenizer.advanceToken();
     }
 
-    public void compileIdentifier() {
-        output += "<identifier>" + tokenizer.identifier() + "</identifier>";
+    public String compileIdentifier() {
+        String identifier = tokenizer.identifier();
+        output += "<identifier>" + identifier + "</identifier>";
         tokenizer.advanceToken();
+        return identifier;
     }
 
-    public void compileKeyword() {
-        output += "<keyword>" + tokenizer.keyWord() + "</keyword>";
+    public String compileKeyword() {
+        String keyword = tokenizer.keyWord();
+        output += "<keyword>" + keyword + "</keyword>";
         tokenizer.advanceToken();
+        return keyword;
     }
 
     public boolean isSubroutine() {
@@ -306,6 +357,7 @@ public class CompilationEngine {
         String current = tokenizer.symbol();
         return current.equals("+") || current.equals("-") || current.equals("*") || current.equals("/") || current.equals("&amp;") || current.equals("|") || current.equals("&lt;") || current.equals("&gt;") || current.equals("=");
     }
+    //endregion
 
     public void writeToOutput() {
         FileWriter xmlWriter;
