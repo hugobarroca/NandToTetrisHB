@@ -2,6 +2,7 @@ package main;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class JackAnalyzer {
 	String path;
@@ -38,8 +39,9 @@ public class JackAnalyzer {
 
 	public void parseFile(File programFile) {
 		try {
-			File outputFile = new File(programFile.getAbsolutePath().replace("jack", "xml"));
-			CompilationEngine engine = new CompilationEngine(programFile, outputFile);
+			File outputXMLFile = new File(programFile.getAbsolutePath().replace("jack", "xml"));
+			File outputVMFile = new File(programFile.getAbsolutePath().replace("jack", "vm"));
+			CompilationEngine engine = new CompilationEngine(programFile, outputXMLFile, outputVMFile);
 			engine.compileClass();
 			engine.writeToOutput();
 			if (verboseMode)
@@ -47,6 +49,8 @@ public class JackAnalyzer {
 		} catch (FileNotFoundException e) {
 			if (verboseMode)
 				System.out.println("Could not process the file: " + programFile.getAbsolutePath());
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

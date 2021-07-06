@@ -3,7 +3,6 @@ package main;
 import main.enums.Kind;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
@@ -11,20 +10,23 @@ import java.util.Locale;
 public class CompilationEngine {
     JackTokenizer tokenizer;
     SymbolTable symbolTable;
+    VMWriter writer;
+
     File inputFile;
-    File outputFile;
+    File outputXMLFile;
     String output;
 
 
-    public CompilationEngine(File inputFile, File outputFile) throws FileNotFoundException {
+    public CompilationEngine(File inputFile, File outputXMLFile, File outputVMFile) throws IOException {
         this.inputFile = inputFile;
-        this.outputFile = outputFile;
+        this.outputXMLFile = outputXMLFile;
         this.output = "";
         tokenizer = new JackTokenizer(inputFile, true);
         symbolTable = new SymbolTable();
+        writer = new VMWriter(outputVMFile);
     }
 
-    public void compileClass() {
+    public void compileClass() throws IOException {
         output += "<class>";
 
         var kind = compileKeyword();
@@ -43,6 +45,8 @@ public class CompilationEngine {
         output += "(" + kind + ":def:" + "NO)";
 
         output += "</class>";
+
+        writer.close();
     }
 
     public void compileClassVarDec() {
@@ -66,19 +70,23 @@ public class CompilationEngine {
 
     public void compileSubroutine() {
         output += "<subroutineDec>";
-        compileKeyword();
+        String keyword = compileKeyword();
+
+
+
+
 
         if (tokenizer.tokenType().equals("identifier")) {
             compileIdentifier();
-            output += "(class:use:NO)";
+            output += "(subroutine:use:NO)";
         } else {
             compileKeyword();
         }
 
-        compileIdentifier();
+        String identifier = compileIdentifier();
         output += "(subroutine:def:NO)";
         compileSymbol();
-        compileParameterList();
+        int nrOfParameters = compileParameterList();
         compileSymbol();
         output += "<subroutineBody>";
         compileSymbol();
@@ -89,10 +97,15 @@ public class CompilationEngine {
         compileSymbol();
         output += "</subroutineBody>";
         output += "</subroutineDec>";
+
+        if(keyword == "function"){
+            writer.writeFunction(identifier, nrOfParameters);
+        }
     }
 
-    public void compileParameterList() {
+    public int compileParameterList() {
         output += "<parameterList>";
+        int counter = 0;
         if (tokenizer.tokenType().equals("identifier") || tokenizer.keyWord().equals("int") || tokenizer.keyWord().equals("char") || tokenizer.keyWord().equals("boolean")) {
             compileIdentifierOrKeyword();
             compileIdentifier();
@@ -100,9 +113,11 @@ public class CompilationEngine {
                 compileSymbol();
                 compileIdentifierOrKeyword();
                 compileIdentifier();
+                counter++;
             }
         }
         output += "</parameterList>";
+        return counter;
     }
 
     public void compileVarDec() {
@@ -153,15 +168,19 @@ public class CompilationEngine {
 
     public void compileDo() {
         output += "<doStatement>";
+        String identifier;
         compileKeyword();
         if (tokenizer.nextSymbol().equals("(")) {
-            compileIdentifier();
+            identifier = compileIdentifier();
             output += "(subroutine:use:NO)";
             compileSymbol();
             compileExpressionList();
             compileSymbol();
+
+            //TODO: Figure out if there shouldn't be a loop here
+//            writer.writeCall(identifier);
         } else {
-            compileIdentifier();
+            identifier = compileIdentifier();
             output += "(class:use:NO)";
             compileSymbol();
             compileIdentifier();
@@ -362,7 +381,7 @@ public class CompilationEngine {
     public void writeToOutput() {
         FileWriter xmlWriter;
         try {
-            xmlWriter = new FileWriter(outputFile);
+            xmlWriter = new FileWriter(outputXMLFile);
             xmlWriter.write(output);
             xmlWriter.close();
         } catch (IOException e) {

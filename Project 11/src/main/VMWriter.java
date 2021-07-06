@@ -10,7 +10,7 @@ public class VMWriter {
     FileWriter writer;
 
     public VMWriter(File output) throws IOException {
-        var writer = new FileWriter(output);
+        this.writer = new FileWriter(output);
     }
 
     public void writePush(Segment segment, int index) {
@@ -76,7 +76,7 @@ public class VMWriter {
     }
 
     public void writeFunction(String name, int nLocals){
-        String function = "function " + name + nLocals;
+        String function = "function " + name + " " + nLocals;
         try {
             writer.write(function);
         } catch (IOException e) {
