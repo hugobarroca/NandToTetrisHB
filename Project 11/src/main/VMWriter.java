@@ -23,7 +23,7 @@ public class VMWriter {
     }
 
     public void writePop(Segment segment, int index){
-        String pop = String.format("pop %s %s", segment, index);
+        String pop = String.format("pop %s %s\n", segment, index);
         try {
             writer.write(pop);
         } catch (IOException e) {
@@ -33,14 +33,14 @@ public class VMWriter {
 
     public void writeArithmetic(Command command){
         try {
-            writer.write(String.valueOf(command));
+            writer.write(String.valueOf(command) + "\n");
         } catch (IOException e) {
             System.out.println("ERROR WRITING: " + command);
         }
     }
 
     public void writeLabel(String Label){
-        String finalLabel = "label " + Label;
+        String finalLabel = "label " + Label  + "\n";
         try {
             writer.write(finalLabel);
         } catch (IOException e) {
@@ -49,7 +49,7 @@ public class VMWriter {
     }
 
     public void writeGoto(String Label){
-        String gotoLabel = "goto " + Label;
+        String gotoLabel = "goto " + Label  + "\n";
         try {
             writer.write(gotoLabel);
         } catch (IOException e) {
@@ -58,7 +58,7 @@ public class VMWriter {
     }
 
     public void writeIf(String Label){
-        String ifGoto = "if-goto " + Label;
+        String ifGoto = "if-goto " + Label  + "\n";
         try {
             writer.write(ifGoto);
         } catch (IOException e) {
@@ -67,7 +67,7 @@ public class VMWriter {
     }
 
     public void writeCall(String name, int nArgs){
-        String call = "call " + name + nArgs;
+        String call = "call " + name + nArgs  + "\n";
         try {
             writer.write(call);
         } catch (IOException e) {
@@ -76,7 +76,7 @@ public class VMWriter {
     }
 
     public void writeFunction(String name, int nLocals){
-        String function = "function " + name + " " + nLocals;
+        String function = "function " + name + " " + nLocals  + "\n";
         try {
             writer.write(function);
         } catch (IOException e) {
@@ -86,7 +86,7 @@ public class VMWriter {
 
     public void writeReturn(){
         try {
-            writer.write("return");
+            writer.write("return\n");
         } catch (IOException e) {
             System.out.println("ERROR WRITING: return");
         }

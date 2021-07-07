@@ -1,5 +1,6 @@
 package main;
 
+import main.enums.Command;
 import main.enums.Kind;
 
 import java.io.File;
@@ -179,7 +180,7 @@ public class CompilationEngine {
 
             //TODO: Figure out if there shouldn't be a loop here
 //            writer.writeCall(identifier);
-        } else {
+        } else { // next symbol is a "."
             identifier = compileIdentifier();
             output += "(class:use:NO)";
             compileSymbol();
@@ -319,6 +320,7 @@ public class CompilationEngine {
         output += "<expressionList>";
         if (isExpression()) {
             compileExpression();
+
             while (tokenizer.symbol().equals(",")) {
                 compileSymbol();
                 compileExpression();
@@ -338,7 +340,22 @@ public class CompilationEngine {
 
 
     public void compileSymbol() {
-        output += "<symbol>" + tokenizer.symbol() + "</symbol>";
+        var symbol = tokenizer.symbol();
+        output += "<symbol>" + symbol + "</symbol>";
+
+        if(symbol == "+"){
+            writer.writeArithmetic(Command.ADD);
+        }
+        if(symbol == "-"){
+            writer.writeArithmetic(Command.SUB);
+        }
+        if(symbol == "&"){
+            writer.writeArithmetic(Command.ADD);
+        }
+        if(symbol == "|"){
+            writer.writeArithmetic(Command.OR);
+        }
+
         tokenizer.advanceToken();
     }
 
