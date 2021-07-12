@@ -5,6 +5,7 @@ import main.enums.Segment;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Locale;
 
 public class VMWriter {
     FileWriter writer;
@@ -14,7 +15,7 @@ public class VMWriter {
     }
 
     public void writePush(Segment segment, int index) {
-        String push = String.format("push %s %s", segment, index);
+        String push = String.format("push %s %s\n", String.valueOf(segment).toLowerCase(), index);
         try {
             writer.write(push);
         } catch (IOException e) {
@@ -33,7 +34,7 @@ public class VMWriter {
 
     public void writeArithmetic(Command command){
         try {
-            writer.write(String.valueOf(command) + "\n");
+            writer.write(String.valueOf(command).toLowerCase() + "\n");
         } catch (IOException e) {
             System.out.println("ERROR WRITING: " + command);
         }
@@ -67,7 +68,7 @@ public class VMWriter {
     }
 
     public void writeCall(String name, int nArgs){
-        String call = "call " + name + nArgs  + "\n";
+        String call = "call " + name + " " + nArgs  + "\n";
         try {
             writer.write(call);
         } catch (IOException e) {

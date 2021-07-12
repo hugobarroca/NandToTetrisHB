@@ -2,6 +2,7 @@ package main;
 
 import main.enums.Command;
 import main.enums.Kind;
+import main.enums.Segment;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,18 +25,18 @@ public class CompilationEngine {
 
     public void compileClass() throws IOException {
 
-        compileKeyword();
-        compileIdentifier();
-        compileSymbol();
+        tokenizer.advanceToken(); //keyword: class
+        var className = compileIdentifier();
+        tokenizer.advanceToken(); //symbol: {
 
         while (isSubroutine() || isClassVarDec()) {
             if (isSubroutine()) {
-                compileSubroutine();
+                compileSubroutine(className);
             } else {
                 compileClassVarDec();
             }
         }
-        compileSymbol();
+        tokenizer.advanceToken(); //symbol: }
         writer.close();
     }
 
@@ -47,13 +48,13 @@ public class CompilationEngine {
         symbolTable.define(identifier, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
 
         while (tokenizer.symbol().equals(",")) {
-            compileSymbol();
+            compileOperation();
             compileIdentifier();
         }
-        compileSymbol();
+        compileOperation();
     }
 
-    public void compileSubroutine() {
+    public void compileSubroutine(String className) {
         String keyword = compileKeyword();
 
         if (tokenizer.tokenType().equals("identifier")) {
@@ -62,19 +63,20 @@ public class CompilationEngine {
             compileKeyword();
         }
 
-        String identifier = compileIdentifier();
-        compileSymbol();
+        String identifier = className + "." + compileIdentifier();
+        compileOperation();
         int nrOfParameters = compileParameterList();
-        compileSymbol();
-        compileSymbol();
+        compileOperation();
+        compileOperation();
+        if(keyword.equals("function")){
+            writer.writeFunction(identifier, nrOfParameters);
+        }
         while (tokenizer.keyWord().equals("var")) {
             compileVarDec();
         }
         compileStatements();
-        compileSymbol();
-        if(keyword.equals("function")){
-            writer.writeFunction(identifier, nrOfParameters);
-        }
+        compileOperation();
+
     }
 
     public int compileParameterList() {
@@ -83,7 +85,7 @@ public class CompilationEngine {
             compileIdentifierOrKeyword();
             compileIdentifier();
             while (tokenizer.symbol().equals(",")) {
-                compileSymbol();
+                compileOperation();
                 compileIdentifierOrKeyword();
                 compileIdentifier();
                 counter++;
@@ -109,11 +111,11 @@ public class CompilationEngine {
 
 
         while (tokenizer.symbol().equals(",")) {
-            compileSymbol();
+            compileOperation();
             var identifier2 = compileIdentifier();
             symbolTable.define(identifier2, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
         }
-        compileSymbol();
+        compileOperation();
 
     }
 
@@ -130,44 +132,47 @@ public class CompilationEngine {
     }
 
     public void compileDo() {
-        compileKeyword();
+        compileKeyword(); //keyword: do
         if (tokenizer.nextSymbol().equals("(")) {
-            compileIdentifier();
-            compileSymbol();
+            compileIdentifier(); //identifier: function name
+            tokenizer.advanceToken(); //symbol: "("
             compileExpressionList();
-            compileSymbol();
+            tokenizer.advanceToken(); //symbol ")"
         } else {
-            compileIdentifier();
-            compileSymbol();
-            compileIdentifier();
-            compileSymbol();
-            compileExpressionList();
-            compileSymbol();
+            var className = compileIdentifier(); //identifier: class name
+            tokenizer.advanceToken(); //symbol: "."
+            String functionName = compileIdentifier(); //identifier: function name
+            tokenizer.advanceToken(); //symbol: "("
+            int nrOfArguments = compileExpressionList();
+            tokenizer.advanceToken(); //symbol ")"
+            writer.writeCall(className + "." + functionName, nrOfArguments);
         }
-        compileSymbol();
+        tokenizer.advanceToken(); //symbol ";"
+
+
     }
 
     public void compileLet() {
         compileKeyword();
         compileIdentifier();
         if (tokenizer.symbol().equals("[")) {
-            compileSymbol();
+            compileOperation();
             compileExpression();
-            compileSymbol();
+            compileOperation();
         }
-        compileSymbol();
+        compileOperation();
         compileExpression();
-        compileSymbol();
+        compileOperation();
     }
 
     public void compileWhile() {
         compileKeyword();
-        compileSymbol();
+        compileOperation();
         compileExpression();
-        compileSymbol();
-        compileSymbol();
+        compileOperation();
+        compileOperation();
         compileStatements();
-        compileSymbol();
+        compileOperation();
     }
 
     public void compileReturn() {
@@ -175,82 +180,95 @@ public class CompilationEngine {
         if (!tokenizer.symbol().equals(";")) {
             compileExpression();
         }
-        compileSymbol();
+        compileOperation();
     }
 
     public void compileIf() {
         compileKeyword();
-        compileSymbol();
+        compileOperation();
         compileExpression();
-        compileSymbol();
-        compileSymbol();
+        compileOperation();
+        compileOperation();
         compileStatements();
-        compileSymbol();
+        compileOperation();
         if (tokenizer.keyWord().equals("else")) {
             compileKeyword();
-            compileSymbol();
+            compileOperation();
             compileStatements();
-            compileSymbol();
+            compileOperation();
         }
     }
+
+
+
 
     public void compileExpression() {
         compileTerm();
         while (isOperation()) {
-            compileSymbol();
+            String symbol = tokenizer.symbol();
+            tokenizer.advanceToken();
             compileTerm();
+            compileOperation(symbol);
         }
     }
 
     public void compileTerm() {
-        if (tokenizer.tokenType().equals("integerConstant")) {
+        if (tokenizer.symbol().equals("(")) {
+            tokenizer.advanceToken();
+            compileExpression();
+            tokenizer.advanceToken();
+        } else if (tokenizer.tokenType().equals("integerConstant")) {
+            writer.writePush(Segment.CONSTANT, Integer.parseInt(tokenizer.intVal()));
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("stringConstant")) {
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("keyword")) {
+            if(tokenizer.keyWord() == "true"){
+                writer.writePush(Segment.CONSTANT, 1);
+                writer.writeArithmetic(Command.NEG);
+            } else if (tokenizer.keyWord() == "false"){
+                writer.writePush(Segment.CONSTANT, 0);
+            }
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("identifier") && tokenizer.nextSymbol().equals("[")) {
             compileIdentifier();
-            compileSymbol();
+            tokenizer.advanceToken();
             compileExpression();
-            compileSymbol();
-
-
+            tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) {
             if (tokenizer.nextSymbol().equals(".")) {
                 compileIdentifier();
-                compileSymbol();
+                tokenizer.advanceToken();
                 compileIdentifier();
-                compileSymbol();
+                tokenizer.advanceToken();
                 compileExpressionList();
-                compileSymbol();
+                tokenizer.advanceToken();
             } else {
                 compileIdentifier();
-                compileSymbol();
+                tokenizer.advanceToken();
                 compileExpressionList();
-                compileSymbol();
+                tokenizer.advanceToken();
             }
         } else if (tokenizer.tokenType().equals("identifier")) {
             compileIdentifier();
-        } else if (tokenizer.symbol().equals("(")) {
-            compileSymbol();
-            compileExpression();
-            compileSymbol();
         } else if (tokenizer.symbol().equals("-") || tokenizer.symbol().equals("~")) {
-            compileSymbol();
+            compileOperation();
             compileTerm();
         }
     }
 
-    public void compileExpressionList() {
+    public int compileExpressionList() {
+        int count = 0;
         if (isExpression()) {
             compileExpression();
-
+            count++;
             while (tokenizer.symbol().equals(",")) {
-                compileSymbol();
+                tokenizer.advanceToken();
                 compileExpression();
+                count++;
             }
         }
+        return count;
     }
 
     //region My Functions
@@ -263,7 +281,7 @@ public class CompilationEngine {
     }
 
 
-    public void compileSymbol() {
+    public void compileOperation() {
         var symbol = tokenizer.symbol();
 
         if(symbol.equals("+")){
@@ -273,13 +291,31 @@ public class CompilationEngine {
             writer.writeArithmetic(Command.SUB);
         }
         if(symbol.equals("&")){
-            writer.writeArithmetic(Command.ADD);
+            writer.writeArithmetic(Command.AND);
         }
         if(symbol.equals("|")){
             writer.writeArithmetic(Command.OR);
         }
 
         tokenizer.advanceToken();
+    }
+
+    public void compileOperation(String symbol) {
+        if(symbol.equals("+")){
+            writer.writeArithmetic(Command.ADD);
+        }
+        if(symbol.equals("-")){
+            writer.writeArithmetic(Command.SUB);
+        }
+        if(symbol.equals("&")){
+            writer.writeArithmetic(Command.AND);
+        }
+        if(symbol.equals("|")){
+            writer.writeArithmetic(Command.OR);
+        }
+        if(symbol.equals("*")){
+            writer.writeCall("Math.multiply", 2);
+        }
     }
 
     public String compileIdentifier() {
