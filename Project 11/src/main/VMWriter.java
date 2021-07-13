@@ -24,7 +24,7 @@ public class VMWriter {
     }
 
     public void writePop(Segment segment, int index){
-        String pop = String.format("pop %s %s\n", segment, index);
+        String pop = String.format("pop %s %s\n", String.valueOf(segment).toLowerCase(), index);
         try {
             writer.write(pop);
         } catch (IOException e) {

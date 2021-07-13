@@ -56,11 +56,11 @@ public class CompilationEngine {
 
     public void compileSubroutine(String className) {
         String keyword = compileKeyword();
-
+        String type;
         if (tokenizer.tokenType().equals("identifier")) {
-            compileIdentifier();
+            type = compileIdentifier();
         } else {
-            compileKeyword();
+            type = compileKeyword();
         }
 
         String identifier = className + "." + compileIdentifier();
@@ -75,7 +75,11 @@ public class CompilationEngine {
             compileVarDec();
         }
         compileStatements();
-        compileOperation();
+        if(type == "void"){
+            writer.writePush(Segment.CONSTANT, 0);
+        }
+        writer.writeReturn();
+        tokenizer.advanceToken(); //symbol: "}"
 
     }
 
@@ -147,6 +151,7 @@ public class CompilationEngine {
             tokenizer.advanceToken(); //symbol ")"
             writer.writeCall(className + "." + functionName, nrOfArguments);
         }
+        writer.writePop(Segment.TEMP, 0);
         tokenizer.advanceToken(); //symbol ";"
 
 
