@@ -13,6 +13,8 @@ public class CompilationEngine {
     SymbolTable symbolTable;
     VMWriter writer;
 
+    String currentClassName;
+
     File inputFile;
 
 
@@ -21,17 +23,19 @@ public class CompilationEngine {
         tokenizer = new JackTokenizer(inputFile, true);
         symbolTable = new SymbolTable();
         writer = new VMWriter(outputVMFile);
+
+        currentClassName = "";
     }
 
     public void compileClass() throws IOException {
 
         tokenizer.advanceToken(); //keyword: class
-        var className = compileIdentifier();
+        currentClassName = compileIdentifier();
         tokenizer.advanceToken(); //symbol: {
 
         while (isSubroutine() || isClassVarDec()) {
             if (isSubroutine()) {
-                compileSubroutine(className);
+                compileSubroutine();
             } else {
                 compileClassVarDec();
             }
@@ -48,13 +52,14 @@ public class CompilationEngine {
         symbolTable.define(identifier, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
 
         while (tokenizer.symbol().equals(",")) {
-            compileOperation();
-            compileIdentifier();
+            tokenizer.advanceToken();         // symbol: ","
+            identifier = compileIdentifier();
+            symbolTable.define(identifier, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
         }
-        compileOperation();
+        compileOperation(); // symbol: ")"
     }
 
-    public void compileSubroutine(String className) {
+    public void compileSubroutine() {
         String keyword = compileKeyword();
         String type;
         if (tokenizer.tokenType().equals("identifier")) {
@@ -63,7 +68,7 @@ public class CompilationEngine {
             type = compileKeyword();
         }
 
-        String identifier = className + "." + compileIdentifier();
+        String identifier = currentClassName + "." + compileIdentifier();
         compileOperation();
         int nrOfParameters = compileParameterList();
         compileOperation();
