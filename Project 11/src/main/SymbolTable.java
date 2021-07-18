@@ -90,5 +90,12 @@ public class SymbolTable {
         return symbolInClass.getIndex();
     }
 
+    public void clearSubroutineTable()
+    {
+        subroutineScopeTable = new Hashtable<String, Symbol>();
+        argIndex = 0;
+        varIndex = 0;
+    }
+
 
 }

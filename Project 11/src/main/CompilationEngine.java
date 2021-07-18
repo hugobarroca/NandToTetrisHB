@@ -76,8 +76,7 @@ public class CompilationEngine {
 
         int nrOfLocalVariables = 0;
         while (tokenizer.keyWord().equals("var")) {
-            compileVarDec();
-            nrOfLocalVariables++;
+            nrOfLocalVariables += compileVarDec();
         }
 
         if(keyword.equals("function")){
@@ -88,6 +87,7 @@ public class CompilationEngine {
             writer.writePush(Segment.CONSTANT, 0);
         }
         writer.writeReturn();
+        symbolTable.clearSubroutineTable();
         tokenizer.advanceToken(); //symbol: "}"
 
     }
@@ -110,8 +110,9 @@ public class CompilationEngine {
         return counter;
     }
 
-    public void compileVarDec() {
+    public int compileVarDec() {
         var kind = compileKeyword();
+        int count = 1;
         String type;
 
         if (tokenizer.tokenType().equals("identifier")) {
@@ -129,8 +130,10 @@ public class CompilationEngine {
             tokenizer.advanceToken();       // symbol: ","
             identifier = compileIdentifier();
             symbolTable.define(identifier, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
+            count++;
         }
         tokenizer.advanceToken(); //symbol: ";"
+        return count;
 
     }
 
@@ -170,16 +173,25 @@ public class CompilationEngine {
     }
 
     public void compileLet() {
-        compileKeyword();
-        compileIdentifier();
+        compileKeyword();           //keyword: "let"
+        var variableName = compileIdentifier();        //variable name
         if (tokenizer.symbol().equals("[")) {
-            compileOperation();
+            compileOperation();     //symbol: "["
             compileExpression();
-            compileOperation();
+            compileOperation();     //symbol: "]"
         }
-        compileOperation();
+        tokenizer.advanceToken();     //symbol: "="
         compileExpression();
-        compileOperation();
+        tokenizer.advanceToken();     //symbol: ";"
+
+        var kind = symbolTable.kindOf(variableName);
+        var index = symbolTable.indexOf(variableName);
+        if(kind == Kind.STATIC)
+            writer.writePop(Segment.STATIC, index);
+        if(kind == Kind.VAR)
+            writer.writePop(Segment.LOCAL, index);
+        if(kind == Kind.ARG)
+            writer.writePop(Segment.ARGUMENT, index);
     }
 
     public void compileWhile() {
@@ -258,13 +270,15 @@ public class CompilationEngine {
                 tokenizer.advanceToken(); //symbol: "."
                 var methodName = compileIdentifier();
                 tokenizer.advanceToken(); //symbol "("
-                compileExpressionList();
+                var nrOfArguments = compileExpressionList();
                 tokenizer.advanceToken(); //symbol ")"
+                writer.writeCall(className + "." + methodName, nrOfArguments);
             } else {
-                compileIdentifier();
-                tokenizer.advanceToken();
-                compileExpressionList();
-                tokenizer.advanceToken();
+                var methodName = compileIdentifier();
+                tokenizer.advanceToken(); //symbol "("
+                var nrOfArguments = compileExpressionList();
+                tokenizer.advanceToken(); //symbol ")"
+                writer.writeCall(currentClassName + "." + methodName, nrOfArguments);
             }
         } else if (tokenizer.tokenType().equals("identifier")) { //variable
             var name = compileIdentifier();
