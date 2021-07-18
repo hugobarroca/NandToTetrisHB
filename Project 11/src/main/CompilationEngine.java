@@ -70,14 +70,18 @@ public class CompilationEngine {
 
         String identifier = currentClassName + "." + compileIdentifier();
         tokenizer.advanceToken(); //symbol: "("
-        int nrOfParameters = compileParameterList();
+        compileParameterList();
         tokenizer.advanceToken(); //symbol: ")"
         tokenizer.advanceToken(); //symbol: "{"
-        if(keyword.equals("function")){
-            writer.writeFunction(identifier, nrOfParameters);
-        }
+
+        int nrOfLocalVariables = 0;
         while (tokenizer.keyWord().equals("var")) {
             compileVarDec();
+            nrOfLocalVariables++;
+        }
+
+        if(keyword.equals("function")){
+            writer.writeFunction(identifier, nrOfLocalVariables);
         }
         compileStatements();
         if(type == "void"){
