@@ -83,7 +83,7 @@ public class CompilationEngine {
             writer.writeFunction(identifier, nrOfLocalVariables);
         }
         compileStatements();
-        if(type == "void"){
+        if(type.equals("void")){
             writer.writePush(Segment.CONSTANT, 0);
         }
         writer.writeReturn();
@@ -252,10 +252,10 @@ public class CompilationEngine {
         } else if (tokenizer.tokenType().equals("stringConstant")) {
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("keyword")) {
-            if(tokenizer.keyWord() == "true"){
+            if(tokenizer.keyWord().equals("true")){
                 writer.writePush(Segment.CONSTANT, 1);
                 writer.writeArithmetic(Command.NEG);
-            } else if (tokenizer.keyWord() == "false"){
+            } else if (tokenizer.keyWord().equals("false")){
                 writer.writePush(Segment.CONSTANT, 0);
             }
             tokenizer.advanceToken();
@@ -283,7 +283,6 @@ public class CompilationEngine {
         } else if (tokenizer.tokenType().equals("identifier")) { //variable
             var name = compileIdentifier();
             var kind= symbolTable.kindOf(name);
-            var type = symbolTable.typeOf(name);
             if(kind == Kind.STATIC)
                 writer.writePush(Segment.STATIC, symbolTable.indexOf(name));
             if(kind == Kind.VAR)
@@ -293,9 +292,9 @@ public class CompilationEngine {
         } else if (tokenizer.symbol().equals("-") || tokenizer.symbol().equals("~")) {
             var operation = compileOperation();
             compileTerm();
-            if(operation == "-")
+            if(operation.equals("-"))
                 writer.writeArithmetic(Command.NEG);
-            if(operation == "~")
+            if(operation.equals("~"))
                 writer.writeArithmetic(Command.NOT);
         }
     }
