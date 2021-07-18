@@ -108,7 +108,6 @@ public class CompilationEngine {
 
     public void compileVarDec() {
         var kind = compileKeyword();
-        String varIdentifier = null;
         String type;
 
         if (tokenizer.tokenType().equals("identifier")) {
@@ -123,11 +122,11 @@ public class CompilationEngine {
 
 
         while (tokenizer.symbol().equals(",")) {
-            compileOperation();
-            var identifier2 = compileIdentifier();
-            symbolTable.define(identifier2, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
+            tokenizer.advanceToken();       // symbol: ","
+            identifier = compileIdentifier();
+            symbolTable.define(identifier, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
         }
-        compileOperation();
+        tokenizer.advanceToken(); //symbol: ";"
 
     }
 
@@ -145,12 +144,13 @@ public class CompilationEngine {
 
     public void compileDo() {
         compileKeyword(); //keyword: do
-        if (tokenizer.nextSymbol().equals("(")) {
-            compileIdentifier(); //identifier: function name
+        if (tokenizer.nextSymbol().equals("(")) {   //IF: It's a function
+            var subroutineName = compileIdentifier(); //identifier: function name
             tokenizer.advanceToken(); //symbol: "("
-            compileExpressionList();
+            int nrOfArguments = compileExpressionList();
             tokenizer.advanceToken(); //symbol ")"
-        } else {
+            writer.writeCall(this.currentClassName + "." + subroutineName, nrOfArguments);
+        } else {                                    //ELSE: It's a method
             var className = compileIdentifier(); //identifier: class name
             tokenizer.advanceToken(); //symbol: "."
             String functionName = compileIdentifier(); //identifier: function name
@@ -159,7 +159,7 @@ public class CompilationEngine {
             tokenizer.advanceToken(); //symbol ")"
             writer.writeCall(className + "." + functionName, nrOfArguments);
         }
-        writer.writePop(Segment.TEMP, 0);
+        writer.writePop(Segment.TEMP, 0); //The value returned by a DO statement will never be saved, so we always pop it.
         tokenizer.advanceToken(); //symbol ";"
 
 
