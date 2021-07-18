@@ -202,7 +202,7 @@ public class CompilationEngine {
         compileKeyword();                   //keyword: "while"
         tokenizer.advanceToken();           //symbol: "("
         compileExpression();
-        writer.writeArithmetic(Command.NEG);
+        writer.writeArithmetic(Command.NOT);
         writer.writeIf("WHILE_END" + whileLabelCounter);
         tokenizer.advanceToken();           //symbol: ")"
         tokenizer.advanceToken();           //symbol: "{"
