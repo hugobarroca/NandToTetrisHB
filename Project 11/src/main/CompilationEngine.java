@@ -84,7 +84,6 @@ public class CompilationEngine {
             writer.writePush(Segment.CONSTANT, 0);
         }
         writer.writeReturn();
-        writer.writeReturn();
         tokenizer.advanceToken(); //symbol: "}"
 
     }
