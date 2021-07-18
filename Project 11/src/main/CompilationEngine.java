@@ -56,11 +56,11 @@ public class CompilationEngine {
             identifier = compileIdentifier();
             symbolTable.define(identifier, type, Kind.valueOf(kind.toUpperCase(Locale.ROOT)));
         }
-        compileOperation(); // symbol: ")"
+        tokenizer.advanceToken(); // symbol: ")"
     }
 
     public void compileSubroutine() {
-        String keyword = compileKeyword();
+        String keyword = compileKeyword();  //keyword: method || function
         String type;
         if (tokenizer.tokenType().equals("identifier")) {
             type = compileIdentifier();
@@ -69,10 +69,10 @@ public class CompilationEngine {
         }
 
         String identifier = currentClassName + "." + compileIdentifier();
-        compileOperation();
+        tokenizer.advanceToken(); //symbol: "("
         int nrOfParameters = compileParameterList();
-        compileOperation();
-        compileOperation();
+        tokenizer.advanceToken(); //symbol: ")"
+        tokenizer.advanceToken(); //symbol: "{"
         if(keyword.equals("function")){
             writer.writeFunction(identifier, nrOfParameters);
         }
@@ -83,6 +83,7 @@ public class CompilationEngine {
         if(type == "void"){
             writer.writePush(Segment.CONSTANT, 0);
         }
+        writer.writeReturn();
         writer.writeReturn();
         tokenizer.advanceToken(); //symbol: "}"
 
@@ -250,23 +251,35 @@ public class CompilationEngine {
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) {
             if (tokenizer.nextSymbol().equals(".")) {
-                compileIdentifier();
-                tokenizer.advanceToken();
-                compileIdentifier();
-                tokenizer.advanceToken();
+                var className = compileIdentifier();
+                tokenizer.advanceToken(); //symbol: "."
+                var methodName = compileIdentifier();
+                tokenizer.advanceToken(); //symbol "("
                 compileExpressionList();
-                tokenizer.advanceToken();
+                tokenizer.advanceToken(); //symbol ")"
             } else {
                 compileIdentifier();
                 tokenizer.advanceToken();
                 compileExpressionList();
                 tokenizer.advanceToken();
             }
-        } else if (tokenizer.tokenType().equals("identifier")) {
-            compileIdentifier();
+        } else if (tokenizer.tokenType().equals("identifier")) { //variable
+            var name = compileIdentifier();
+            var kind= symbolTable.kindOf(name);
+            var type = symbolTable.typeOf(name);
+            if(kind == Kind.STATIC)
+                writer.writePush(Segment.STATIC, symbolTable.indexOf(name));
+            if(kind == Kind.VAR)
+                writer.writePush(Segment.LOCAL, symbolTable.indexOf(name));
+            if(kind == Kind.ARG)
+                writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(name));
         } else if (tokenizer.symbol().equals("-") || tokenizer.symbol().equals("~")) {
-            compileOperation();
+            var operation = compileOperation();
             compileTerm();
+            if(operation == "-")
+                writer.writeArithmetic(Command.NEG);
+            if(operation == "~")
+                writer.writeArithmetic(Command.NOT);
         }
     }
 
@@ -294,23 +307,10 @@ public class CompilationEngine {
     }
 
 
-    public void compileOperation() {
+    public String compileOperation() {
         var symbol = tokenizer.symbol();
-
-        if(symbol.equals("+")){
-            writer.writeArithmetic(Command.ADD);
-        }
-        if(symbol.equals("-")){
-            writer.writeArithmetic(Command.SUB);
-        }
-        if(symbol.equals("&")){
-            writer.writeArithmetic(Command.AND);
-        }
-        if(symbol.equals("|")){
-            writer.writeArithmetic(Command.OR);
-        }
-
         tokenizer.advanceToken();
+        return symbol;
     }
 
     public void compileOperation(String symbol) {

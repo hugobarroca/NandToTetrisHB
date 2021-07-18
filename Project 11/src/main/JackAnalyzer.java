@@ -42,10 +42,10 @@ public class JackAnalyzer {
 			File outputXMLFile = new File(programFile.getAbsolutePath().replace("jack", "xml"));
 			File outputVMFile = new File(programFile.getAbsolutePath().replace("jack", "vm"));
 			CompilationEngine engine = new CompilationEngine(programFile, outputVMFile);
-			CompilationEngineXML engineXML = new CompilationEngineXML(programFile, outputXMLFile);
+			//CompilationEngineXML engineXML = new CompilationEngineXML(programFile, outputXMLFile);
 			engine.compileClass();
-			engineXML.compileClass();
-			engineXML.writeToOutput();
+			//engineXML.compileClass();
+			//engineXML.writeToOutput();
 			if (verboseMode)
 				System.out.println("Processed file: " + programFile.getAbsolutePath());
 		} catch (FileNotFoundException e) {
