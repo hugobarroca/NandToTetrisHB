@@ -91,12 +91,15 @@ public class CompilationEngine {
     public int compileParameterList() {
         int counter = 0;
         if (tokenizer.tokenType().equals("identifier") || tokenizer.keyWord().equals("int") || tokenizer.keyWord().equals("char") || tokenizer.keyWord().equals("boolean")) {
-            compileIdentifierOrKeyword();
-            compileIdentifier();
+            var type = compileIdentifierOrKeyword();
+            var name = compileIdentifier();
+            symbolTable.define(name, type, Kind.ARG);
+
             while (tokenizer.symbol().equals(",")) {
-                compileOperation();
-                compileIdentifierOrKeyword();
-                compileIdentifier();
+                tokenizer.advanceToken();       // symbol: ","
+                type = compileIdentifierOrKeyword();
+                name = compileIdentifier();
+                symbolTable.define(name, type, Kind.ARG);
                 counter++;
             }
         }
