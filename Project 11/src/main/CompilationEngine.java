@@ -12,11 +12,10 @@ public class CompilationEngine {
     JackTokenizer tokenizer;
     SymbolTable symbolTable;
     VMWriter writer;
-
-    String currentClassName;
-
     File inputFile;
 
+    String currentClassName;
+    int whileLabelCounter;
 
     public CompilationEngine(File inputFile, File outputVMFile) throws IOException {
         this.inputFile = inputFile;
@@ -25,6 +24,7 @@ public class CompilationEngine {
         writer = new VMWriter(outputVMFile);
 
         currentClassName = "";
+        whileLabelCounter = 0;
     }
 
     public void compileClass() throws IOException {
@@ -195,13 +195,20 @@ public class CompilationEngine {
     }
 
     public void compileWhile() {
-        compileKeyword();
-        compileOperation();
+        writer.writeLabel("WHILE_EXP" + whileLabelCounter);
+
+        compileKeyword();                   //keyword: "while"
+        tokenizer.advanceToken();           //symbol: "("
         compileExpression();
-        compileOperation();
-        compileOperation();
+        writer.writeArithmetic(Command.NEG);
+        writer.writeIf("WHILE_END" + whileLabelCounter);
+        tokenizer.advanceToken();           //symbol: ")"
+        tokenizer.advanceToken();           //symbol: "{"
         compileStatements();
-        compileOperation();
+        tokenizer.advanceToken();           //symbol: "}"
+        writer.writeGoto("WHILE_EXP" + whileLabelCounter);
+        writer.writeLabel("WHILE_END" + whileLabelCounter);
+        whileLabelCounter++;
     }
 
     public void compileReturn() {
