@@ -16,6 +16,7 @@ public class CompilationEngine {
 
     String currentClassName;
     int whileLabelCounter;
+    int ifLabelCounter;
 
     public CompilationEngine(File inputFile, File outputVMFile) throws IOException {
         this.inputFile = inputFile;
@@ -25,6 +26,7 @@ public class CompilationEngine {
 
         currentClassName = "";
         whileLabelCounter = 0;
+        ifLabelCounter = 0;
     }
 
     public void compileClass() throws IOException {
@@ -220,19 +222,26 @@ public class CompilationEngine {
     }
 
     public void compileIf() {
-        compileKeyword();
-        compileOperation();
+        compileKeyword();                   //keyword: "if"
+        tokenizer.advanceToken();           //symbol: "("
         compileExpression();
-        compileOperation();
-        compileOperation();
+        writer.writeArithmetic(Command.NOT);
+        writer.writeIf("IF_FALSE" + ifLabelCounter);
+        tokenizer.advanceToken();           //symbol: ")"
+        tokenizer.advanceToken();           //symbol: "{"
+
         compileStatements();
-        compileOperation();
+        tokenizer.advanceToken();           //symbol: "}"
+        writer.writeGoto("IF_TRUE" + ifLabelCounter);
+        writer.writeLabel("IF_FALSE" + ifLabelCounter);
         if (tokenizer.keyWord().equals("else")) {
             compileKeyword();
-            compileOperation();
+            tokenizer.advanceToken();           //symbol: "{"
             compileStatements();
-            compileOperation();
+            tokenizer.advanceToken();           //symbol: "}"
         }
+        writer.writeLabel("IF_TRUE" + ifLabelCounter);
+        ifLabelCounter++;
     }
 
 
