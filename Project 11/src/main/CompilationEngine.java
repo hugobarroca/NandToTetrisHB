@@ -352,11 +352,17 @@ public class CompilationEngine {
         if(symbol.equals("-")){
             writer.writeArithmetic(Command.SUB);
         }
-        if(symbol.equals("&")){
+        if(symbol.equals("&amp;")){
             writer.writeArithmetic(Command.AND);
         }
         if(symbol.equals("|")){
             writer.writeArithmetic(Command.OR);
+        }
+        if(symbol.equals("&gt;")){
+            writer.writeArithmetic(Command.GT);
+        }
+        if(symbol.equals("&lt;")){
+            writer.writeArithmetic(Command.LT);
         }
         if(symbol.equals("*")){
             writer.writeCall("Math.multiply", 2);
