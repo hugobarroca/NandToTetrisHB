@@ -364,6 +364,9 @@ public class CompilationEngine {
         if(symbol.equals("&lt;")){
             writer.writeArithmetic(Command.LT);
         }
+        if(symbol.equals("=")){
+            writer.writeArithmetic(Command.EQ);
+        }
         if(symbol.equals("*")){
             writer.writeCall("Math.multiply", 2);
         }
