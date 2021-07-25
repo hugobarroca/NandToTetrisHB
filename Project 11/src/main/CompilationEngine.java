@@ -15,6 +15,8 @@ public class CompilationEngine {
     File inputFile;
 
     String currentClassName;
+    String subroutineReturnType;
+
     int whileLabelCounter;
     int ifLabelCounter;
 
@@ -25,6 +27,7 @@ public class CompilationEngine {
         writer = new VMWriter(outputVMFile);
 
         currentClassName = "";
+        subroutineReturnType = "";
         whileLabelCounter = 0;
         ifLabelCounter = 0;
     }
@@ -63,11 +66,10 @@ public class CompilationEngine {
 
     public void compileSubroutine() {
         String keyword = compileKeyword();  //keyword: method || function
-        String type;
         if (tokenizer.tokenType().equals("identifier")) {
-            type = compileIdentifier();
+            subroutineReturnType = compileIdentifier();
         } else {
-            type = compileKeyword();
+            subroutineReturnType = compileKeyword();
         }
 
         String identifier = currentClassName + "." + compileIdentifier();
@@ -85,13 +87,9 @@ public class CompilationEngine {
             writer.writeFunction(identifier, nrOfLocalVariables);
         }
         compileStatements();
-        if(type.equals("void")){
-            writer.writePush(Segment.CONSTANT, 0);
-        }
-        writer.writeReturn();
         symbolTable.clearSubroutineTable();
         tokenizer.advanceToken(); //symbol: "}"
-
+        subroutineReturnType = "";
     }
 
     public int compileParameterList() {
@@ -218,30 +216,36 @@ public class CompilationEngine {
         if (!tokenizer.symbol().equals(";")) {
             compileExpression();
         }
-        compileOperation();
+        if(subroutineReturnType.equals("void")){
+            writer.writePush(Segment.CONSTANT, 0);
+        }
+        tokenizer.advanceToken();           //symbol: ";"
+        writer.writeReturn();
     }
 
     public void compileIf() {
+        int currentIfCounter = ifLabelCounter;
+        ifLabelCounter++;
         compileKeyword();                   //keyword: "if"
         tokenizer.advanceToken();           //symbol: "("
         compileExpression();
-        writer.writeArithmetic(Command.NOT);
-        writer.writeIf("IF_FALSE" + ifLabelCounter);
+        writer.writeIf("IF_TRUE" + currentIfCounter);
+        writer.writeGoto("IF_FALSE" + currentIfCounter);
+        writer.writeLabel("IF_TRUE" + currentIfCounter);
         tokenizer.advanceToken();           //symbol: ")"
         tokenizer.advanceToken();           //symbol: "{"
 
         compileStatements();
         tokenizer.advanceToken();           //symbol: "}"
-        writer.writeGoto("IF_TRUE" + ifLabelCounter);
-        writer.writeLabel("IF_FALSE" + ifLabelCounter);
+        writer.writeGoto("IF_END" + currentIfCounter);
+        writer.writeLabel("IF_FALSE" + currentIfCounter);
         if (tokenizer.keyWord().equals("else")) {
             compileKeyword();
             tokenizer.advanceToken();           //symbol: "{"
             compileStatements();
             tokenizer.advanceToken();           //symbol: "}"
         }
-        writer.writeLabel("IF_TRUE" + ifLabelCounter);
-        ifLabelCounter++;
+        writer.writeLabel("IF_END" + currentIfCounter);
     }
 
 
