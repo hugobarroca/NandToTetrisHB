@@ -65,12 +65,19 @@ public class CompilationEngine {
     }
 
     public void compileSubroutine() {
-        String keyword = compileKeyword();  //keyword: method || function
+        String keyword = compileKeyword();  //keyword: method || function || constructor
         if (tokenizer.tokenType().equals("identifier")) {
             subroutineReturnType = compileIdentifier();
         } else {
             subroutineReturnType = compileKeyword();
         }
+
+        if(keyword.equals("constructor")){
+            writer.writePush(Segment.CONSTANT, symbolTable.varCount(Kind.FIELD));
+            writer.writeCall("Memory.alloc", 1);
+            writer.writePop(Segment.THIS,0);
+        }
+
 
         String identifier = currentClassName + "." + compileIdentifier();
         tokenizer.advanceToken(); //symbol: "("
