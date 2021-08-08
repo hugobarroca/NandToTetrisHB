@@ -16,6 +16,7 @@ public class CompilationEngine {
 
     String currentClassName;
     String subroutineReturnType;
+    String subroutineType;
 
     int whileLabelCounter;
     int ifLabelCounter;
@@ -28,6 +29,7 @@ public class CompilationEngine {
 
         currentClassName = "";
         subroutineReturnType = "";
+        subroutineType = "";
         whileLabelCounter = 0;
         ifLabelCounter = 0;
     }
@@ -66,18 +68,12 @@ public class CompilationEngine {
 
     public void compileSubroutine() {
         String keyword = compileKeyword();  //keyword: method || function || constructor
+        //return type
         if (tokenizer.tokenType().equals("identifier")) {
             subroutineReturnType = compileIdentifier();
         } else {
             subroutineReturnType = compileKeyword();
         }
-
-        if(keyword.equals("constructor")){
-            writer.writePush(Segment.CONSTANT, symbolTable.varCount(Kind.FIELD));
-            writer.writeCall("Memory.alloc", 1);
-            writer.writePop(Segment.THIS,0);
-        }
-
 
         String identifier = currentClassName + "." + compileIdentifier();
         tokenizer.advanceToken(); //symbol: "("
@@ -90,9 +86,15 @@ public class CompilationEngine {
             nrOfLocalVariables += compileVarDec();
         }
 
-        if(keyword.equals("function")){
-            writer.writeFunction(identifier, nrOfLocalVariables);
+        writer.writeFunction(identifier, nrOfLocalVariables);
+
+        if(keyword.equals("constructor")){
+            subroutineType = "constructor";
+            writer.writePush(Segment.CONSTANT, symbolTable.varCount(Kind.FIELD));
+            writer.writeCall("Memory.alloc", 1);
+            writer.writePop(Segment.POINTER,0);
         }
+
         compileStatements();
         symbolTable.clearSubroutineTable();
         tokenizer.advanceToken(); //symbol: "}"
@@ -199,6 +201,9 @@ public class CompilationEngine {
             writer.writePop(Segment.LOCAL, index);
         if(kind == Kind.ARG)
             writer.writePop(Segment.ARGUMENT, index);
+        if(kind == Kind.FIELD)
+            writer.writePop(Segment.THIS, index);
+
     }
 
     public void compileWhile() {
@@ -225,6 +230,10 @@ public class CompilationEngine {
         }
         if(subroutineReturnType.equals("void")){
             writer.writePush(Segment.CONSTANT, 0);
+        }
+        if(subroutineType.equals("constructor")){
+            writer.writePush(Segment.POINTER, 0);
+            subroutineType = "";
         }
         tokenizer.advanceToken();           //symbol: ";"
         writer.writeReturn();
@@ -291,7 +300,7 @@ public class CompilationEngine {
             tokenizer.advanceToken();
             compileExpression();
             tokenizer.advanceToken();
-        } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) {
+        } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) { //
             if (tokenizer.nextSymbol().equals(".")) {
                 var className = compileIdentifier();
                 tokenizer.advanceToken(); //symbol: "."
@@ -316,6 +325,8 @@ public class CompilationEngine {
                 writer.writePush(Segment.LOCAL, symbolTable.indexOf(name));
             if(kind == Kind.ARG)
                 writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(name));
+            if(kind == Kind.FIELD)
+                writer.writePush(Segment.THIS, symbolTable.indexOf(name));
         } else if (tokenizer.symbol().equals("-") || tokenizer.symbol().equals("~")) {
             var operation = compileOperation();
             compileTerm();
