@@ -29,7 +29,6 @@ public class CompilationEngine {
 
         currentClassName = "";
         subroutineReturnType = "";
-        subroutineType = "";
         whileLabelCounter = 0;
         ifLabelCounter = 0;
     }
@@ -75,6 +74,7 @@ public class CompilationEngine {
             subroutineReturnType = compileKeyword();
         }
 
+
         String identifier = currentClassName + "." + compileIdentifier();
         tokenizer.advanceToken(); //symbol: "("
         compileParameterList();
@@ -88,8 +88,13 @@ public class CompilationEngine {
 
         writer.writeFunction(identifier, nrOfLocalVariables);
 
+        if(keyword.equals("method")){
+            writer.writePush(Segment.ARGUMENT, 0);
+            writer.writePop(Segment.POINTER, 0);
+        }
+
+
         if(keyword.equals("constructor")){
-            subroutineType = "constructor";
             writer.writePush(Segment.CONSTANT, symbolTable.varCount(Kind.FIELD));
             writer.writeCall("Memory.alloc", 1);
             writer.writePop(Segment.POINTER,0);
@@ -160,13 +165,24 @@ public class CompilationEngine {
 
     public void compileDo() {
         compileKeyword(); //keyword: do
-        if (tokenizer.nextSymbol().equals("(")) {   //IF: It's a function
-            var subroutineName = compileIdentifier(); //identifier: function name
+        if (tokenizer.nextSymbol().equals("(")) {   //IF: It's a method of the current class
+            var subroutineName = compileIdentifier(); //identifier: method name
+            tokenizer.advanceToken(); //symbol: "("
+            writer.writePush(Segment.POINTER, 0);
+            int nrOfArguments = compileExpressionList();
+            tokenizer.advanceToken(); //symbol ")"
+            writer.writeCall(this.currentClassName + "." + subroutineName, nrOfArguments + 1);
+        }
+        if (tokenizer.nextSymbol().equals(".") && !symbolTable.kindOf(tokenizer.symbol()).toString().equals("NONE")) {                                    //ELSE: It's a method of another class
+            var className = compileIdentifier(); //identifier: class name
+            tokenizer.advanceToken(); //symbol: "."
+            String functionName = compileIdentifier(); //identifier: function name
             tokenizer.advanceToken(); //symbol: "("
             int nrOfArguments = compileExpressionList();
             tokenizer.advanceToken(); //symbol ")"
-            writer.writeCall(this.currentClassName + "." + subroutineName, nrOfArguments);
-        } else {                                    //ELSE: It's a method
+            writer.writeCall(className + "." + functionName, nrOfArguments);
+        }
+        if (tokenizer.nextSymbol().equals(".") && !symbolTable.kindOf(tokenizer.symbol()).toString().equals("NONE")) {                                    //ELSE: It's a function
             var className = compileIdentifier(); //identifier: class name
             tokenizer.advanceToken(); //symbol: "."
             String functionName = compileIdentifier(); //identifier: function name
@@ -231,10 +247,7 @@ public class CompilationEngine {
         if(subroutineReturnType.equals("void")){
             writer.writePush(Segment.CONSTANT, 0);
         }
-        if(subroutineType.equals("constructor")){
-            writer.writePush(Segment.POINTER, 0);
-            subroutineType = "";
-        }
+
         tokenizer.advanceToken();           //symbol: ";"
         writer.writeReturn();
     }
@@ -291,8 +304,12 @@ public class CompilationEngine {
             if(tokenizer.keyWord().equals("true")){
                 writer.writePush(Segment.CONSTANT, 1);
                 writer.writeArithmetic(Command.NEG);
-            } else if (tokenizer.keyWord().equals("false")){
+            }
+            if (tokenizer.keyWord().equals("false")){
                 writer.writePush(Segment.CONSTANT, 0);
+            }
+            if (tokenizer.keyWord().equals("this")){
+                writer.writePush(Segment.POINTER, 0);
             }
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("identifier") && tokenizer.nextSymbol().equals("[")) {
