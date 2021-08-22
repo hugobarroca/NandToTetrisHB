@@ -95,6 +95,7 @@ public class CompilationEngine {
         if (keyword.equals("method")) { //Puts the reference to the method's object in the pointer segment.
             writer.writePush(Segment.ARGUMENT, 0);
             writer.writePop(Segment.POINTER, 0);
+            isMethod = true;
         }
 
 
@@ -108,6 +109,9 @@ public class CompilationEngine {
         symbolTable.clearSubroutineTable();
         tokenizer.advanceToken(); //symbol: "}"
         subroutineReturnType = "";
+        isMethod = false;
+        ifLabelCounter = 0;
+        whileLabelCounter = 0;
     }
 
     public int compileParameterList() {
@@ -186,7 +190,11 @@ public class CompilationEngine {
             tokenizer.advanceToken(); //symbol: "."
             String functionName = compileIdentifier(); //identifier: function name
             tokenizer.advanceToken(); //symbol: "("
-            writer.writePush(segment, symbolTable.indexOf(identifier));
+            if(segment == Segment.ARGUMENT && isMethod){
+                writer.writePush(segment, symbolTable.indexOf(identifier) + 1);
+            } else {
+                writer.writePush(segment, symbolTable.indexOf(identifier));
+            }
             int nrOfArguments = compileExpressionList() + 1;
             tokenizer.advanceToken(); //symbol ")"
             writer.writeCall(className + "." + functionName, nrOfArguments);
@@ -258,8 +266,14 @@ public class CompilationEngine {
                 writer.writePop(Segment.STATIC, index);
             if (kind == Kind.VAR)
                 writer.writePop(Segment.LOCAL, index);
-            if (kind == Kind.ARG)
-                writer.writePop(Segment.ARGUMENT, index);
+            if (kind == Kind.ARG){
+                if(isMethod){
+                    writer.writePop(Segment.ARGUMENT, index + 1);
+                } else {
+                    writer.writePop(Segment.ARGUMENT, index);
+                }
+            }
+
             if (kind == Kind.FIELD)
                 writer.writePop(Segment.THIS, index);
         }
@@ -337,108 +351,21 @@ public class CompilationEngine {
 
     public void compileTerm() {
         if (tokenizer.symbol().equals("(")) {
-            tokenizer.advanceToken();
-            compileExpression();
-            tokenizer.advanceToken();
+            compileExpressionInParenthesis();
         } else if (tokenizer.tokenType().equals("integerConstant")) {
-            writer.writePush(Segment.CONSTANT, Integer.parseInt(tokenizer.intVal()));
-            tokenizer.advanceToken();
+            compileIntegerConstant();
         } else if (tokenizer.tokenType().equals("stringConstant")) {
-            //IMPLEMENT STRINGS
-            var stringConstant = tokenizer.stringVal();
-            var nrOfChars = stringConstant.length();
-            writer.writePush(Segment.CONSTANT, nrOfChars);
-            writer.writeCall("String.new", 1);
-            for (int i = 0; i < nrOfChars; i++) {
-                char c = stringConstant.charAt(i);
-                var asciiCode = (int) c;
-                if (asciiCode == 10) { //new line
-                    writer.writePush(Segment.CONSTANT, 128);
-                }
-                if (asciiCode == 8) { //backspace
-                    writer.writePush(Segment.CONSTANT, 129);
-                }
-                if (asciiCode != 8 && asciiCode != 10) {
-                    writer.writePush(Segment.CONSTANT, asciiCode);
-                }
-                writer.writeCall("String.appendChar", 2);
-
-            }
-            tokenizer.advanceToken();
+            compileStringConstant();
         } else if (tokenizer.tokenType().equals("keyword")) {
-            if (tokenizer.keyWord().equals("true")) {
-                writer.writePush(Segment.CONSTANT, 1);
-                writer.writeArithmetic(Command.NEG);
-            }
-            if (tokenizer.keyWord().equals("false")) {
-                writer.writePush(Segment.CONSTANT, 0);
-            }
-            if (tokenizer.keyWord().equals("this")) {
-                writer.writePush(Segment.POINTER, 0);
-            }
-            tokenizer.advanceToken();
+            compileKeywordInTerm();
         } else if (tokenizer.tokenType().equals("identifier") && tokenizer.nextSymbol().equals("[")) {
-            var identifier = compileIdentifier(); // variable holding the base array reference
-            var kind = symbolTable.kindOf(identifier);
-            var segment = getSegment(kind);
-            var index = symbolTable.indexOf(identifier);
-            tokenizer.advanceToken(); // [
-            compileExpression(); // expression leading to the index of the array that we're pulling data from
-            tokenizer.advanceToken(); // ]
-            writer.writePush(segment, index);
-            writer.writeArithmetic(Command.ADD);
-            writer.writePop(Segment.POINTER, 1);
-            writer.writePush(Segment.THAT, 0);
-        } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) { // It's either a method or a function call
-            if (tokenizer.nextSymbol().equals(".")) {
-                var identifier = compileIdentifier();  // Either a variable or the name of a class
-                String className;
-                if(Character.isUpperCase(identifier.charAt(0))){ //If the first letter is uppercase, it must be a classname.
-                    className = identifier;
-                }else{
-                    className = symbolTable.typeOf(identifier);
-                }
-                tokenizer.advanceToken(); //symbol: "."
-                var methodName = compileIdentifier();
-                tokenizer.advanceToken(); //symbol "("
-                var nrOfArguments = compileExpressionList();
-                tokenizer.advanceToken(); //symbol ")"
-                writer.writeCall(className + "." + methodName, nrOfArguments);
-
-
-
-
-
-            } else {
-                var methodName = compileIdentifier();
-                tokenizer.advanceToken(); //symbol "("
-                var nrOfArguments = compileExpressionList();
-                tokenizer.advanceToken(); //symbol ")"
-                writer.writeCall(currentClassName + "." + methodName, nrOfArguments);
-            }
+            compileArray();
+        } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) {
+            compileMethodOrFunctionCall();
         } else if (tokenizer.tokenType().equals("identifier")) { //variable
-            var name = compileIdentifier();
-            var kind = symbolTable.kindOf(name);
-            if (kind == Kind.STATIC)
-                writer.writePush(Segment.STATIC, symbolTable.indexOf(name));
-            if (kind == Kind.VAR)
-                writer.writePush(Segment.LOCAL, symbolTable.indexOf(name));
-            if (kind == Kind.ARG){
-                if (isMethod) {
-                    writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(name) + 1);
-                } else {
-                    writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(name));
-                }
-            }
-            if (kind == Kind.FIELD)
-                writer.writePush(Segment.THIS, symbolTable.indexOf(name));
+            compileVariable();
         } else if (tokenizer.symbol().equals("-") || tokenizer.symbol().equals("~")) {
-            var operation = compileOperation();
-            compileTerm();
-            if (operation.equals("-"))
-                writer.writeArithmetic(Command.NEG);
-            if (operation.equals("~"))
-                writer.writeArithmetic(Command.NOT);
+            compileNegationOrLogicalNot();
         }
     }
 
@@ -457,6 +384,7 @@ public class CompilationEngine {
     }
 
     //region My Functions
+
     public String compileIdentifierOrKeyword() {
         if (tokenizer.tokenType().equals("identifier")) {
             return compileIdentifier();
@@ -464,7 +392,6 @@ public class CompilationEngine {
             return compileKeyword();
         }
     }
-
 
     public String compileOperation() {
         var symbol = tokenizer.symbol();
@@ -549,5 +476,134 @@ public class CompilationEngine {
             return Segment.THIS;
         }
         return null;
+    }
+
+    private void compileExpressionInParenthesis(){
+        tokenizer.advanceToken();
+        compileExpression();
+        tokenizer.advanceToken();
+    }
+
+    private void compileIntegerConstant(){
+        writer.writePush(Segment.CONSTANT, Integer.parseInt(tokenizer.intVal()));
+        tokenizer.advanceToken();
+    }
+
+    private void compileStringConstant(){
+        var stringConstant = tokenizer.stringVal();
+        var nrOfChars = stringConstant.length();
+        writer.writePush(Segment.CONSTANT, nrOfChars);
+        writer.writeCall("String.new", 1);
+        for (int i = 0; i < nrOfChars; i++) {
+            char c = stringConstant.charAt(i);
+            var asciiCode = (int) c;
+            if (asciiCode == 10) { //new line
+                writer.writePush(Segment.CONSTANT, 128);
+            }
+            if (asciiCode == 8) { //backspace
+                writer.writePush(Segment.CONSTANT, 129);
+            }
+            if (asciiCode != 8 && asciiCode != 10) {
+                writer.writePush(Segment.CONSTANT, asciiCode);
+            }
+            writer.writeCall("String.appendChar", 2);
+
+        }
+        tokenizer.advanceToken();
+    }
+
+    private void compileKeywordInTerm(){
+        if (tokenizer.keyWord().equals("true")) {
+            writer.writePush(Segment.CONSTANT, 0);
+            writer.writeArithmetic(Command.NOT);
+        }
+        if (tokenizer.keyWord().equals("false")) {
+            writer.writePush(Segment.CONSTANT, 0);
+        }
+        if (tokenizer.keyWord().equals("this")) {
+            writer.writePush(Segment.POINTER, 0);
+        }
+        tokenizer.advanceToken();
+    }
+
+    private void compileArray(){
+        var identifier = compileIdentifier(); // variable holding the base array reference
+        var kind = symbolTable.kindOf(identifier);
+        var segment = getSegment(kind);
+        var index = symbolTable.indexOf(identifier);
+        tokenizer.advanceToken(); // [
+        compileExpression(); // expression leading to the index of the array that we're pulling data from
+        tokenizer.advanceToken(); // ]
+        writer.writePush(segment, index);
+        writer.writeArithmetic(Command.ADD);
+        writer.writePop(Segment.POINTER, 1);
+        writer.writePush(Segment.THAT, 0);
+    }
+
+    private void compileMethodOrFunctionCall(){
+        if (tokenizer.nextSymbol().equals(".")) {
+            compileMethodOrFunctionCallInDifferentClass();
+        } else {
+            compileMethodOrFunctionCallInSameClass();
+        }
+    }
+
+    private void compileMethodOrFunctionCallInDifferentClass(){
+        var identifier = compileIdentifier();
+        var className = getClassNameOfIdentifier(identifier);
+        tokenizer.advanceToken(); //symbol: "."
+        var methodName = compileIdentifier();
+        tokenizer.advanceToken(); //symbol "("
+        var nrOfArguments = compileExpressionList();
+        tokenizer.advanceToken(); //symbol ")"
+        writer.writeCall(className + "." + methodName, nrOfArguments);
+    }
+
+    private String getClassNameOfIdentifier(String identifier){
+        String className;
+        if(Character.isUpperCase(identifier.charAt(0))){ //If the first letter is uppercase, it must be a classname.
+            return identifier;
+        }else{
+            return symbolTable.typeOf(identifier);
+        }
+    }
+
+    private void compileMethodOrFunctionCallInSameClass(){
+        var methodName = compileIdentifier();
+        tokenizer.advanceToken(); //symbol "("
+        var nrOfArguments = compileExpressionList();
+        tokenizer.advanceToken(); //symbol ")"
+        writer.writeCall(currentClassName + "." + methodName, nrOfArguments);
+    }
+
+    private void compileVariable(){
+        var variableName = compileIdentifier();
+        var variableKind = symbolTable.kindOf(variableName);
+
+        if (variableKind == Kind.STATIC)
+            writer.writePush(Segment.STATIC, symbolTable.indexOf(variableName));
+        if (variableKind == Kind.VAR)
+            writer.writePush(Segment.LOCAL, symbolTable.indexOf(variableName));
+        if (variableKind == Kind.ARG)
+            writePushForArgumentVariable(variableName);
+        if (variableKind == Kind.FIELD)
+            writer.writePush(Segment.THIS, symbolTable.indexOf(variableName));
+    }
+
+    private void writePushForArgumentVariable(String variableName){
+        if (isMethod) {
+            writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(variableName) + 1);
+        } else {
+            writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(variableName));
+        }
+    }
+
+    private void compileNegationOrLogicalNot(){
+        var operation = compileOperation();
+        compileTerm();
+        if (operation.equals("-"))
+            writer.writeArithmetic(Command.NEG);
+        if (operation.equals("~"))
+            writer.writeArithmetic(Command.NOT);
     }
 }
