@@ -226,19 +226,20 @@ public class CompilationEngine {
     }
 
     public void compileWhile() {
-        writer.writeLabel("WHILE_EXP" + whileLabelCounter);
+        var currentWhileLabel = whileLabelCounter;
+        writer.writeLabel("WHILE_EXP" + currentWhileLabel);
 
         compileKeyword();                   //keyword: "while"
         tokenizer.advanceToken();           //symbol: "("
         compileExpression();
         writer.writeArithmetic(Command.NOT);
-        writer.writeIf("WHILE_END" + whileLabelCounter);
+        writer.writeIf("WHILE_END" + currentWhileLabel);
         tokenizer.advanceToken();           //symbol: ")"
         tokenizer.advanceToken();           //symbol: "{"
         compileStatements();
         tokenizer.advanceToken();           //symbol: "}"
-        writer.writeGoto("WHILE_EXP" + whileLabelCounter);
-        writer.writeLabel("WHILE_END" + whileLabelCounter);
+        writer.writeGoto("WHILE_EXP" + currentWhileLabel);
+        writer.writeLabel("WHILE_END" + currentWhileLabel);
         whileLabelCounter++;
     }
 
