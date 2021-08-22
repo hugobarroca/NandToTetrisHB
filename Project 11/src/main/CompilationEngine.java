@@ -6,7 +6,6 @@ import main.enums.Segment;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Locale;
 
 public class CompilationEngine {
@@ -214,71 +213,90 @@ public class CompilationEngine {
 
     public void compileLet() {
         compileKeyword();           //keyword: "let"
-        var variableName = compileIdentifier();        //variable name
-        var kind = symbolTable.kindOf(variableName);
-        var index = symbolTable.indexOf(variableName);
+        var variableName = compileIdentifier();
+        var variableKind = symbolTable.kindOf(variableName);
+        var variableIndex = symbolTable.indexOf(variableName);
 
         boolean isArray = false;
 
-        int arrayIndex = 0;
         if (tokenizer.symbol().equals("[")) {
             isArray = true;
-            compileOperation();     //symbol: "["
-            compileExpression();
-            compileOperation();     //symbol: "]"
         }
 
         if (isArray) {
-            if (kind == Kind.STATIC)
-                writer.writePush(Segment.STATIC, index);
-            if (kind == Kind.VAR)
-                writer.writePush(Segment.LOCAL, index);
-            if (kind == Kind.ARG){
-                if (isMethod) {
-                    writer.writePush(Segment.ARGUMENT, index + 1);
-                } else {
-                    writer.writePush(Segment.ARGUMENT, index);
-                }
-            }
-
-            if (kind == Kind.FIELD)
-                writer.writePush(Segment.THIS, index);
-            writer.writeArithmetic(Command.ADD);
-
-            tokenizer.advanceToken();     //symbol: "="
-            compileExpression();
-            tokenizer.advanceToken();     //symbol: ";"
-
-            writer.writePush(Segment.TEMP, 0);
-
-            writer.writePop(Segment.POINTER, 1);
-
-
-            writer.writePop(Segment.TEMP, 0);
-
-            writer.writePop(Segment.THAT, 0);
+            compileArray(variableKind, variableIndex);
         } else {
             tokenizer.advanceToken();     //symbol: "="
             compileExpression();
             tokenizer.advanceToken();     //symbol: ";"
 
-            if (kind == Kind.STATIC)
-                writer.writePop(Segment.STATIC, index);
-            if (kind == Kind.VAR)
-                writer.writePop(Segment.LOCAL, index);
-            if (kind == Kind.ARG){
+            if (variableKind == Kind.STATIC)
+                writer.writePop(Segment.STATIC, variableIndex);
+            if (variableKind == Kind.VAR)
+                writer.writePop(Segment.LOCAL, variableIndex);
+            if (variableKind == Kind.ARG){
                 if(isMethod){
-                    writer.writePop(Segment.ARGUMENT, index + 1);
+                    writer.writePop(Segment.ARGUMENT, variableIndex + 1);
                 } else {
-                    writer.writePop(Segment.ARGUMENT, index);
+                    writer.writePop(Segment.ARGUMENT, variableIndex);
                 }
             }
 
-            if (kind == Kind.FIELD)
-                writer.writePop(Segment.THIS, index);
+            if (variableKind == Kind.FIELD)
+                writer.writePop(Segment.THIS, variableIndex);
         }
 
 
+    }
+
+    private void compileArray(Kind variableKind, int variableIndex){
+        pushArrayIndexAddress(variableKind, variableIndex);
+        pushExpressionToSetInArray();
+        setThatAddress();
+
+        writer.writePop(Segment.THAT, 0);
+    }
+
+    private void pushArrayIndexAddress(Kind variableKind, int variableIndex){
+        compileExpressionInBrackets();
+        compileArrayVariable(variableKind, variableIndex);
+
+        writer.writeArithmetic(Command.ADD);
+    }
+
+    private void compileExpressionInBrackets(){
+        compileOperation();     //symbol: "["
+        compileExpression();
+        compileOperation();     //symbol: "]"
+    }
+
+    private void compileArrayVariable(Kind variableKind, int variableIndex){
+        if (variableKind == Kind.STATIC)
+            writer.writePush(Segment.STATIC, variableIndex);
+        if (variableKind == Kind.VAR)
+            writer.writePush(Segment.LOCAL, variableIndex);
+        if (variableKind == Kind.ARG){
+            if (isMethod) {
+                writer.writePush(Segment.ARGUMENT, variableIndex + 1);
+            } else {
+                writer.writePush(Segment.ARGUMENT, variableIndex);
+            }
+        }
+
+        if (variableKind == Kind.FIELD)
+            writer.writePush(Segment.THIS, variableIndex);
+    }
+
+    private void pushExpressionToSetInArray(){
+        tokenizer.advanceToken();     //symbol: "="
+        compileExpression();
+        tokenizer.advanceToken();     //symbol: ";"
+    }
+
+    private void setThatAddress(){
+        writer.writePop(Segment.TEMP, 0);
+        writer.writePop(Segment.POINTER, 1);
+        writer.writePush(Segment.TEMP, 0);
     }
 
     public void compileWhile() {
@@ -542,16 +560,17 @@ public class CompilationEngine {
 
     private void compileMethodOrFunctionCall(){
         if (tokenizer.nextSymbol().equals(".")) {
-            compileMethodOrFunctionCallInDifferentClass();
+            compileMethodOrFunctionCallWithDot();
         } else {
-            compileMethodOrFunctionCallInSameClass();
+            compileMethodCall();
         }
     }
 
-    private void compileMethodOrFunctionCallInDifferentClass(){
+    private void compileMethodOrFunctionCallWithDot(){
         var identifier = compileIdentifier();
         var className = getClassNameOfIdentifier(identifier);
         var kind = symbolTable.kindOf(identifier);
+
         if (kind != Kind.NONE) {
             compileMethodCall(identifier);
         } else {
@@ -596,7 +615,7 @@ public class CompilationEngine {
         }
     }
 
-    private void compileMethodOrFunctionCallInSameClass(){
+    private void compileMethodCall(){
         var methodName = compileIdentifier();
         tokenizer.advanceToken(); //symbol "("
         var nrOfArguments = compileExpressionList();

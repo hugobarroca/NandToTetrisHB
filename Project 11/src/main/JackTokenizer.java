@@ -126,11 +126,8 @@ public class JackTokenizer {
 
 		while (fileContent != "") {
 			unrecognizedSymbol = true;
-			fileContent = fileContent.strip();
 
-			while (fileContent.startsWith("/**")) {
-				fileContent = fileContent.split(Pattern.quote("*/"), 2)[1].strip();
-			}
+			clearWhiteSpacesAndComments();
 
 			for (String word : lexicalElements.keySet()) {
 				if (fileContent.startsWith(word)) {
@@ -159,6 +156,14 @@ public class JackTokenizer {
 
 		}
 
+	}
+
+	private void clearWhiteSpacesAndComments(){
+		fileContent = fileContent.strip();
+
+		while (fileContent.startsWith("/**")) {
+			fileContent = fileContent.split(Pattern.quote("*/"), 2)[1].strip();
+		}
 	}
 
 	private void processKeyword(String word) {
