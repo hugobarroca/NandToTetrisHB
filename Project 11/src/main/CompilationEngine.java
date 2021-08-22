@@ -19,6 +19,8 @@ public class CompilationEngine {
     String subroutineReturnType;
     String subroutineType;
 
+    boolean isMethod;
+
     int whileLabelCounter;
     int ifLabelCounter;
 
@@ -32,6 +34,7 @@ public class CompilationEngine {
         subroutineReturnType = "";
         whileLabelCounter = 0;
         ifLabelCounter = 0;
+        isMethod = false;
     }
 
     public void compileClass() throws IOException {
@@ -92,6 +95,7 @@ public class CompilationEngine {
         if (keyword.equals("method")) { //Puts the reference to the method's object in the pointer segment.
             writer.writePush(Segment.ARGUMENT, 0);
             writer.writePop(Segment.POINTER, 0);
+            isMethod = true;
         }
 
 
@@ -105,6 +109,7 @@ public class CompilationEngine {
         symbolTable.clearSubroutineTable();
         tokenizer.advanceToken(); //symbol: "}"
         subroutineReturnType = "";
+        isMethod = false;
     }
 
     public int compileParameterList() {
@@ -222,8 +227,14 @@ public class CompilationEngine {
                 writer.writePush(Segment.STATIC, index);
             if (kind == Kind.VAR)
                 writer.writePush(Segment.LOCAL, index);
-            if (kind == Kind.ARG)
-                writer.writePush(Segment.ARGUMENT, index);
+            if (kind == Kind.ARG){
+                if (isMethod) {
+                    writer.writePush(Segment.ARGUMENT, index + 1);
+                } else {
+                    writer.writePush(Segment.ARGUMENT, index);
+                }
+            }
+
             if (kind == Kind.FIELD)
                 writer.writePush(Segment.THIS, index);
             writer.writeArithmetic(Command.ADD);
@@ -404,8 +415,13 @@ public class CompilationEngine {
                 writer.writePush(Segment.STATIC, symbolTable.indexOf(name));
             if (kind == Kind.VAR)
                 writer.writePush(Segment.LOCAL, symbolTable.indexOf(name));
-            if (kind == Kind.ARG)
-                writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(name));
+            if (kind == Kind.ARG){
+                if (isMethod) {
+                    writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(name) + 1);
+                } else {
+                    writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(name));
+                }
+            }
             if (kind == Kind.FIELD)
                 writer.writePush(Segment.THIS, symbolTable.indexOf(name));
         } else if (tokenizer.symbol().equals("-") || tokenizer.symbol().equals("~")) {
