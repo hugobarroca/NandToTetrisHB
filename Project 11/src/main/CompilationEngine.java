@@ -163,7 +163,7 @@ public class CompilationEngine {
         }
     }
 
-    public void compileDo() {
+    public void  compileDo() {
         compileKeyword(); //keyword: do
         if (tokenizer.nextSymbol().equals("(")) {   //IF: It's a method of the current class
             var subroutineName = compileIdentifier(); //identifier: method name
@@ -179,8 +179,6 @@ public class CompilationEngine {
             var kind = symbolTable.kindOf(identifier);
             var segment = getSegment(kind);
 
-
-
             tokenizer.advanceToken(); //symbol: "."
             String functionName = compileIdentifier(); //identifier: function name
             tokenizer.advanceToken(); //symbol: "("
@@ -189,7 +187,7 @@ public class CompilationEngine {
             writer.writePush(segment, symbolTable.indexOf(identifier));
             writer.writeCall(className + "." + functionName, nrOfArguments);
         }
-        if (tokenizer.nextSymbol().equals(".") && !symbolTable.kindOf(tokenizer.symbol()).toString().equals("NONE")) {                                    //ELSE: It's a function
+        if (tokenizer.nextSymbol().equals(".") && symbolTable.kindOf(tokenizer.symbol()).toString().equals("NONE")) {                                    //ELSE: It's a function
             var className = compileIdentifier(); //identifier: class name
             tokenizer.advanceToken(); //symbol: "."
             String functionName = compileIdentifier(); //identifier: function name
@@ -458,6 +456,9 @@ public class CompilationEngine {
         }
         if(kind.toString().equals("VAR")){
             return Segment.LOCAL;
+        }
+        if(kind.toString().equals("FIELD")){
+            return Segment.THIS;
         }
         return null;
     }
