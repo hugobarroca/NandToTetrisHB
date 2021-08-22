@@ -6,6 +6,7 @@ import main.enums.Segment;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Locale;
 
 public class CompilationEngine {
@@ -88,16 +89,16 @@ public class CompilationEngine {
 
         writer.writeFunction(identifier, nrOfLocalVariables);
 
-        if(keyword.equals("method")){ //Puts the reference to the method's object in the pointer segment.
+        if (keyword.equals("method")) { //Puts the reference to the method's object in the pointer segment.
             writer.writePush(Segment.ARGUMENT, 0);
             writer.writePop(Segment.POINTER, 0);
         }
 
 
-        if(keyword.equals("constructor")){ //Allocates memory for the object (depending on the number of fields) and puts it's memory address on pointer 0.
+        if (keyword.equals("constructor")) { //Allocates memory for the object (depending on the number of fields) and puts it's memory address on pointer 0.
             writer.writePush(Segment.CONSTANT, symbolTable.varCount(Kind.FIELD));
             writer.writeCall("Memory.alloc", 1);
-            writer.writePop(Segment.POINTER,0);
+            writer.writePop(Segment.POINTER, 0);
         }
 
         compileStatements();
@@ -163,7 +164,7 @@ public class CompilationEngine {
         }
     }
 
-    public void  compileDo() {
+    public void compileDo() {
         compileKeyword(); //keyword: do
         if (tokenizer.nextSymbol().equals("(")) {   //IF: It's a method of the current class
             var subroutineName = compileIdentifier(); //identifier: method name
@@ -203,25 +204,57 @@ public class CompilationEngine {
     public void compileLet() {
         compileKeyword();           //keyword: "let"
         var variableName = compileIdentifier();        //variable name
+        var kind = symbolTable.kindOf(variableName);
+        var index = symbolTable.indexOf(variableName);
+
+        boolean isArray = false;
+
+        int arrayIndex = 0;
         if (tokenizer.symbol().equals("[")) {
+            isArray = true;
             compileOperation();     //symbol: "["
             compileExpression();
             compileOperation();     //symbol: "]"
         }
-        tokenizer.advanceToken();     //symbol: "="
-        compileExpression();
-        tokenizer.advanceToken();     //symbol: ";"
 
-        var kind = symbolTable.kindOf(variableName);
-        var index = symbolTable.indexOf(variableName);
-        if(kind == Kind.STATIC)
-            writer.writePop(Segment.STATIC, index);
-        if(kind == Kind.VAR)
-            writer.writePop(Segment.LOCAL, index);
-        if(kind == Kind.ARG)
-            writer.writePop(Segment.ARGUMENT, index);
-        if(kind == Kind.FIELD)
-            writer.writePop(Segment.THIS, index);
+        if (isArray) {
+            if (kind == Kind.STATIC)
+                writer.writePush(Segment.STATIC, index);
+            if (kind == Kind.VAR)
+                writer.writePush(Segment.LOCAL, index);
+            if (kind == Kind.ARG)
+                writer.writePush(Segment.ARGUMENT, index);
+            if (kind == Kind.FIELD)
+                writer.writePush(Segment.THIS, index);
+            writer.writeArithmetic(Command.ADD);
+
+            tokenizer.advanceToken();     //symbol: "="
+            compileExpression();
+            tokenizer.advanceToken();     //symbol: ";"
+
+            writer.writePush(Segment.TEMP, 0);
+
+            writer.writePop(Segment.POINTER, 1);
+
+
+            writer.writePop(Segment.TEMP, 0);
+
+            writer.writePop(Segment.THAT, 0);
+        } else {
+            tokenizer.advanceToken();     //symbol: "="
+            compileExpression();
+            tokenizer.advanceToken();     //symbol: ";"
+
+            if (kind == Kind.STATIC)
+                writer.writePop(Segment.STATIC, index);
+            if (kind == Kind.VAR)
+                writer.writePop(Segment.LOCAL, index);
+            if (kind == Kind.ARG)
+                writer.writePop(Segment.ARGUMENT, index);
+            if (kind == Kind.FIELD)
+                writer.writePop(Segment.THIS, index);
+        }
+
 
     }
 
@@ -249,7 +282,7 @@ public class CompilationEngine {
         if (!tokenizer.symbol().equals(";")) {
             compileExpression();
         }
-        if(subroutineReturnType.equals("void")){
+        if (subroutineReturnType.equals("void")) {
             writer.writePush(Segment.CONSTANT, 0);
         }
 
@@ -283,8 +316,6 @@ public class CompilationEngine {
     }
 
 
-
-
     public void compileExpression() {
         compileTerm();
         while (isOperation()) {
@@ -304,24 +335,52 @@ public class CompilationEngine {
             writer.writePush(Segment.CONSTANT, Integer.parseInt(tokenizer.intVal()));
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("stringConstant")) {
+            //IMPLEMENT STRINGS
+            var stringConstant = tokenizer.stringVal();
+            var nrOfChars = stringConstant.length();
+            writer.writePush(Segment.CONSTANT, nrOfChars);
+            writer.writeCall("String.new", 1);
+            for (int i = 0; i < nrOfChars; i++) {
+                char c = stringConstant.charAt(i);
+                var asciiCode = (int) c;
+                if (asciiCode == 10) { //new line
+                    writer.writePush(Segment.CONSTANT, 128);
+                }
+                if (asciiCode == 8) { //backspace
+                    writer.writePush(Segment.CONSTANT, 129);
+                }
+                if (asciiCode != 8 && asciiCode != 10) {
+                    writer.writePush(Segment.CONSTANT, asciiCode);
+                }
+                writer.writeCall("String.appendChar", 2);
+
+            }
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("keyword")) {
-            if(tokenizer.keyWord().equals("true")){
+            if (tokenizer.keyWord().equals("true")) {
                 writer.writePush(Segment.CONSTANT, 1);
                 writer.writeArithmetic(Command.NEG);
             }
-            if (tokenizer.keyWord().equals("false")){
+            if (tokenizer.keyWord().equals("false")) {
                 writer.writePush(Segment.CONSTANT, 0);
             }
-            if (tokenizer.keyWord().equals("this")){
+            if (tokenizer.keyWord().equals("this")) {
                 writer.writePush(Segment.POINTER, 0);
             }
             tokenizer.advanceToken();
         } else if (tokenizer.tokenType().equals("identifier") && tokenizer.nextSymbol().equals("[")) {
-            compileIdentifier();
-            tokenizer.advanceToken();
-            compileExpression();
-            tokenizer.advanceToken();
+            var identifier = compileIdentifier(); // variable holding the base array reference
+            var kind = symbolTable.kindOf(identifier);
+            var segment = getSegment(kind);
+            var index = symbolTable.indexOf(identifier);
+            tokenizer.advanceToken(); // [
+            compileExpression(); // expression leading to the index of the array that we're pulling data from
+            tokenizer.advanceToken(); // ]
+            writer.writePush(segment, index);
+            writer.writeArithmetic(Command.ADD);
+            writer.writePop(Segment.POINTER, 1);
+            writer.writePush(Segment.THAT, 0);
+
         } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) { //
             if (tokenizer.nextSymbol().equals(".")) {
                 var className = compileIdentifier();
@@ -340,21 +399,21 @@ public class CompilationEngine {
             }
         } else if (tokenizer.tokenType().equals("identifier")) { //variable
             var name = compileIdentifier();
-            var kind= symbolTable.kindOf(name);
-            if(kind == Kind.STATIC)
+            var kind = symbolTable.kindOf(name);
+            if (kind == Kind.STATIC)
                 writer.writePush(Segment.STATIC, symbolTable.indexOf(name));
-            if(kind == Kind.VAR)
+            if (kind == Kind.VAR)
                 writer.writePush(Segment.LOCAL, symbolTable.indexOf(name));
-            if(kind == Kind.ARG)
+            if (kind == Kind.ARG)
                 writer.writePush(Segment.ARGUMENT, symbolTable.indexOf(name));
-            if(kind == Kind.FIELD)
+            if (kind == Kind.FIELD)
                 writer.writePush(Segment.THIS, symbolTable.indexOf(name));
         } else if (tokenizer.symbol().equals("-") || tokenizer.symbol().equals("~")) {
             var operation = compileOperation();
             compileTerm();
-            if(operation.equals("-"))
+            if (operation.equals("-"))
                 writer.writeArithmetic(Command.NEG);
-            if(operation.equals("~"))
+            if (operation.equals("~"))
                 writer.writeArithmetic(Command.NOT);
         }
     }
@@ -390,28 +449,28 @@ public class CompilationEngine {
     }
 
     public void compileOperation(String symbol) {
-        if(symbol.equals("+")){
+        if (symbol.equals("+")) {
             writer.writeArithmetic(Command.ADD);
         }
-        if(symbol.equals("-")){
+        if (symbol.equals("-")) {
             writer.writeArithmetic(Command.SUB);
         }
-        if(symbol.equals("&amp;")){
+        if (symbol.equals("&amp;")) {
             writer.writeArithmetic(Command.AND);
         }
-        if(symbol.equals("|")){
+        if (symbol.equals("|")) {
             writer.writeArithmetic(Command.OR);
         }
-        if(symbol.equals("&gt;")){
+        if (symbol.equals("&gt;")) {
             writer.writeArithmetic(Command.GT);
         }
-        if(symbol.equals("&lt;")){
+        if (symbol.equals("&lt;")) {
             writer.writeArithmetic(Command.LT);
         }
-        if(symbol.equals("=")){
+        if (symbol.equals("=")) {
             writer.writeArithmetic(Command.EQ);
         }
-        if(symbol.equals("*")){
+        if (symbol.equals("*")) {
             writer.writeCall("Math.multiply", 2);
         }
     }
@@ -449,17 +508,17 @@ public class CompilationEngine {
         return current.equals("+") || current.equals("-") || current.equals("*") || current.equals("/") || current.equals("&amp;") || current.equals("|") || current.equals("&lt;") || current.equals("&gt;") || current.equals("=");
     }
 
-    private Segment getSegment(Kind kind){
-        if(kind.toString().equals("STATIC")){
+    private Segment getSegment(Kind kind) {
+        if (kind.toString().equals("STATIC")) {
             return Segment.STATIC;
         }
-        if(kind.toString() .equals("ARG")){
+        if (kind.toString().equals("ARG")) {
             return Segment.ARGUMENT;
         }
-        if(kind.toString().equals("VAR")){
+        if (kind.toString().equals("VAR")) {
             return Segment.LOCAL;
         }
-        if(kind.toString().equals("FIELD")){
+        if (kind.toString().equals("FIELD")) {
             return Segment.THIS;
         }
         return null;
