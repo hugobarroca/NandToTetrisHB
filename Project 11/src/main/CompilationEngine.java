@@ -551,8 +551,36 @@ public class CompilationEngine {
     private void compileMethodOrFunctionCallInDifferentClass(){
         var identifier = compileIdentifier();
         var className = getClassNameOfIdentifier(identifier);
+        var kind = symbolTable.kindOf(identifier);
+        if (kind != Kind.NONE) {
+            compileMethodCall(identifier);
+        } else {
+            compileFunctionCall(className);
+        }
+    }
+
+    private void compileMethodCall(String identifier){
+        var className = getClassNameOfIdentifier(identifier);
+        var kind = symbolTable.kindOf(identifier);
+        var segment = getSegment(kind);
+
+
         tokenizer.advanceToken(); //symbol: "."
         var methodName = compileIdentifier();
+        tokenizer.advanceToken(); //symbol "("
+        var nrOfArguments = compileExpressionList();
+        tokenizer.advanceToken(); //symbol ")"
+
+        writer.writePush(segment, symbolTable.indexOf(identifier));
+
+        writer.writeCall(className + "." + methodName, nrOfArguments + 1);
+    }
+
+    private void compileFunctionCall(String className){
+        tokenizer.advanceToken(); //symbol: "."
+
+        var methodName = compileIdentifier();
+
         tokenizer.advanceToken(); //symbol "("
         var nrOfArguments = compileExpressionList();
         tokenizer.advanceToken(); //symbol ")"
