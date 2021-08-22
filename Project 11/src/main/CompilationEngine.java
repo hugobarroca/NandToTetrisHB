@@ -88,13 +88,13 @@ public class CompilationEngine {
 
         writer.writeFunction(identifier, nrOfLocalVariables);
 
-        if(keyword.equals("method")){
+        if(keyword.equals("method")){ //Puts the reference to the method's object in the pointer segment.
             writer.writePush(Segment.ARGUMENT, 0);
             writer.writePop(Segment.POINTER, 0);
         }
 
 
-        if(keyword.equals("constructor")){
+        if(keyword.equals("constructor")){ //Allocates memory for the object (depending on the number of fields) and puts it's memory address on pointer 0.
             writer.writePush(Segment.CONSTANT, symbolTable.varCount(Kind.FIELD));
             writer.writeCall("Memory.alloc", 1);
             writer.writePop(Segment.POINTER,0);
@@ -174,12 +174,19 @@ public class CompilationEngine {
             writer.writeCall(this.currentClassName + "." + subroutineName, nrOfArguments + 1);
         }
         if (tokenizer.nextSymbol().equals(".") && !symbolTable.kindOf(tokenizer.symbol()).toString().equals("NONE")) {                                    //ELSE: It's a method of another class
-            var className = compileIdentifier(); //identifier: class name
+            var identifier = compileIdentifier(); //identifier: class name
+            var className = symbolTable.typeOf(identifier);
+            var kind = symbolTable.kindOf(identifier);
+            var segment = getSegment(kind);
+
+
+
             tokenizer.advanceToken(); //symbol: "."
             String functionName = compileIdentifier(); //identifier: function name
             tokenizer.advanceToken(); //symbol: "("
-            int nrOfArguments = compileExpressionList();
+            int nrOfArguments = compileExpressionList() + 1;
             tokenizer.advanceToken(); //symbol ")"
+            writer.writePush(segment, symbolTable.indexOf(identifier));
             writer.writeCall(className + "." + functionName, nrOfArguments);
         }
         if (tokenizer.nextSymbol().equals(".") && !symbolTable.kindOf(tokenizer.symbol()).toString().equals("NONE")) {                                    //ELSE: It's a function
@@ -193,8 +200,6 @@ public class CompilationEngine {
         }
         writer.writePop(Segment.TEMP, 0); //The value returned by a DO statement will never be saved, so we always pop it.
         tokenizer.advanceToken(); //symbol ";"
-
-
     }
 
     public void compileLet() {
@@ -442,5 +447,18 @@ public class CompilationEngine {
     public boolean isOperation() {
         String current = tokenizer.symbol();
         return current.equals("+") || current.equals("-") || current.equals("*") || current.equals("/") || current.equals("&amp;") || current.equals("|") || current.equals("&lt;") || current.equals("&gt;") || current.equals("=");
+    }
+
+    private Segment getSegment(Kind kind){
+        if(kind.toString().equals("STATIC")){
+            return Segment.STATIC;
+        }
+        if(kind.toString() .equals("ARG")){
+            return Segment.ARGUMENT;
+        }
+        if(kind.toString().equals("VAR")){
+            return Segment.LOCAL;
+        }
+        return null;
     }
 }
