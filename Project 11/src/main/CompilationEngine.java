@@ -226,6 +226,7 @@ public class CompilationEngine {
     }
 
     public void compileWhile() {
+        whileLabelCounter++;
         var currentWhileLabel = whileLabelCounter;
         writer.writeLabel("WHILE_EXP" + currentWhileLabel);
 
@@ -240,7 +241,7 @@ public class CompilationEngine {
         tokenizer.advanceToken();           //symbol: "}"
         writer.writeGoto("WHILE_EXP" + currentWhileLabel);
         writer.writeLabel("WHILE_END" + currentWhileLabel);
-        whileLabelCounter++;
+
     }
 
     public void compileReturn() {
