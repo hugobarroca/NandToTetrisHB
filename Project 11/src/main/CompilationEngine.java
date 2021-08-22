@@ -95,7 +95,6 @@ public class CompilationEngine {
         if (keyword.equals("method")) { //Puts the reference to the method's object in the pointer segment.
             writer.writePush(Segment.ARGUMENT, 0);
             writer.writePop(Segment.POINTER, 0);
-            isMethod = true;
         }
 
 
@@ -109,7 +108,6 @@ public class CompilationEngine {
         symbolTable.clearSubroutineTable();
         tokenizer.advanceToken(); //symbol: "}"
         subroutineReturnType = "";
-        isMethod = false;
     }
 
     public int compileParameterList() {
@@ -188,9 +186,9 @@ public class CompilationEngine {
             tokenizer.advanceToken(); //symbol: "."
             String functionName = compileIdentifier(); //identifier: function name
             tokenizer.advanceToken(); //symbol: "("
+            writer.writePush(segment, symbolTable.indexOf(identifier));
             int nrOfArguments = compileExpressionList() + 1;
             tokenizer.advanceToken(); //symbol ")"
-            writer.writePush(segment, symbolTable.indexOf(identifier));
             writer.writeCall(className + "." + functionName, nrOfArguments);
         }
         if (tokenizer.nextSymbol().equals(".") && symbolTable.kindOf(tokenizer.symbol()).toString().equals("NONE")) {                                    //ELSE: It's a function
@@ -391,16 +389,26 @@ public class CompilationEngine {
             writer.writeArithmetic(Command.ADD);
             writer.writePop(Segment.POINTER, 1);
             writer.writePush(Segment.THAT, 0);
-
-        } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) { //
+        } else if (tokenizer.tokenType().equals("identifier") && (tokenizer.nextSymbol().equals("(") || tokenizer.nextSymbol().equals("."))) { // It's either a method or a function call
             if (tokenizer.nextSymbol().equals(".")) {
-                var className = compileIdentifier();
+                var identifier = compileIdentifier();  // Either a variable or the name of a class
+                String className;
+                if(Character.isUpperCase(identifier.charAt(0))){ //If the first letter is uppercase, it must be a classname.
+                    className = identifier;
+                }else{
+                    className = symbolTable.typeOf(identifier);
+                }
                 tokenizer.advanceToken(); //symbol: "."
                 var methodName = compileIdentifier();
                 tokenizer.advanceToken(); //symbol "("
                 var nrOfArguments = compileExpressionList();
                 tokenizer.advanceToken(); //symbol ")"
                 writer.writeCall(className + "." + methodName, nrOfArguments);
+
+
+
+
+
             } else {
                 var methodName = compileIdentifier();
                 tokenizer.advanceToken(); //symbol "("
@@ -488,6 +496,9 @@ public class CompilationEngine {
         }
         if (symbol.equals("*")) {
             writer.writeCall("Math.multiply", 2);
+        }
+        if (symbol.equals("/")) {
+            writer.writeCall("Math.divide", 2);
         }
     }
 
