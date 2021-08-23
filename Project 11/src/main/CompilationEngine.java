@@ -541,6 +541,9 @@ public class CompilationEngine {
         if (tokenizer.keyWord().equals("this")) {
             writer.writePush(Segment.POINTER, 0);
         }
+        if (tokenizer.keyWord().equals("null")) {
+            writer.writePush(Segment.CONSTANT, 0);
+        }
         tokenizer.advanceToken();
     }
 
