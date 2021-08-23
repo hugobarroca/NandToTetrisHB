@@ -57,6 +57,11 @@ public class JackTokenizer {
 	}
 
 	private void populateLexicalElements() {
+		populateKeywords();
+		populateSymbols();
+	}
+
+	private void populateKeywords(){
 		lexicalElements.put("class", "keyword");
 		lexicalElements.put("constructor", "keyword");
 		lexicalElements.put("function", "keyword");
@@ -78,7 +83,9 @@ public class JackTokenizer {
 		lexicalElements.put("else", "keyword");
 		lexicalElements.put("while", "keyword");
 		lexicalElements.put("return", "keyword");
+	}
 
+	private void populateSymbols(){
 		lexicalElements.put("{", "symbol");
 		lexicalElements.put("}", "symbol");
 		lexicalElements.put("(", "symbol");
@@ -129,13 +136,8 @@ public class JackTokenizer {
 
 			clearWhiteSpacesAndComments();
 
-			for (String word : lexicalElements.keySet()) {
-				if (fileContent.startsWith(word)) {
-					processKeyword(word);
-					unrecognizedSymbol = false;
-					break;
-				}
-			}
+			unrecognizedSymbol = tryToProcessWordAsLexicalElement();
+
 
 			if (!unrecognizedSymbol)
 				continue;
@@ -166,7 +168,22 @@ public class JackTokenizer {
 		}
 	}
 
-	private void processKeyword(String word) {
+	private boolean tryToProcessWordAsLexicalElement(){
+		for (String word : lexicalElements.keySet()) {
+			boolean isFullWord = (fileContent.startsWith(word) && (word.length() >= fileContent.length() || !Character.isAlphabetic(fileContent.charAt(word.length()))) && lexicalElements.get(word) == "keyword" );
+			boolean isSymbol = fileContent.startsWith(word) && lexicalElements.get(word) == "symbol";
+			if (isFullWord || isSymbol) {
+				processKeywordOrSymbol(word);
+				return false;
+			}
+		}
+//		System.out.println(fileContent.substring(0, 30));
+//		System.out.println(fileContent.charAt(word.length()));
+//		System.out.println();
+		return true;
+	}
+
+	private void processKeywordOrSymbol(String word) {
 		String type = lexicalElements.get(word);
 		String value = replaceSpecialCharacters(word);
 		Token token = new Token(type, value);
