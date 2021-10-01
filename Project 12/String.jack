@@ -11,54 +11,101 @@
  * string-oriented operations.
  */
 class String {
+	field Array string;
+	field int nextIndex;
+	field int maxSize;
 
     /** constructs a new empty string with a maximum length of maxLength
      *  and initial length of 0. */
     constructor String new(int maxLength) {
+		if(maxLength = 0){
+			let string = Array.new(maxLength + 1);
+		} else {
+			let string = Array.new(maxLength);
+		}
+		let nextIndex = 0;
+		let maxSize = maxLength;
+		return this;
     }
 
     /** Disposes this string. */
     method void dispose() {
+		do Memory.deAlloc(this);
+		return;
     }
 
     /** Returns the current length of this string. */
     method int length() {
+		return nextIndex;
     }
 
     /** Returns the character at the j-th location of this string. */
     method char charAt(int j) {
+		if(j > -1 & j < nextIndex ){
+			return string[j];
+		}
+		return null;
     }
 
     /** Sets the character at the j-th location of this string to c. */
     method void setCharAt(int j, char c) {
+		if(j > -1 & j < nextIndex ){
+			let string[j] = c;
+		}
+		return;
     }
 
     /** Appends c to this string's end and returns this string. */
     method String appendChar(char c) {
+		if(nextIndex < maxSize){
+			let string[nextIndex] = c;
+			let nextIndex = nextIndex + 1;
+		}
+		return this;
     }
 
     /** Erases the last character from this string. */
     method void eraseLastChar() {
+		if(nextIndex > 0){
+			let nextIndex = nextIndex - 1;
+		}
+		return;
     }
 
     /** Returns the integer value of this string, 
      *  until a non-digit character is detected. */
     method int intValue() {
+		var int v, i, d;
+		let v = 0;
+		let i = 0;
+		while(i < nextIndex){
+			let d = string[i];
+			let i = i + 1;
+			let v = v * 10 + d;
+		}
+		return v;
     }
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
+		let string[0] = val;
+		let nextIndex = 1;
+		return;
+		
     }
 
     /** Returns the new line character. */
     function char newLine() {
+		return 128;
     }
 
     /** Returns the backspace character. */
     function char backSpace() {
+		return 129;
     }
 
     /** Returns the double quote (") character. */
     function char doubleQuote() {
+		return 34;
     }
 }
