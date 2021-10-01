@@ -74,16 +74,52 @@ class String {
 
     /** Returns the integer value of this string, 
      *  until a non-digit character is detected. */
+	//"456"
     method int intValue() {
-		var int v, i, d;
-		let v = 0;
-		let i = 0;
-		while(i < nextIndex){
-			let d = string[i];
-			let i = i + 1;
-			let v = v * 10 + d;
+		var int result;
+		var	int currentChar;
+		var int digitPosition;
+		var boolean isPositive;
+		
+		let result = 0;
+		let currentChar = 0;
+		let digitPosition = 1;
+		
+		if(string[0] = 45){
+			let isPositive = false;
+		}else{
+			let isPositive = true;
 		}
-		return v;
+		
+		if(isPositive){
+			while(isDigit(string[currentChar + 1]) & currentChar + 1 < maxSize){
+				let currentChar = currentChar + 1;
+			}
+			// 6 + 50 + 400
+			while(currentChar > -1){
+				let result = result + ((string[currentChar] - 48) * digitPosition);
+				let currentChar = currentChar - 1;
+				let digitPosition = digitPosition * 10;
+			}
+			
+			return result;
+		}
+		
+		while(isDigit(string[currentChar + 1]) & currentChar + 1 < maxSize){
+			let currentChar = currentChar + 1;
+		}
+		// 6 + 50 + 400
+		while(currentChar > 0){
+			let result = result + ((string[currentChar] - 48) * digitPosition);
+			let currentChar = currentChar - 1;
+			let digitPosition = digitPosition * 10;
+		}
+		
+		let result = ~result + 1;
+		
+		return result;
+		
+		
     }
 
     /** Sets this string to hold a representation of the given value. */
@@ -108,4 +144,11 @@ class String {
     function char doubleQuote() {
 		return 34;
     }
+	
+	method boolean isDigit(char c){
+		if(c > 47 & c < 58){
+			return true;
+		}
+		return false;
+	}
 }
