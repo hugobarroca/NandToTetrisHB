@@ -123,9 +123,48 @@ class String {
     }
 
     /** Sets this string to hold a representation of the given value. */
+	//12345
     method void setInt(int val) {
-		let string[0] = val;
-		let nextIndex = 1;
+		var int value;
+		var int temp;
+		var int digits;
+		
+		let nextIndex = 0;
+		let value = val;
+		let digits = 0;
+		
+		if(val > -1){
+			while(value > 0){
+				let value = value / 10;
+				let digits = digits + 1;
+			}
+			
+			let value = val;
+			while(digits > 0){ 
+				let temp = value - ((value / 10) * 10);
+				let string[digits - 1] = temp + 48;
+				let value = value / 10;
+				let digits = digits - 1;
+				let nextIndex = nextIndex + 1;
+			}
+			return;
+		}
+		
+		let value = -val;
+		while(value > 0){
+			let value = value / 10;
+			let digits = digits + 1;
+		}
+		
+		let value = -val;
+		while(digits > 0){ 
+			let temp = value - ((value / 10) * 10);
+			let string[digits] = temp + 48;
+			let value = value / 10;
+			let digits = digits - 1;
+			let nextIndex = nextIndex + 1;
+		}
+		let string[0] = 45;
 		return;
 		
     }
