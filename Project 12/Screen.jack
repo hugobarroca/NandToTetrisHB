@@ -20,6 +20,11 @@ class Screen {
 
     /** Erases the entire screen. */
     function void clearScreen() {
+		var boolean tempColor;
+		let tempColor = currentColor;
+		let currentColor = false;
+		do Screen.drawRectangle(0,0,511,255);
+		let currentColor = tempColor;
 		return;		
     }
 
@@ -186,6 +191,17 @@ class Screen {
 
     /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
     function void drawCircle(int x, int y, int r) {
+		var int dy;
+		if(r > 181){
+			return;
+		}
+		
+		let dy = -r;
+		
+		while(dy < (r + 1)){
+			do Screen.drawLine(x - Math.sqrt((r*r)-(dy*dy)), y + dy, x + Math.sqrt((r*r) - (dy*dy)), y + dy);
+			let dy = dy + 1;
+		}
 		return;
     }
 }
