@@ -77,7 +77,7 @@ class Screen {
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
-		var int a, b, dx, dy, diff;
+		var int a, b, dx, dy, diff, bigX, smallX, bigY, smallY;
 		
 
 		let a = 0;
@@ -86,35 +86,26 @@ class Screen {
 		let dx = x2 - x1;
 		let dy = y2 - y1;
 		
-		if( x1 = x2 ){
-			let dy = y2 - y1; // 0-225 = -225
-			if(dy > 0){
-				while(b < (dy + 1)){
-					do Screen.drawPixel(x1, y1 + b);
-					let b = b + 1;
-				}
-			}else {
-				while(b > (dy - 1)){ //0>-226
-					do Screen.drawPixel(x1, y1 + b);
-					let b = b - 1;
-				}
+		if (x1 = x2){
+			let bigY = Math.max(y1, y2);
+			let smallY = Math.min(y1, y2);
+			
+			while(smallY < (bigY + 1)){
+				do Screen.drawPixel(x1, smallY);
+				let smallY = smallY + 1;
 			}
 		}
 		
-		if( y1 = y2 ){
-			let dx = x2 - x1; // 0-225 = -225
-			if(dx > 0){
-				while(a < (dx + 1)){
-					do Screen.drawPixel(x1 + a, y1);
-					let a = a + 1;
-				}
-			}else {
-				while(a > (dx - 1)){ //0>-226
-					do Screen.drawPixel(x1 + a, y1);
-					let a = a - 1;
-				}
+		if (y1 = y2){
+			let bigX = Math.max(x1, x2);
+			let smallX = Math.min(x1, x2);
+			
+			while(smallX < (bigX + 1)){
+				do Screen.drawPixel(smallX, y1);
+				let smallX = smallX + 1;
 			}
 		}
+		
 		
 		//NE
 		if(x1 < x2 & y1 > y2){
