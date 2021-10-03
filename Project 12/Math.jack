@@ -28,7 +28,7 @@ class Math {
 		let twoToThe[12] = 4096;
 		let twoToThe[13] = 8192;
 		let twoToThe[14] = 16384;
-		let twoToThe[15] = -32768;
+		let twoToThe[15] = ~32767;
 		return;
     }
 
@@ -67,16 +67,45 @@ class Math {
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
     function int divide(int x, int y) {
-		var int q;
+		var boolean isNegative;
+		var int absX, absY, q;
 		
-		if (x > y){
+		let absX = Math.abs(x);
+		let absY = Math.abs(y);
+		
+		if( ~(((x > 0)&(y > 0))|((x < 0)&(y < 0))) ){
+			let isNegative = true;
+		}else{
+			let isNegative = false;
+		}
+		
+		if (absY > absX){
 			return 0;
 		}
-		let q = Math.divide(2, 2 * y);
-		if(x - 2 * q * y){
-			return 2 * q;
+		
+		//Detect overflows
+		if ((y > 0) & ((y * 2) < 0) ){
+			return 0;
+		}
+		
+
+		
+		
+		let q = Math.divide(absX, 2 * absY);
+		let q = Math.abs(q);
+		
+		if((absX - (2 * q * absY)) < absY){
+			if(isNegative){
+				return -2 * q;
+			}else{
+				return 2 * q;
+			}
 		}else{
-			return 2 * q + 1;
+			if(isNegative){
+				return -2 * q + 1;
+			}else{
+				return 2 * q + 1;
+			}
 		}
     }
 
