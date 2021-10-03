@@ -111,14 +111,17 @@ class Math {
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
-		var int y, j;
+		var int y, j, comparison;
 		let y = 0;
 		let j = 7;
 		
 		while(j > -1){
-			if(Math.power(y + Math.power(2, j), 2) < x - 1){
-				let y = y + Math.power(2, j);
+			let comparison = Math.power((y + Math.power(2, j)), 2);
+			
+			if((comparison - 1 < (x)) & ( comparison > 0)){
+				let y = (y + Math.power(2, j));
 			}
+			let j = j - 1;
 		}
 		return y;
     }
@@ -153,13 +156,15 @@ class Math {
 	
 	function int power(int x, int y){
 		var int i, sum;
+		
 		let sum = x;
-		let i = 0;
+		let i = 1;
+		
 		if(y = 0){
 			return 1;
 		}
 		while(i < y){
-			let sum = sum * y;
+			let sum = sum * x;
 			let i = i + 1;
 		}
 		return sum;
