@@ -10,11 +10,29 @@
  * the screen is indexed (0,0).
  */
 class Screen {
+	static Array twoToThe;
 	static boolean currentColor;
 
     /** Initializes the Screen. */
     function void init() {
 		let currentColor = true;
+		let twoToThe = Array.new(15);
+		let twoToThe[0]  = 1;
+		let twoToThe[1]  = 2;
+		let twoToThe[2]  = 4;
+		let twoToThe[3]  = 8;
+		let twoToThe[4]  = 16;
+		let twoToThe[5]  = 32;
+		let twoToThe[6]  = 64;
+		let twoToThe[7]  = 128;
+		let twoToThe[8]  = 256;
+		let twoToThe[9]  = 512;
+		let twoToThe[10] = 1024;
+		let twoToThe[11] = 2048;
+		let twoToThe[12] = 4096;
+		let twoToThe[13] = 8192;
+		let twoToThe[14] = 16384;
+		let twoToThe[15] = ~32767;
 		return;
     }
 
@@ -37,29 +55,19 @@ class Screen {
 
     /** Draws the (x,y) pixel, using the current color. */
     function void drawPixel(int x, int y) {
-		var int address;
-		var int value;
-		var int pixel;
-		var int i;
-		var int result;
+		var int address, value, bitToChange, i, result;
 		
 		let address = (32 * y) + (x / 16);
 		let value = Memory.peek(16384 + address);
 		
-		let pixel = x - ((x / 16) * 16);
+		// x % 16
+		let bitToChange = x - ((x / 16) * 16);
 		
-		let i = 0;
-		let result = 1;
-		while (i < pixel){
-			let result = result * 2;
-			let i = i + 1;
-		}
 		
-		if(~currentColor & (value & result = result)){
-			let value = value - result;
-		}
-		if(currentColor & ~(value & result = result)){
-			let value = value + result;
+		if(currentColor){
+			let value = value | twoToThe[bitToChange];
+		} else {
+			let value = value & (~twoToThe[bitToChange]);
 		}
 		
 		do Memory.poke(16384 + address, value);

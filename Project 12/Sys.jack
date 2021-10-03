@@ -32,7 +32,7 @@ class Sys {
 		var int delay;
 		
 		let delay = 0;
-		while(delay < 30000){
+		while(delay < 100){
 			let delay = delay + 1;
 		}
 		return;
