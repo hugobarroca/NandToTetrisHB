@@ -16,7 +16,7 @@ class Screen {
     /** Initializes the Screen. */
     function void init() {
 		let currentColor = true;
-		let twoToThe = Array.new(15);
+		let twoToThe = Array.new(16);
 		let twoToThe[0]  = 1;
 		let twoToThe[1]  = 2;
 		let twoToThe[2]  = 4;
@@ -32,7 +32,7 @@ class Screen {
 		let twoToThe[12] = 4096;
 		let twoToThe[13] = 8192;
 		let twoToThe[14] = 16384;
-		// let twoToThe[15] = ~32767;
+		let twoToThe[15] = -32767-1;
 		return;
     }
 
@@ -43,7 +43,7 @@ class Screen {
 		let currentColor = false;
 		do Screen.drawRectangle(0,0,511,255);
 		let currentColor = tempColor;
-		return;	
+		return;		
     }
 
     /** Sets the current color, to be used for all subsequent drawXXX commands.
@@ -55,7 +55,7 @@ class Screen {
 
     /** Draws the (x,y) pixel, using the current color. */
     function void drawPixel(int x, int y) {
-		var int address, value, bitToChange;
+		var int address, value, bitToChange, i, result;
 		
 		let address = (32 * y) + (x / 16);
 		let value = Memory.peek(16384 + address);
@@ -77,52 +77,44 @@ class Screen {
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
-		var int a, b, dx, dy, diff, bigX, smallX, bigY, smallY;
+		var int a, b, dx, dy, diff;
 		
-		if (x1 = x2){
-			let bigY = Math.max(y1, y2);
-			let smallY = Math.min(y1, y2);
-			
-			while(smallY < (bigY + 1)){
-				do Screen.drawPixel(x1, smallY);
-				let smallY = smallY + 1;
-			}
-			return;
-		}
-		
-		if (y1 = y2){
-			let bigX = Math.max(x1, x2);
-			let smallX = Math.min(x1, x2);
-			
-			while(smallX < (bigX + 1)){
-				do Screen.drawPixel(smallX, y1);
-				let smallX = smallX + 1;
-			}
-			return;
-		}
-		
+
 		let a = 0;
 		let b = 0;
 		let diff = 0;
-		let bigY = Math.max(y1, y2);
-		let smallY = Math.min(y1, y2);
-		let bigX = Math.max(x1, x2);
-		let smallX = Math.min(x1, x2);
+		let dx = x2 - x1;
+		let dy = y2 - y1;
 		
-		let dx = bigX - smallX;
-		let dy = bigY - smallY;
+		if( x1 = x2 ){
+			let dy = y2 - y1; // 0-225 = -225
+			if(dy > 0){
+				while(b < (dy + 1)){
+					do Screen.drawPixel(x1, y1 + b);
+					let b = b + 1;
+				}
+			}else {
+				while(b > (dy - 1)){ //0>-226
+					do Screen.drawPixel(x1, y1 + b);
+					let b = b - 1;
+				}
+			}
+		}
 		
-		
-		// while ((a < (dx + 1)) & (b > (dy - 1))){
-			// do Screen.drawPixel(smallX + a, smallY + b);
-			// if(diff < 0){
-				// let a = a + 1;
-				// let diff = diff + dy;
-			// } else {
-				// let b = b - 1;
-				// let diff = diff - dx;
-			// }
-		// }
+		if( y1 = y2 ){
+			let dx = x2 - x1; // 0-225 = -225
+			if(dx > 0){
+				while(a < (dx + 1)){
+					do Screen.drawPixel(x1 + a, y1);
+					let a = a + 1;
+				}
+			}else {
+				while(a > (dx - 1)){ //0>-226
+					do Screen.drawPixel(x1 + a, y1);
+					let a = a - 1;
+				}
+			}
+		}
 		
 		//NE
 		if(x1 < x2 & y1 > y2){
@@ -205,7 +197,7 @@ class Screen {
 		return;
     }
 
-    // /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+    /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
     function void drawCircle(int x, int y, int r) {
 		var int dy;
 		if(r > 181){
