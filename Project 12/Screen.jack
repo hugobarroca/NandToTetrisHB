@@ -48,7 +48,7 @@ class Screen {
 			let address = address + 1;
 		}
 		
-		return;		
+		return;	
     }
 
     /** Sets the current color, to be used for all subsequent drawXXX commands.
@@ -60,13 +60,13 @@ class Screen {
 
     /** Draws the (x,y) pixel, using the current color. */
     function void drawPixel(int x, int y) {
-		var int address, value, bitToChange, i, result;
+		var int address, value, bitToChange;
 		
 		let address = (32 * y) + (x / 16);
 		let value = Memory.peek(16384 + address);
 		
 		// x % 16
-		let bitToChange = x - ((x / 16) * 16);
+		let bitToChange = x & 15;
 		
 		
 		if(currentColor){
