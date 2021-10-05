@@ -32,7 +32,7 @@ class Screen {
 		let twoToThe[12] = 4096;
 		let twoToThe[13] = 8192;
 		let twoToThe[14] = 16384;
-		let twoToThe[15] = ~32767;
+		// let twoToThe[15] = ~32767;
 		return;
     }
 
@@ -43,7 +43,7 @@ class Screen {
 		let currentColor = false;
 		do Screen.drawRectangle(0,0,511,255);
 		let currentColor = tempColor;
-		return;		
+		return;	
     }
 
     /** Sets the current color, to be used for all subsequent drawXXX commands.
@@ -55,7 +55,7 @@ class Screen {
 
     /** Draws the (x,y) pixel, using the current color. */
     function void drawPixel(int x, int y) {
-		var int address, value, bitToChange, i, result;
+		var int address, value, bitToChange;
 		
 		let address = (32 * y) + (x / 16);
 		let value = Memory.peek(16384 + address);
@@ -79,13 +79,6 @@ class Screen {
     function void drawLine(int x1, int y1, int x2, int y2) {
 		var int a, b, dx, dy, diff, bigX, smallX, bigY, smallY;
 		
-
-		let a = 0;
-		let b = 0;
-		let diff = 0;
-		let dx = x2 - x1;
-		let dy = y2 - y1;
-		
 		if (x1 = x2){
 			let bigY = Math.max(y1, y2);
 			let smallY = Math.min(y1, y2);
@@ -94,6 +87,7 @@ class Screen {
 				do Screen.drawPixel(x1, smallY);
 				let smallY = smallY + 1;
 			}
+			return;
 		}
 		
 		if (y1 = y2){
@@ -104,8 +98,31 @@ class Screen {
 				do Screen.drawPixel(smallX, y1);
 				let smallX = smallX + 1;
 			}
+			return;
 		}
 		
+		let a = 0;
+		let b = 0;
+		let diff = 0;
+		let bigY = Math.max(y1, y2);
+		let smallY = Math.min(y1, y2);
+		let bigX = Math.max(x1, x2);
+		let smallX = Math.min(x1, x2);
+		
+		let dx = bigX - smallX;
+		let dy = bigY - smallY;
+		
+		
+		// while ((a < (dx + 1)) & (b > (dy - 1))){
+			// do Screen.drawPixel(smallX + a, smallY + b);
+			// if(diff < 0){
+				// let a = a + 1;
+				// let diff = diff + dy;
+			// } else {
+				// let b = b - 1;
+				// let diff = diff - dx;
+			// }
+		// }
 		
 		//NE
 		if(x1 < x2 & y1 > y2){
@@ -188,7 +205,7 @@ class Screen {
 		return;
     }
 
-    /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+    // /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
     function void drawCircle(int x, int y, int r) {
 		var int dy;
 		if(r > 181){
